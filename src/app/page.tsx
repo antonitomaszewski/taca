@@ -1,19 +1,28 @@
 "use client";
 
-import { Box, Typography, Button, AppBar, Toolbar, Container, Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Link as MuiLink } from "@mui/material";
+import { useState } from "react";
+import { Box, Typography, Button, AppBar, Toolbar, Container, Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Link as MuiLink, InputAdornment, IconButton, Modal, Grid, Card, CardMedia, CardContent } from "@mui/material";
+import SearchIcon from '@mui/icons-material/Search';
+import MapIcon from '@mui/icons-material/Map';
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+
+const kosciolyDemo = [
+  { nazwa: "Katedra Wrocławska", img: "/katedra_wroclaw.jpg" },
+  { nazwa: "Parafia św. Anny", img: "/globe.svg" },
+  { nazwa: "Parafia św. Jana", img: "/globe.svg" },
+];
 
 export default function Home() {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [haslo, setHaslo] = useState('');
+  const [mapOpen, setMapOpen] = useState(false);
+  const [search, setSearch] = useState('');
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
-    // Usuwamy focus z przycisku po zamknięciu modala
     setTimeout(() => {
       const btn = document.getElementById('login-btn');
       if (btn) (btn as HTMLButtonElement).blur();
@@ -22,13 +31,14 @@ export default function Home() {
 
   return (
     <Box sx={{ bgcolor: "#f8f9fa", minHeight: "100vh" }}>
+      {/* AppBar bez zmian */}
       <AppBar position="static" color="primary" elevation={0}>
         <Toolbar sx={{ maxWidth: 1200, mx: 'auto', width: '100%' }}>
-          <Typography variant="h5" sx={{ flexGrow: 1, fontWeight: 800, letterSpacing: 1, color: 'white' }}>
-            taca.pl
+          <Typography variant="h5" sx={{ flexGrow: 1, fontWeight: 800, letterSpacing: 1, color: 'white', fontFamily: 'Montserrat, Arial, sans-serif', textTransform: 'uppercase' }}>
+            
           </Typography>
           <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button color="inherit" href="/dodaj-kosciol" sx={{ fontWeight: 600, bgcolor: 'rgba(255,255,255,0.08)', borderRadius: 2, px: 3, ':hover': { bgcolor: 'rgba(255,255,255,0.15)' } }}>
+            <Button color="inherit" href="/nowa-parafia" sx={{ fontWeight: 600, bgcolor: 'rgba(255,255,255,0.08)', borderRadius: 2, px: 3, ':hover': { bgcolor: 'rgba(255,255,255,0.15)' } }}>
               Zarejestruj Kościół
             </Button>
             <Button
@@ -42,75 +52,104 @@ export default function Home() {
           </Box>
         </Toolbar>
       </AppBar>
-      <Container maxWidth="md" sx={{ py: 8, display: 'flex', alignItems: 'center', minHeight: 'calc(100vh - 64px)' }}>
-        {/* Lewa kolumna (hasło, logo) */}
-        <Box sx={{ flex: 1, pr: { md: 8 }, display: { xs: 'none', md: 'block' } }}>
-          <Typography variant="h2" sx={{ fontWeight: 800, color: 'primary.main', mb: 2, letterSpacing: -1 }}>
-            Wesprzyj swoją parafię
-          </Typography>
-          <Typography variant="h5" sx={{ color: 'text.secondary', mb: 4, fontWeight: 400 }}>
-            Nowoczesna platforma do płatności na parafię – szybko, bezpiecznie, online.
-          </Typography>
-          <Image src="/globe.svg" alt="Logo taca" width={120} height={120} style={{ marginBottom: 16 }} />
-        </Box>
-        {/* Prawa kolumna (panel logowania/rejestracji) */}
-        <Paper
-          elevation={3}
-          sx={{
-            p: { xs: 3, md: 5 },
-            borderRadius: 4,
-            maxWidth: 400,
-            mx: 'auto',
-            width: '100%',
-            minWidth: { xs: 'unset', md: 350 },
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            alignItems: 'center',
-          }}
-        >
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: 'primary.main', textAlign: 'center' }}>
-            Zaloguj się do taca.online
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            href="/mapa"
-            sx={{ px: 5, py: 1.5, fontSize: '1.1rem', mb: 2, width: '100%' }}
-          >
-            Przeglądaj parafie
-          </Button>
-          <Box sx={{ width: '100%' }}>
-            <Button
-              variant="outlined"
-              color="primary"
-              size="large"
-              href="/dodaj-kosciol"
-              sx={{ px: 4, width: '100%' }}
-            >
-              Zarejestruj Kościół
-            </Button>
-          </Box>
-          <Box sx={{ width: '100%', mt: 2 }}>
-            <Button
-              variant="outlined"
-              color="primary"
-              size="large"
-              onClick={handleOpen}
-              sx={{ px: 4, width: '100%' }}
-            >
-              Zaloguj się
-            </Button>
-          </Box>
-          <Typography variant="body2" sx={{ mt: 2, textAlign: 'center', color: 'text.secondary' }}>
-            Nie masz konta?{' '}
-            <MuiLink href="/rejestracja" color="primary" underline="hover">
-              Zarejestruj się
-            </MuiLink>
-          </Typography>
-        </Paper>
+      {/* Główna sekcja hero */}
+      <Container maxWidth="lg" sx={{ py: 8, minHeight: 500 }}>
+        <Grid container spacing={6} alignItems="center" justifyContent="center">
+          {/* Lewa kolumna */}
+          <Grid>
+            <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+              <Typography variant="h2" sx={{ fontWeight: 900, color: 'primary.main', mb: 2, fontFamily: 'Montserrat, Arial, sans-serif', letterSpacing: -2 }}>
+                Taca.pl
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 700, mb: 2 }}>
+                Wspieraj swoją parafię
+              </Typography>
+              <Typography variant="h6" sx={{ mb: 4, color: 'text.secondary', maxWidth: 420 }}>
+                Nowoczesna platforma do płatności na parafię – szybko, bezpiecznie, online. Dołącz do społeczności wspierających lokalne parafie!
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                href="/dodaj-kosciol"
+                sx={{ px: 5, py: 1.5, fontSize: '1.1rem', mb: 2 }}
+              >
+                Zarejestruj Parafię
+              </Button>
+              <Box>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  size="large"
+                  href="/pytania"
+                  sx={{ px: 4, mt: 2 }}
+                >
+                  Zobacz jak to działa
+                </Button>
+              </Box>
+            </Box>
+          </Grid>
+          {/* Prawa kolumna - zdjęcia parafii */}
+          <Grid>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-end' }, gap: 2 }}>
+              {kosciolyDemo.map((k, i) => (
+                <Card key={i} sx={{ display: 'flex', alignItems: 'center', mb: 2, boxShadow: 2, minWidth: 320, maxWidth: 360 }}>
+                  <CardMedia>
+                    <Image src={k.img} alt={k.nazwa} width={80} height={80} style={{ borderRadius: 8, margin: 8 }} />
+                  </CardMedia>
+                  <CardContent>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{k.nazwa}</Typography>
+                  </CardContent>
+                </Card>
+              ))}
+            </Box>
+          </Grid>
+        </Grid>
       </Container>
+      {/* Sekcja: Zobacz parafie, które do nas dołączyły */}
+      <Container maxWidth="md" sx={{ py: 8 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, mb: 4, textAlign: 'center' }}>
+          Zobacz parafie, które do nas dołączyły
+        </Typography>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, justifyContent: 'center', alignItems: 'center' }}>
+          <TextField
+            placeholder="Znajdź Twoją parafię"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              )
+            }}
+            sx={{ minWidth: 260, maxWidth: 340 }}
+          />
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<MapIcon />}
+            onClick={() => setMapOpen(true)}
+            sx={{ minWidth: 180 }}
+          >
+            Znajdź na mapie
+          </Button>
+        </Box>
+      </Container>
+      {/* Popup z mapą */}
+      <Modal open={mapOpen} onClose={() => setMapOpen(false)}>
+        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'background.paper', boxShadow: 24, p: 4, borderRadius: 3, minWidth: 320, minHeight: 400 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>Mapa parafii (demo)</Typography>
+          <Box sx={{ width: 320, height: 320, bgcolor: '#e0e0e0', borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {/* Tu można wstawić komponent mapy lub placeholder */}
+            <Typography variant="body2" color="text.secondary">Mapa parafii – wkrótce</Typography>
+          </Box>
+          <Button variant="outlined" color="primary" sx={{ mt: 3 }} onClick={() => setMapOpen(false)} fullWidth>
+            Zamknij
+          </Button>
+        </Box>
+      </Modal>
+      {/* Dialog logowania bez zmian */}
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Zaloguj się</DialogTitle>
         <DialogContent>

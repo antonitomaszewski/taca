@@ -11,7 +11,14 @@ export default function Home() {
   const [haslo, setHaslo] = useState('');
 
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    // Usuwamy focus z przycisku po zamknięciu modala
+    setTimeout(() => {
+      const btn = document.getElementById('login-btn');
+      if (btn) (btn as HTMLButtonElement).blur();
+    }, 0);
+  };
 
   return (
     <Box sx={{ bgcolor: "#f8f9fa", minHeight: "100vh" }}>
@@ -24,7 +31,12 @@ export default function Home() {
             <Button color="inherit" href="/dodaj-kosciol" sx={{ fontWeight: 600, bgcolor: 'rgba(255,255,255,0.08)', borderRadius: 2, px: 3, ':hover': { bgcolor: 'rgba(255,255,255,0.15)' } }}>
               Zarejestruj Kościół
             </Button>
-            <Button color="inherit" sx={{ fontWeight: 600, bgcolor: 'white', color: 'primary.main', borderRadius: 2, px: 3, boxShadow: 1, ':hover': { bgcolor: '#f0f2f5' } }} onClick={handleOpen}>
+            <Button
+              id="login-btn"
+              color="inherit"
+              sx={{ fontWeight: 600, bgcolor: 'white', color: 'primary.main', borderRadius: 2, px: 3, boxShadow: 1, ':hover': { bgcolor: '#f0f2f5' } }}
+              onClick={handleOpen}
+            >
               Zaloguj
             </Button>
           </Box>

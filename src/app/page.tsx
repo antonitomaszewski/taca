@@ -25,7 +25,7 @@ export default function Home() {
       <AppBar position="static" color="primary" elevation={0}>
         <Toolbar sx={{ maxWidth: 1200, mx: 'auto', width: '100%' }}>
           <Typography variant="h5" sx={{ flexGrow: 1, fontWeight: 800, letterSpacing: 1, color: 'white' }}>
-            taca.online
+            taca.pl
           </Typography>
           <Box sx={{ display: 'flex', gap: 2 }}>
             <Button color="inherit" href="/dodaj-kosciol" sx={{ fontWeight: 600, bgcolor: 'rgba(255,255,255,0.08)', borderRadius: 2, px: 3, ':hover': { bgcolor: 'rgba(255,255,255,0.15)' } }}>

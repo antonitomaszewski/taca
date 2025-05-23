@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 // Poprawka domyślnego markera Leaflet (Next.js SSR)
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -29,6 +30,7 @@ interface MapComponentProps {
 export default function MapComponent({ search }: MapComponentProps) {
   const [koscioly, setKoscioly] = useState<Kosciol[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     fetch('/api/koscioly')
@@ -55,6 +57,13 @@ export default function MapComponent({ search }: MapComponentProps) {
         <Marker key={kosciol.id} position={[kosciol.lat, kosciol.lng]}>
           <Popup>
             <b>{kosciol.nazwa}</b><br />{kosciol.miejscowosc}
+            <br />
+            <button
+              style={{marginTop:8, padding:'6px 16px', background:'#1976d2', color:'#fff', border:'none', borderRadius:4, cursor:'pointer'}}
+              onClick={() => router.push(`/kosciol/${kosciol.id}`)}
+            >
+              Wybierz
+            </button>
           </Popup>
         </Marker>
       ))}

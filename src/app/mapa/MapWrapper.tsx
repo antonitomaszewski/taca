@@ -25,6 +25,10 @@ const MapComponent = dynamic(() => import('./MapComponent'), {
   )
 });
 
-export default function MapWrapper() {
-  return <MapComponent />;
+interface MapWrapperProps {
+  search: string;
+}
+
+export default function MapWrapper({ search }: MapWrapperProps) {
+  return <MapComponent search={search} />;
 }

@@ -22,7 +22,11 @@ interface Kosciol {
   lng: number;
 }
 
-export default function MapComponent() {
+interface MapComponentProps {
+  search: string;
+}
+
+export default function MapComponent({ search }: MapComponentProps) {
   const [koscioly, setKoscioly] = useState<Kosciol[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,13 +39,19 @@ export default function MapComponent() {
       });
   }, []);
 
+  // Filtrowanie kościołów po nazwie lub miejscowości
+  const filtered = koscioly.filter(k =>
+    k.nazwa.toLowerCase().includes(search.toLowerCase()) ||
+    k.miejscowosc.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <MapContainer center={[52.2297, 21.0122]} zoom={6} style={{ height: '100%', width: '100%' }}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      {!loading && koscioly.map(kosciol => (
+      {!loading && filtered.map(kosciol => (
         <Marker key={kosciol.id} position={[kosciol.lat, kosciol.lng]}>
           <Popup>
             <b>{kosciol.nazwa}</b><br />{kosciol.miejscowosc}

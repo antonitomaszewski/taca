@@ -10,8 +10,11 @@ import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import MapWrapper from './MapWrapper';
+import { useState } from 'react';
 
 export default function MapaPage() {
+  const [search, setSearch] = useState('');
+
   return (
     <Box sx={{ bgcolor: '#f5f5f5', minHeight: '100vh' }}>
       <AppBar position="static" color="primary">
@@ -30,9 +33,11 @@ export default function MapaPage() {
             label="Wyszukaj kościół..."
             variant="outlined"
             sx={{ mb: 2 }}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
           />
           <Box sx={{ height: 400, width: '100%' }}>
-            <MapWrapper />
+            <MapWrapper search={search} />
           </Box>
         </Paper>
       </Box>

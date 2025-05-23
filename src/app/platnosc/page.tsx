@@ -29,12 +29,12 @@ export default function PlatnoscPage() {
 
   const kwoty = ['10', '20', '50', '100', '200', '500', '1000'];
   const metody = [
-    { value: 'blik', label: 'BLIK' },
-    { value: 'karta', label: 'Karta' },
-    { value: 'apple', label: 'Apple Pay' },
-    { value: 'google', label: 'Google Pay' },
-    { value: 'paypal', label: 'PayPal' },
-    { value: 'przelew', label: 'Przelew' },
+    { value: 'blik', label: 'BLIK', icon: '/blik.png' },
+    { value: 'karta', label: 'Karta', icon: '/karta.png' },
+    { value: 'apple', label: 'Apple Pay', icon: '/applepay.svg' },
+    { value: 'google', label: 'Google Pay', icon: '/googlepay.svg' },
+    { value: 'paypal', label: 'PayPal', icon: '/paypal.svg.png' },
+    // { value: 'przelew', label: 'Przelew', icon: '/przelew.svg' },
   ];
 
   const wybranaKwota = wlasnaKwota !== '' ? wlasnaKwota : kwota;
@@ -56,7 +56,7 @@ export default function PlatnoscPage() {
           <Typography variant="h5" sx={{ mb: 2 }}>
             Wspierasz parafię
           </Typography>
-          <Divider sx={{ mb: 2 }} />
+          <Divider sx={{ marginBottom: 2 }} />
           <Typography variant="subtitle1" sx={{ mb: 1 }}>
             Wybierz kwotę
           </Typography>
@@ -74,21 +74,21 @@ export default function PlatnoscPage() {
               size="small"
               placeholder="inna"
               value={wlasnaKwota}
-              onChange={e => setWlasnaKwota(e.target.value.replace(/[^0-9]/g, ''))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWlasnaKwota(e.target.value.replace(/[^0-9]/g, ''))}
               InputProps={{
                 endAdornment: <InputAdornment position="end">zł</InputAdornment>,
               }}
               sx={{ width: 90 }}
             />
           </Box>
-          <Divider sx={{ mb: 2 }} />
+          <Divider sx={{ marginBottom: 2 }} />
           <Typography variant="subtitle1" sx={{ mb: 1 }}>
             Wybierz metodę płatności
           </Typography>
           <RadioGroup
             row
             value={metoda}
-            onChange={e => setMetoda(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMetoda(e.target.value)}
             sx={{ mb: 2 }}
           >
             {metody.map(m => (
@@ -96,31 +96,36 @@ export default function PlatnoscPage() {
                 key={m.value}
                 value={m.value}
                 control={<Radio />}
-                label={m.label}
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <img src={m.icon} alt={m.label} style={{ height: 24, width: 'auto' }} />
+                    {m.label}
+                  </Box>
+                }
               />
             ))}
           </RadioGroup>
-          <Divider sx={{ mb: 2 }} />
+          <Divider sx={{ marginBottom: 2 }} />
           <TextField
             fullWidth
             label="E-mail"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
             sx={{ mb: 2 }}
           />
           <TextField
             fullWidth
             label="Podpis (opcjonalnie)"
             value={podpis}
-            onChange={e => setPodpis(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPodpis(e.target.value)}
             sx={{ mb: 2 }}
           />
           <FormControlLabel
-            control={<Checkbox checked={ukryjPodpis} onChange={e => setUkryjPodpis(e.target.checked)} />}
+            control={<Checkbox checked={ukryjPodpis} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUkryjPodpis(e.target.checked)} />}
             label="Ukryj mój podpis na liście wpłat"
             sx={{ mb: 2 }}
           />
-          <Divider sx={{ mb: 2 }} />
+          <Divider sx={{ marginBottom: 2 }} />
           <Typography variant="subtitle1" sx={{ mb: 1 }}>
             Podsumowanie
           </Typography>
@@ -137,12 +142,12 @@ export default function PlatnoscPage() {
             <span>{suma} zł</span>
           </Box>
           <FormControlLabel
-            control={<Checkbox checked={zgodaRegulamin} onChange={e => setZgodaRegulamin(e.target.checked)} />}
+            control={<Checkbox checked={zgodaRegulamin} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setZgodaRegulamin(e.target.checked)} />}
             label={<span>Akceptuję <a href="#" target="_blank" rel="noopener noreferrer">regulamin</a> i <a href="#" target="_blank" rel="noopener noreferrer">politykę prywatności</a>.</span>}
             sx={{ mb: 1 }}
           />
           <FormControlLabel
-            control={<Checkbox checked={zgodaMarketing} onChange={e => setZgodaMarketing(e.target.checked)} />}
+            control={<Checkbox checked={zgodaMarketing} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setZgodaMarketing(e.target.checked)} />}
             label={<span>Otrzymuj okazjonalne wiadomości marketingowe.</span>}
             sx={{ mb: 2 }}
           />

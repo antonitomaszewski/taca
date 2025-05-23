@@ -16,6 +16,8 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Divider from '@mui/material/Divider';
 import Alert from '@mui/material/Alert';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 export default function PlatnoscPage() {
   const [kwota, setKwota] = useState('50');
@@ -26,6 +28,7 @@ export default function PlatnoscPage() {
   const [ukryjPodpis, setUkryjPodpis] = useState(false);
   const [zgodaRegulamin, setZgodaRegulamin] = useState(false);
   const [zgodaMarketing, setZgodaMarketing] = useState(false);
+  const [typPlatnosci, setTypPlatnosci] = useState<'jednorazowa' | 'abonamentowa'>('jednorazowa');
 
   const kwoty = ['10', '20', '50', '100', '200', '500', '1000'];
   const metody = [
@@ -53,6 +56,20 @@ export default function PlatnoscPage() {
       </AppBar>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
         <Paper elevation={3} sx={{ p: 3, width: '100%', maxWidth: 700 }}>
+          {/* Przełącznik typu płatności */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+            <ToggleButtonGroup
+              value={typPlatnosci}
+              exclusive
+              onChange={(_e, value) => value && setTypPlatnosci(value)}
+              aria-label="typ płatności"
+              size="large"
+              color="primary"
+            >
+              <ToggleButton value="jednorazowa">Jednorazowa</ToggleButton>
+              <ToggleButton value="abonamentowa">Abonamentowa</ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
           <Typography variant="h5" sx={{ mb: 2 }}>
             Wspierasz parafię
           </Typography>

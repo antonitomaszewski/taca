@@ -4,6 +4,13 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useEffect } from 'react';
 import Link from 'next/link';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
 
 // Poprawka domyślnego markera Leaflet (Next.js SSR)
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -22,28 +29,39 @@ export default function MapaPage() {
   }, []);
 
   return (
-    <main>
-      <h1>Mapa kościołów</h1>
-      <nav>
-        <Link href="/platnosc">Płatność</Link> |{' '}
-        <Link href="/kosciol/1">Przykładowy kościół</Link>
-      </nav>
-      <div style={{ margin: '1em 0' }}>
-        <input type="text" placeholder="Wyszukaj kościół..." style={{ width: 300, padding: 8 }} />
-      </div>
-      <div style={{ height: '400px', width: '100%', maxWidth: 600 }}>
-        <MapContainer center={[52.2297, 21.0122]} zoom={6} style={{ height: '100%', width: '100%' }}>
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    <Box sx={{ bgcolor: '#f5f5f5', minHeight: '100vh' }}>
+      <AppBar position="static" color="primary">
+        <Toolbar>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            Mapa kościołów
+          </Typography>
+          <Button color="inherit" href="/platnosc">Płatność</Button>
+          <Button color="inherit" href="/kosciol/1">Przykładowy kościół</Button>
+        </Toolbar>
+      </AppBar>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
+        <Paper elevation={3} sx={{ p: 3, mb: 3, width: '100%', maxWidth: 600 }}>
+          <TextField
+            fullWidth
+            label="Wyszukaj kościół..."
+            variant="outlined"
+            sx={{ mb: 2 }}
           />
-          <Marker position={[52.2297, 21.0122]}>
-            <Popup>
-              Przykładowy kościół<br />Warszawa
-            </Popup>
-          </Marker>
-        </MapContainer>
-      </div>
-    </main>
+          <Box sx={{ height: 400, width: '100%' }}>
+            <MapContainer center={[52.2297, 21.0122]} zoom={6} style={{ height: '100%', width: '100%' }}>
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <Marker position={[52.2297, 21.0122]}>
+                <Popup>
+                  Przykładowy kościół<br />Warszawa
+                </Popup>
+              </Marker>
+            </MapContainer>
+          </Box>
+        </Paper>
+      </Box>
+    </Box>
   );
 }

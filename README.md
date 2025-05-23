@@ -135,3 +135,6 @@ Podsumowanie:
 - Całość w jednym repozytorium (monorepo Next.js).
 - Szybki start, łatwe skalowanie, nowoczesny wygląd, minimum konfiguracji.
 - Możliwość rozwoju o panel admina, statystyki, newsletter.
+
+## Krok 2
+Utworzenie szkieletu trzech głównych widoków: mapa, kościół, płatność.

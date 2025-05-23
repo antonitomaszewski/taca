@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -45,6 +46,14 @@ export default function Home() {
             Read our docs
           </a>
         </div>
+
+        <h1>Strona główna</h1>
+        <nav>
+          <Link href="/mapa">Mapa</Link> |{" "}
+          <Link href="/platnosc">Płatność</Link> |{" "}
+          <Link href="/kosciol/1">Przykładowy kościół</Link>
+        </nav>
+        <p>Witamy na stronie płatności parafialnych.</p>
       </main>
       <footer className={styles.footer}>
         <a

@@ -52,7 +52,7 @@ export default function PlatnoscPage() {
         </Toolbar>
       </AppBar>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
-        <Paper elevation={3} sx={{ p: 3, width: '100%', maxWidth: 500 }}>
+        <Paper elevation={3} sx={{ p: 3, width: '100%', maxWidth: 700 }}>
           <Typography variant="h5" sx={{ mb: 2 }}>
             Wspierasz parafię
           </Typography>
@@ -85,26 +85,61 @@ export default function PlatnoscPage() {
           <Typography variant="subtitle1" sx={{ mb: 1 }}>
             Wybierz metodę płatności
           </Typography>
-          <RadioGroup
-            row
-            value={metoda}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMetoda(e.target.value)}
-            sx={{ mb: 2 }}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: 3,
+              mb: 2,
+              justifyItems: 'center',
+            }}
           >
             {metody.map(m => (
-              <FormControlLabel
-                key={m.value}
-                value={m.value}
-                control={<Radio />}
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <img src={m.icon} alt={m.label} style={{ height: 24, width: 'auto' }} />
-                    {m.label}
-                  </Box>
-                }
-              />
+              <Box key={m.value}>
+                <FormControlLabel
+                  value={m.value}
+                  control={<Radio sx={{ display: 'none' }} />}
+                  label={
+                    <Box
+                      sx={{
+                        border: metoda === m.value ? '2px solid #1976d2' : '2px solid #e0e0e0',
+                        borderRadius: 2,
+                        p: 2,
+                        cursor: 'pointer',
+                        background: metoda === m.value ? '#e3f0ff' : '#fff',
+                        transition: 'border 0.2s, background 0.2s',
+                        boxShadow: metoda === m.value ? 2 : 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: 80,
+                        width: 110,
+                        overflow: 'hidden',
+                      }}
+                      onClick={() => setMetoda(m.value)}
+                    >
+                      <img
+                        src={m.icon}
+                        alt={m.label}
+                        style={{
+                          maxHeight: 48,
+                          maxWidth: 80,
+                          width: '100%',
+                          height: 'auto',
+                          objectFit: 'contain',
+                          display: 'block',
+                          margin: '0 auto',
+                        }}
+                      />
+                    </Box>
+                  }
+                  labelPlacement="top"
+                  sx={{ m: 0, width: '100%' }}
+                  checked={metoda === m.value}
+                />
+              </Box>
             ))}
-          </RadioGroup>
+          </Box>
           <Divider sx={{ marginBottom: 2 }} />
           <TextField
             fullWidth

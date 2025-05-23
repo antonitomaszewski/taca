@@ -1,8 +1,6 @@
+// src/app/mapa/page.tsx
 'use client';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-import { useEffect } from 'react';
+
 import Link from 'next/link';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -11,23 +9,9 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
-
-// Poprawka domyślnego markera Leaflet (Next.js SSR)
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: '/globe.svg', // Możesz podmienić na własną ikonę
-  iconUrl: '/globe.svg',
-  shadowUrl: '',
-});
+import MapWrapper from './MapWrapper';
 
 export default function MapaPage() {
-  useEffect(() => {
-    // Fix for map rendering in Next.js
-    if (typeof window !== 'undefined') {
-      import('leaflet');
-    }
-  }, []);
-
   return (
     <Box sx={{ bgcolor: '#f5f5f5', minHeight: '100vh' }}>
       <AppBar position="static" color="primary">
@@ -48,17 +32,7 @@ export default function MapaPage() {
             sx={{ mb: 2 }}
           />
           <Box sx={{ height: 400, width: '100%' }}>
-            <MapContainer center={[52.2297, 21.0122]} zoom={6} style={{ height: '100%', width: '100%' }}>
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <Marker position={[52.2297, 21.0122]}>
-                <Popup>
-                  Przykładowy kościół<br />Warszawa
-                </Popup>
-              </Marker>
-            </MapContainer>
+            <MapWrapper />
           </Box>
         </Paper>
       </Box>

@@ -32,13 +32,15 @@ export default function PlatnoscPage() {
 
   const kwoty = ['10', '20', '50', '100', '200', '500', '1000'];
   const metody = [
-    { value: 'blik', label: 'BLIK', icon: '/blik.png' },
-    { value: 'karta', label: 'Karta', icon: '/karta.png' },
-    { value: 'apple', label: 'Apple Pay', icon: '/applepay.svg' },
-    { value: 'google', label: 'Google Pay', icon: '/googlepay.svg' },
-    { value: 'paypal', label: 'PayPal', icon: '/paypal.svg.png' },
-    // { value: 'przelew', label: 'Przelew', icon: '/przelew.svg' },
+    { value: 'blik', label: 'BLIK', icon: '/blik.png', abonamentowa: true },
+    { value: 'karta', label: 'Karta', icon: '/karta.png', abonamentowa: true },
+    { value: 'apple', label: 'Apple Pay', icon: '/applepay.svg', abonamentowa: true },
+    { value: 'google', label: 'Google Pay', icon: '/googlepay.svg', abonamentowa: true },
+    { value: 'paypal', label: 'PayPal', icon: '/paypal.svg.png', abonamentowa: true },
+    { value: 'ing', label: 'Ing', icon: '/ing.svg', abonamentowa: false },
   ];
+
+  const metodyWidoczne = metody.filter(m => typPlatnosci === 'jednorazowa' || m.abonamentowa);
 
   const wybranaKwota = wlasnaKwota !== '' ? wlasnaKwota : kwota;
   const suma = Number(wybranaKwota || 0);
@@ -111,7 +113,7 @@ export default function PlatnoscPage() {
               justifyItems: 'center',
             }}
           >
-            {metody.map(m => (
+            {metodyWidoczne.map(m => (
               <Box key={m.value}>
                 <FormControlLabel
                   value={m.value}

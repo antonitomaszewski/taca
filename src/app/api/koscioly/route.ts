@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 // Docelowo tu będzie pobieranie z bazy danych
 const koscioly = [
   {
-    id: '1',
+    id: 1,
     nazwa: 'Parafia św. Anny',
     miejscowosc: 'Warszawa',
     lat: 52.2297,

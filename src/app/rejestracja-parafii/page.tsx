@@ -85,19 +85,6 @@ export default function RejestracjaParafii() {
             >
               Taca.pl
             </Typography>
-            <Button 
-              component={Link}
-              href="/mapa"
-              variant="contained"
-              sx={{ 
-                fontWeight: 500,
-                bgcolor: '#4caf50',
-                color: 'white',
-                '&:hover': { bgcolor: '#45a049' }
-              }}
-            >
-              Znajdź parafię
-            </Button>
           </Toolbar>
         </Container>
       </AppBar>

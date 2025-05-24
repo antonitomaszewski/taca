@@ -11,3 +11,5 @@ https://pomagam.pl/
 info każdej parafii: http://www.psiepole.archidiecezja.wroc.pl/kontakt.html
 
 svg repo https://www.svgrepo.com/vectors/map-marker/multicolor/
+
+npx prisma studio

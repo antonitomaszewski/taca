@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, TextField, Paper, InputAdornment, Typography, List, ListItem, ListItemText, Button } from '@mui/material';
+import { Box, TextField, Paper, InputAdornment, Typography, List, ListItem, ListItemText } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useState, useEffect } from 'react';
@@ -22,17 +22,40 @@ export default function MapaPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Mockowe dane - zastąp prawdziwym API
-    const mockParafie: Parafia[] = [
-      { id: '1', nazwa: 'Parafia Katedralna', miejscowosc: 'Wrocław', lat: 51.1079, lng: 17.0385 },
-      { id: '2', nazwa: 'Parafia św. Anny', miejscowosc: 'Kraków', lat: 50.0647, lng: 19.9450 },
-      { id: '3', nazwa: 'Parafia św. Jana', miejscowosc: 'Warszawa', lat: 52.2297, lng: 21.0122 },
-    ];
-    
-    setTimeout(() => {
-      setParafie(mockParafie);
-      setLoading(false);
-    }, 500);
+    // Pobierz prawdziwe dane z API
+    const fetchParafie = async () => {
+      try {
+        const response = await fetch('/api/koscioly');
+        if (!response.ok) {
+          throw new Error('Failed to fetch parishes');
+        }
+        const data = await response.json();
+        
+        // Mapuj dane z API na format używany przez mapę
+        const mappedParafie: Parafia[] = data.map((parish: any) => ({
+          id: parish.id,
+          nazwa: parish.nazwa,
+          miejscowosc: parish.miejscowosc,
+          lat: parish.lat,
+          lng: parish.lng
+        }));
+        
+        setParafie(mappedParafie);
+      } catch (error) {
+        console.error('Error fetching parishes:', error);
+        // Fallback do mockowych danych w przypadku błędu
+        const mockParafie: Parafia[] = [
+          { id: '1', nazwa: 'Parafia Katedralna', miejscowosc: 'Wrocław', lat: 51.1079, lng: 17.0385 },
+          { id: '2', nazwa: 'Parafia św. Anny', miejscowosc: 'Kraków', lat: 50.0647, lng: 19.9450 },
+          { id: '3', nazwa: 'Parafia św. Jana', miejscowosc: 'Warszawa', lat: 52.2297, lng: 21.0122 },
+        ];
+        setParafie(mockParafie);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchParafie();
   }, []);
 
   // Filtrowanie parafii

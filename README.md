@@ -169,6 +169,7 @@ Refaktor nawigacji - napraw niespójne linki
 npm install prisma @prisma/client
 npm install -D prisma
 ```
+Prisma to ORM dla postgresa w typescripcie
 - Schema dla parafii, celów zbiórek, płatności
 - Seed z prawdziwymi danymi parafii z Wrocławia
 - Zastąpienie mockowych API prawdziwymi

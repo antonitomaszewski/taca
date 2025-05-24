@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Parish {
+  id              String   @id @default(cuid())
+  name            String
+  address         String
+  city            String   @default("Wrocław")
+  zipCode         String?
+  latitude        Float
+  longitude       Float
+  phone           String?
+  email           String?
+  website         String?
+  description     String?
+  pastor          String?
+  massSchedule    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  fundraisingGoals FundraisingGoal[]
+  payments         Payment[]
+  
+  @@map("parishes")
+}
+
+model FundraisingGoal {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  targetAmount Float
+  currentAmount Float   @default(0)
+  deadline    DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  parishId    String
+  parish      Parish   @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  payments    Payment[]
+  
+  @@map("fundraising_goals")
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  amount        Float
+  donorName     String?
+  donorEmail    String?
+  message       String?
+  isAnonymous   Boolean  @default(false)
+  status        PaymentStatus @default(PENDING)
+  paymentMethod String?
+  transactionId String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  parishId         String
+  parish           Parish @relation(fields: [parishId], references: [id], onDelete: Cascade)
+  fundraisingGoalId String?
+  fundraisingGoal   FundraisingGoal? @relation(fields: [fundraisingGoalId], references: [id], onDelete: SetNull)
+  
+  @@map("payments")
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}

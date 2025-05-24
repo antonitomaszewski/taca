@@ -21,9 +21,8 @@ interface KosciolPageProps {
 // Prawdziwy API call
 async function getKosciolData(id: string) {
   try {
-    // Próbuj używać zmiennej środowiskowej, fallback na localhost
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
-                   (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+    // W SSR używamy bezwzględnego URL do API
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     
     const response = await fetch(`${baseUrl}/api/koscioly/${id}`, {
       cache: 'no-store', // Zawsze pobieraj świeże dane

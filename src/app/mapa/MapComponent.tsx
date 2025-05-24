@@ -10,8 +10,10 @@ import { useRouter } from 'next/navigation';
 // Poprawka domyślnego markera Leaflet (Next.js SSR)
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: '/globe.svg', // Możesz podmienić na własną ikonę
-  iconUrl: '/globe.svg',
+  // iconRetinaUrl: '/map-marker.svg.png', // Możesz podmienić na własną ikonę
+  // iconUrl: '/map-marker.svg.png',
+  iconRetinaUrl: '/map-marker-2.svg', // Możesz podmienić na własną ikonę
+  iconUrl: '/map-marker-2.svg',
   shadowUrl: '',
 });
 

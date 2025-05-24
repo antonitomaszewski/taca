@@ -67,7 +67,7 @@ async function getParafiaData(id: string) {
       zebrane: data.zebrane || 0,
       cel: data.cel || 10000,
       wspierajacy: data.wspierajacy || 0,
-      pozostalo: data.pozostalo || 0,
+      pozostalo: data.pozostalo || null,
       cele: data.cele?.map((cel: any) => ({
         id: cel.id,
         tytul: cel.tytul || 'Brak tytułu',
@@ -120,15 +120,17 @@ export default async function ParafiaPage({ params }: ParafiaPageProps) {
               >
                 Taca.pl
               </Typography>
-              <Button 
-                variant="contained"
-                href="/mapa"
-                sx={{ 
-                  fontWeight: 500,
-                  bgcolor: '#4caf50',
-                  color: 'white',
-                  '&:hover': { bgcolor: '#45a049' }
+              <Button
+                variant="outlined"
+                sx={{
+                  color: '#4caf50',
+                  borderColor: '#4caf50',
+                  '&:hover': {
+                    bgcolor: '#4caf50',
+                    color: 'white',
+                  },
                 }}
+                href="/mapa"
               >
                 Znajdź parafię
               </Button>
@@ -440,31 +442,6 @@ export default async function ParafiaPage({ params }: ParafiaPageProps) {
               >
                 Taca.pl
               </Typography>
-              <Button 
-                variant="contained"
-                href="/"
-                sx={{ 
-                  mr: 2, 
-                  fontWeight: 500,
-                  bgcolor: '#4caf50',
-                  color: 'white',
-                  '&:hover': { bgcolor: '#45a049' }
-                }}
-              >
-                Taca.pl
-              </Button>
-              <Button 
-                variant="contained"
-                href="/mapa"
-                sx={{ 
-                  fontWeight: 500,
-                  bgcolor: '#4caf50',
-                  color: 'white',
-                  '&:hover': { bgcolor: '#45a049' }
-                }}
-              >
-                Znajdź parafię
-              </Button>
             </Toolbar>
           </Container>
         </AppBar>

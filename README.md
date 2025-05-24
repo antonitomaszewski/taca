@@ -142,6 +142,10 @@ Utworzenie szkieletu trzech głównych widoków: mapa, kościół, płatność.
 
 
 
+ROZMOWY:
+
+
+
 NASTĘPNE KROKI
 Rekomendacje na następne kroki:
 Ujednolicenie API - stwórz pełne CRUD endpointy
@@ -150,3 +154,46 @@ Baza danych - zastąp mockowe dane prawdziwą bazą (Prisma + PostgreSQL?)
 Autentykacja - login/register dla administratorów parafii
 SEO optymalizacja - meta tagi, sitemap
 Refaktor nawigacji - napraw niespójne linki
+
+Świetnie! Masz rację - z Gitem nie potrzebujemy backup'ów. 
+
+## 🎯 **Co powinniśmy teraz zrobić - moja rekomendacja:**
+
+### **1. Uporządkować obecny kod (commit: "refactor: clean up project structure and fix SSR/CSR architecture")**
+- ✅ Mamy już dobrą strukturę SSR vs CSR
+- ✅ Strona główna i mapa działają
+- ⚠️ Ale jeszcze nie sprawdziliśmy wszystkich błędów kompilacji
+
+### **2. Dodać prawdziwą bazę danych (commit: "feat: add Prisma with PostgreSQL and seed data")**
+```bash
+npm install prisma @prisma/client
+npm install -D prisma
+```
+- Schema dla parafii, celów zbiórek, płatności
+- Seed z prawdziwymi danymi parafii z Wrocławia
+- Zastąpienie mockowych API prawdziwymi
+
+### **3. Poprawić UX mapy (commit: "feat: improve map UX with better markers and responsive design")**
+- Dodać ładne ikony markerów (masz SVG w notatkach: `map-marker.svg`)
+- Poprawić responsywność na mobile
+- Dodać loading states
+
+### **4. Dodać autentykację (commit: "feat: add NextAuth authentication for parish admins")**
+- NextAuth.js dla administratorów parafii
+- Panel administratora do zarządzania profilem parafii
+
+---
+
+## 🚀 **Moja sugestia - zacznijmy od punktu 2:**
+
+**Dlaczego baza danych jako pierwsza?**
+- Mamy już UI, ale dane są mockami
+- Baza da nam prawdziwe fundamenty
+- Będziemy mogli przetestować całą aplikację z prawdziwymi danymi
+
+**Chcesz, żebym przygotował Prisma schema i konfigurację?** 
+
+Mogę zacząć od:
+1. Schema dla `Parafia`, `CelZbiorki`, `Platnosc`
+2. Seed z prawdziwymi parafiami z Wrocławia
+3. Zastąpienie `/api/koscioly` prawdziwym endpoint'em

@@ -6,47 +6,38 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Parish } from '../../interfaces/types';
 
 // Poprawka domyślnego markera Leaflet (Next.js SSR)
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
-  // iconRetinaUrl: '/map-marker.svg.png', // Możesz podmienić na własną ikonę
-  // iconUrl: '/map-marker.svg.png',
-  iconRetinaUrl: '/map-marker-2.svg', // Możesz podmienić na własną ikonę
+  iconRetinaUrl: '/map-marker-2.svg',
   iconUrl: '/map-marker-2.svg',
   shadowUrl: '',
 });
 
-interface Parafia {
-  id: string;
-  nazwa: string;
-  miejscowosc: string;
-  lat: number;
-  lng: number;
-}
-
 interface MapComponentProps {
   search: string;
-  parafie: Parafia[];
+  parishes: Parish[];
 }
 
-export default function MapComponent({ search, parafie }: MapComponentProps) {
+export default function MapComponent({ search, parishes }: MapComponentProps) {
   const router = useRouter();
 
   return (
-    <MapContainer center={[52.2297, 21.0122]} zoom={6} style={{ height: '100%', width: '100%' }}>
+    <MapContainer center={[51.1079, 17.0385]} zoom={13} style={{ height: '100%', width: '100%' }}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      {parafie.map(parafia => (
-        <Marker key={parafia.id} position={[parafia.lat, parafia.lng]}>
+      {parishes.map(parish => (
+        <Marker key={parish.id} position={[parish.latitude, parish.longitude]}>
           <Popup>
-            <b>{parafia.nazwa}</b><br />{parafia.miejscowosc}
+            <b>{parish.name}</b><br />{parish.city}
             <br />
             <button
               style={{marginTop:8, padding:'6px 16px', background:'#1976d2', color:'#fff', border:'none', borderRadius:4, cursor:'pointer'}}
-              onClick={() => router.push(`/kosciol/${parafia.id}`)}
+              onClick={() => router.push(`/kosciol/${parish.id}`)}
             >
               Wybierz
             </button>

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
-import { parishToParafia } from '../../../interfaces/types';
 
 export async function GET() {
   try {
@@ -13,11 +12,8 @@ export async function GET() {
         }
       }
     });
-
-    // Convert to legacy format for backward compatibility
-    const parafie = parishes.map(parishToParafia);
     
-    return NextResponse.json(parafie);
+    return NextResponse.json(parishes);
   } catch (error) {
     console.error('Error fetching parishes:', error);
     return NextResponse.json({ error: 'Failed to fetch parishes' }, { status: 500 });

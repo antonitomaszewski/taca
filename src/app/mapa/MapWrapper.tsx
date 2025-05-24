@@ -4,6 +4,7 @@
 import dynamic from 'next/dynamic';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { Parish } from '../../interfaces/types';
 
 // Dynamiczny import komponentu mapy z wyłączonym SSR
 const MapComponent = dynamic(() => import('./MapComponent'), { 
@@ -25,19 +26,13 @@ const MapComponent = dynamic(() => import('./MapComponent'), {
   )
 });
 
-interface Parafia {
-  id: string;
-  nazwa: string;
-  miejscowosc: string;
-  lat: number;
-  lng: number;
-}
-
 interface MapWrapperProps {
   search: string;
-  parafie: Parafia[];
+  parishes: Parish[];
 }
 
-export default function MapWrapper({ search, parafie }: MapWrapperProps) {
-  return <MapComponent search={search} parafie={parafie} />;
+export default function MapWrapper({ search, parishes }: MapWrapperProps) {
+  return (
+    <MapComponent search={search} parishes={parishes} />
+  );
 }

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../../lib/prisma';
-import { parishToParafia } from '../../../../interfaces/types';
 
 interface RouteParams {
   params: {
@@ -83,11 +82,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       aktywny: goal.isActive
     }));
 
-    // Convert to legacy format
-    const parafia = parishToParafia(parish);
-    
     const result = {
-      ...parafia,
+      ...parish,
       opis: parish.description || 'Brak opisu parafii.',
       photoUrl: '/katedra_wroclaw.jpg', // Default image for now
       zebrane: totalRaised,

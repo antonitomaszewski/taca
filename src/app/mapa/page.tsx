@@ -6,65 +6,40 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useState, useEffect } from 'react';
 import MapWrapper from './MapWrapper';
 import { useRouter } from 'next/navigation';
-
-interface Parafia {
-  id: string;
-  nazwa: string;
-  miejscowosc: string;
-  lat: number;
-  lng: number;
-}
+import { Parish } from '../../interfaces/types';
 
 export default function MapaPage() {
   const [search, setSearch] = useState('');
-  const [parafie, setParafie] = useState<Parafia[]>([]);
+  const [parishes, setParishes] = useState<Parish[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    // Pobierz prawdziwe dane z API
-    const fetchParafie = async () => {
+    const fetchParishes = async () => {
       try {
         const response = await fetch('/api/koscioly');
         if (!response.ok) {
           throw new Error('Failed to fetch parishes');
         }
         const data = await response.json();
-        
-        // Mapuj dane z API na format używany przez mapę
-        const mappedParafie: Parafia[] = data.map((parish: any) => ({
-          id: parish.id,
-          nazwa: parish.nazwa,
-          miejscowosc: parish.miejscowosc,
-          lat: parish.lat,
-          lng: parish.lng
-        }));
-        
-        setParafie(mappedParafie);
+        setParishes(data);
       } catch (error) {
         console.error('Error fetching parishes:', error);
-        // Fallback do mockowych danych w przypadku błędu
-        const mockParafie: Parafia[] = [
-          { id: '1', nazwa: 'Parafia Katedralna', miejscowosc: 'Wrocław', lat: 51.1079, lng: 17.0385 },
-          { id: '2', nazwa: 'Parafia św. Anny', miejscowosc: 'Kraków', lat: 50.0647, lng: 19.9450 },
-          { id: '3', nazwa: 'Parafia św. Jana', miejscowosc: 'Warszawa', lat: 52.2297, lng: 21.0122 },
-        ];
-        setParafie(mockParafie);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchParafie();
+    fetchParishes();
   }, []);
 
   // Filtrowanie parafii
-  const filteredParafie = parafie.filter(p =>
-    p.nazwa.toLowerCase().includes(search.toLowerCase()) ||
-    p.miejscowosc.toLowerCase().includes(search.toLowerCase())
+  const filteredParishes = parishes.filter(p =>
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
+    p.city.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleSelectParafia = (id: string) => {
+  const handleSelectParish = (id: string) => {
     router.push(`/kosciol/${id}`);
   };
 
@@ -115,7 +90,7 @@ export default function MapaPage() {
             <Box sx={{ p: 3, textAlign: 'center' }}>
               <Typography color="text.secondary">Ładowanie parafii...</Typography>
             </Box>
-          ) : filteredParafie.length === 0 ? (
+          ) : filteredParishes.length === 0 ? (
             <Box sx={{ p: 3, textAlign: 'center' }}>
               <Typography color="text.secondary">
                 {search ? 'Nie znaleziono parafii' : 'Brak parafii'}
@@ -123,20 +98,20 @@ export default function MapaPage() {
             </Box>
           ) : (
             <List sx={{ p: 0 }}>
-              {filteredParafie.map((parafia) => (
+              {filteredParishes.map((parish) => (
                 <ListItem
-                  key={parafia.id}
+                  key={parish.id}
                   sx={{ 
                     borderBottom: '1px solid #f0f0f0',
                     cursor: 'pointer',
                     '&:hover': { bgcolor: '#f8f9fa' }
                   }}
-                  onClick={() => handleSelectParafia(parafia.id)}
+                  onClick={() => handleSelectParish(parish.id)}
                 >
                   <LocationOnIcon sx={{ color: 'primary.main', mr: 2 }} />
                   <ListItemText
-                    primary={parafia.nazwa}
-                    secondary={parafia.miejscowosc}
+                    primary={parish.name}
+                    secondary={parish.city}
                     primaryTypographyProps={{ fontWeight: 600 }}
                   />
                 </ListItem>
@@ -148,7 +123,7 @@ export default function MapaPage() {
 
       {/* Mapa - prawa strona */}
       <Box sx={{ flex: 1, position: 'relative', display: { xs: 'none', md: 'block' } }}>
-        <MapWrapper search={search} parafie={filteredParafie} />
+        <MapWrapper search={search} parishes={filteredParishes} />
       </Box>
     </Box>
   );

@@ -18,7 +18,6 @@ import {
   Description as DescriptionIcon,
   CloudUpload as CloudUploadIcon
 } from '@mui/icons-material';
-import Link from 'next/link';
 
 export default function EdycjaParafii() {
   const [formData, setFormData] = useState({
@@ -93,15 +92,20 @@ export default function EdycjaParafii() {
       <AppBar position="static" sx={{ bgcolor: 'white', boxShadow: 1 }}>
         <Container maxWidth="lg">
           <Toolbar sx={{ px: 0 }}>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#2e7d32', fontWeight: 'bold' }}>
-              TACA
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                flexGrow: 1, 
+                fontWeight: 600, 
+                color: '#4caf50',
+                cursor: 'pointer',
+                textDecoration: 'none'
+              }}
+              component="a"
+              href="/"
+            >
+              Taca.pl
             </Typography>
-            <Link href="/" passHref>
-              <Button sx={{ color: '#2e7d32', mr: 2 }}>Strona główna</Button>
-            </Link>
-            <Button variant="contained" sx={{ bgcolor: '#2e7d32', '&:hover': { bgcolor: '#1b5e20' } }}>
-              Zaloguj się
-            </Button>
           </Toolbar>
         </Container>
       </AppBar>

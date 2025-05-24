@@ -17,7 +17,7 @@ export default function MapaPage() {
   useEffect(() => {
     const fetchParishes = async () => {
       try {
-        const response = await fetch('/api/koscioly');
+        const response = await fetch('/api/parishes');
         if (!response.ok) {
           throw new Error('Failed to fetch parishes');
         }
@@ -40,7 +40,7 @@ export default function MapaPage() {
   );
 
   const handleSelectParish = (id: string) => {
-    router.push(`/kosciol/${id}`);
+    router.push(`/parafia/${id}`);
   };
 
   return (

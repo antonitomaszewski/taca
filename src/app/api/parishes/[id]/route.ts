@@ -82,8 +82,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       aktywny: goal.isActive
     }));
 
+    // Return data in format expected by frontend (Polish field names)
     const result = {
-      ...parish,
+      id: parish.id,
+      nazwa: parish.name,
+      miejscowosc: parish.city,
+      adres: parish.address,
+      telefon: parish.phone,
+      email: parish.email,
+      strona: parish.website,
+      proboszcz: parish.pastor,
+      rozkladMszy: parish.massSchedule,
       opis: parish.description || 'Brak opisu parafii.',
       photoUrl: '/katedra_wroclaw.jpg', // Default image for now
       zebrane: totalRaised,

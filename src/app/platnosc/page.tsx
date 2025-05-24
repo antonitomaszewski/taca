@@ -53,7 +53,7 @@ export default function PlatnoscPage() {
             Płatność
           </Typography>
           <Button color="inherit" href="/mapa">Mapa</Button>
-          <Button color="inherit" href="/kosciol/1">Przykładowy kościół</Button>
+          <Button color="inherit" href="/parish/cmb234kya0000j70oqi3wm0bo">Przykładowy kościół</Button>
         </Toolbar>
       </AppBar>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>

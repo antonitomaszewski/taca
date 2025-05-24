@@ -15,7 +15,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: '',
 });
 
-interface Kosciol {
+interface Parafia {
   id: string;
   nazwa: string;
   miejscowosc: string;
@@ -25,27 +25,11 @@ interface Kosciol {
 
 interface MapComponentProps {
   search: string;
+  parafie: Parafia[];
 }
 
-export default function MapComponent({ search }: MapComponentProps) {
-  const [koscioly, setKoscioly] = useState<Kosciol[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function MapComponent({ search, parafie }: MapComponentProps) {
   const router = useRouter();
-
-  useEffect(() => {
-    fetch('/api/koscioly')
-      .then(res => res.json())
-      .then(data => {
-        setKoscioly(data);
-        setLoading(false);
-      });
-  }, []);
-
-  // Filtrowanie kościołów po nazwie lub miejscowości
-  const filtered = koscioly.filter(k =>
-    k.nazwa.toLowerCase().includes(search.toLowerCase()) ||
-    k.miejscowosc.toLowerCase().includes(search.toLowerCase())
-  );
 
   return (
     <MapContainer center={[52.2297, 21.0122]} zoom={6} style={{ height: '100%', width: '100%' }}>
@@ -53,14 +37,14 @@ export default function MapComponent({ search }: MapComponentProps) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      {!loading && filtered.map(kosciol => (
-        <Marker key={kosciol.id} position={[kosciol.lat, kosciol.lng]}>
+      {parafie.map(parafia => (
+        <Marker key={parafia.id} position={[parafia.lat, parafia.lng]}>
           <Popup>
-            <b>{kosciol.nazwa}</b><br />{kosciol.miejscowosc}
+            <b>{parafia.nazwa}</b><br />{parafia.miejscowosc}
             <br />
             <button
               style={{marginTop:8, padding:'6px 16px', background:'#1976d2', color:'#fff', border:'none', borderRadius:4, cursor:'pointer'}}
-              onClick={() => router.push(`/kosciol/${kosciol.id}`)}
+              onClick={() => router.push(`/kosciol/${parafia.id}`)}
             >
               Wybierz
             </button>

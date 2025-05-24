@@ -138,3 +138,15 @@ Podsumowanie:
 
 ## Krok 2
 Utworzenie szkieletu trzech głównych widoków: mapa, kościół, płatność.
+
+
+
+
+NASTĘPNE KROKI
+Rekomendacje na następne kroki:
+Ujednolicenie API - stwórz pełne CRUD endpointy
+Integracja z prawdziwą bramką płatniczą (Stripe/PayU)
+Baza danych - zastąp mockowe dane prawdziwą bazą (Prisma + PostgreSQL?)
+Autentykacja - login/register dla administratorów parafii
+SEO optymalizacja - meta tagi, sitemap
+Refaktor nawigacji - napraw niespójne linki

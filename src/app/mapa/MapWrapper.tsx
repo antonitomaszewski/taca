@@ -25,10 +25,19 @@ const MapComponent = dynamic(() => import('./MapComponent'), {
   )
 });
 
-interface MapWrapperProps {
-  search: string;
+interface Parafia {
+  id: string;
+  nazwa: string;
+  miejscowosc: string;
+  lat: number;
+  lng: number;
 }
 
-export default function MapWrapper({ search }: MapWrapperProps) {
-  return <MapComponent search={search} />;
+interface MapWrapperProps {
+  search: string;
+  parafie: Parafia[];
+}
+
+export default function MapWrapper({ search, parafie }: MapWrapperProps) {
+  return <MapComponent search={search} parafie={parafie} />;
 }

@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
 import { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -18,6 +19,7 @@ import Divider from '@mui/material/Divider';
 import Alert from '@mui/material/Alert';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Slider from '@mui/material/Slider';
 
 export default function PlatnoscPage() {
   const [kwota, setKwota] = useState('50');
@@ -29,6 +31,8 @@ export default function PlatnoscPage() {
   const [zgodaRegulamin, setZgodaRegulamin] = useState(false);
   const [zgodaMarketing, setZgodaMarketing] = useState(false);
   const [typPlatnosci, setTypPlatnosci] = useState<'jednorazowa' | 'abonamentowa'>('jednorazowa');
+  const [czestotliwoscAbonamentu, setCzestotliwoscAbonamentu] = useState<'tygodniowo' | 'miesiecznie'>('miesiecznie');
+  const [wsparciePlatformy, setWsparciePlatformy] = useState(5); // Domyślnie 5%
 
   const kwoty = ['10', '20', '50', '100', '200', '500', '1000'];
   const metody = [
@@ -44,17 +48,21 @@ export default function PlatnoscPage() {
 
   const wybranaKwota = wlasnaKwota !== '' ? wlasnaKwota : kwota;
   const suma = Number(wybranaKwota || 0);
+  const kwotaWsparciaPlatformy = Math.round((suma * wsparciePlatformy / 100) * 100) / 100;
+  const calkowitaKwota = suma + kwotaWsparciaPlatformy;
 
   return (
     <Box sx={{ bgcolor: '#f5f5f5', minHeight: '100vh' }}>
-      <AppBar position="static" color="primary">
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Płatność
-          </Typography>
-          <Button color="inherit" href="/mapa">Mapa</Button>
-          <Button color="inherit" href="/parish/cmb234kya0000j70oqi3wm0bo">Przykładowy kościół</Button>
-        </Toolbar>
+      <AppBar position="static" sx={{ bgcolor: 'white', color: 'black' }}>
+        <Container maxWidth="lg">
+          <Toolbar>
+            <Link href="/" style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}>
+              <Typography variant="h6" sx={{ color: '#4caf50', fontWeight: 'bold' }}>
+                Taca.pl
+              </Typography>
+            </Link>
+          </Toolbar>
+        </Container>
       </AppBar>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
         <Paper elevation={3} sx={{ p: 3, width: '100%', maxWidth: 700 }}>
@@ -66,12 +74,59 @@ export default function PlatnoscPage() {
               onChange={(_e, value) => value && setTypPlatnosci(value)}
               aria-label="typ płatności"
               size="large"
-              color="primary"
+              sx={{
+                '& .MuiToggleButton-root': {
+                  color: '#4caf50',
+                  borderColor: '#4caf50',
+                  '&.Mui-selected': {
+                    backgroundColor: '#4caf50',
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: '#45a049',
+                    },
+                  },
+                  '&:hover': {
+                    backgroundColor: 'rgba(76, 175, 80, 0.04)',
+                  },
+                },
+              }}
             >
               <ToggleButton value="jednorazowa">Jednorazowa</ToggleButton>
               <ToggleButton value="abonamentowa">Abonamentowa</ToggleButton>
             </ToggleButtonGroup>
           </Box>
+          
+          {/* Częstotliwość abonamentu - pokazuj tylko dla płatności abonamentowych */}
+          {typPlatnosci === 'abonamentowa' && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+              <ToggleButtonGroup
+                value={czestotliwoscAbonamentu}
+                exclusive
+                onChange={(_e, value) => value && setCzestotliwoscAbonamentu(value)}
+                aria-label="częstotliwość abonamentu"
+                size="medium"
+                sx={{
+                  '& .MuiToggleButton-root': {
+                    color: '#4caf50',
+                    borderColor: '#4caf50',
+                    '&.Mui-selected': {
+                      backgroundColor: '#4caf50',
+                      color: 'white',
+                      '&:hover': {
+                        backgroundColor: '#45a049',
+                      },
+                    },
+                    '&:hover': {
+                      backgroundColor: 'rgba(76, 175, 80, 0.04)',
+                    },
+                  },
+                }}
+              >
+                <ToggleButton value="tygodniowo">Co tydzień</ToggleButton>
+                <ToggleButton value="miesiecznie">Co miesiąc</ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+          )}
           <Typography variant="h5" sx={{ mb: 2 }}>
             Wspierasz parafię
           </Typography>
@@ -85,6 +140,14 @@ export default function PlatnoscPage() {
                 key={k}
                 variant={kwota === k && wlasnaKwota === '' ? 'contained' : 'outlined'}
                 onClick={() => { setKwota(k); setWlasnaKwota(''); }}
+                sx={{
+                  color: kwota === k && wlasnaKwota === '' ? 'white' : '#4caf50',
+                  backgroundColor: kwota === k && wlasnaKwota === '' ? '#4caf50' : 'transparent',
+                  borderColor: '#4caf50',
+                  '&:hover': {
+                    backgroundColor: kwota === k && wlasnaKwota === '' ? '#45a049' : 'rgba(76, 175, 80, 0.04)',
+                  },
+                }}
               >
                 {k} zł
               </Button>
@@ -97,7 +160,63 @@ export default function PlatnoscPage() {
               InputProps={{
                 endAdornment: <InputAdornment position="end">zł</InputAdornment>,
               }}
-              sx={{ width: 90 }}
+              sx={{ 
+                width: 90,
+                '& .MuiOutlinedInput-root': {
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#4caf50',
+                  },
+                },
+              }}
+            />
+          </Box>
+          
+          {/* Sekcja wsparcia platformy - przeniesiona tutaj */}
+          <Divider sx={{ marginBottom: 2 }} />
+          <Typography variant="subtitle1" sx={{ mb: 2 }}>
+            Wsparcie platformy Taca.pl (dobrowolne)
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Pomóż nam rozwijać platformę i docierać do większej liczby parafii. Twoje wsparcie pozwala nam utrzymać bezpłatne usługi dla wszystkich użytkowników.
+          </Typography>
+          <Box sx={{ px: 2, mb: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+              <Typography variant="body2">Wsparcie platformy:</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#4caf50' }}>
+                {wsparciePlatformy}% ({kwotaWsparciaPlatformy.toFixed(2)} zł)
+              </Typography>
+            </Box>
+            <Slider
+              value={wsparciePlatformy}
+              onChange={(_e, value) => setWsparciePlatformy(value as number)}
+              min={0}
+              max={20}
+              step={1}
+              marks={[
+                { value: 0, label: '0%' },
+                { value: 5, label: '5%' },
+                { value: 10, label: '10%' },
+                { value: 15, label: '15%' },
+                { value: 20, label: '20%' }
+              ]}
+              sx={{
+                color: '#4caf50',
+                '& .MuiSlider-thumb': {
+                  backgroundColor: '#4caf50',
+                },
+                '& .MuiSlider-track': {
+                  backgroundColor: '#4caf50',
+                },
+                '& .MuiSlider-rail': {
+                  backgroundColor: '#e0e0e0',
+                },
+                '& .MuiSlider-mark': {
+                  backgroundColor: '#bfbfbf',
+                },
+                '& .MuiSlider-markLabel': {
+                  fontSize: '0.75rem',
+                },
+              }}
             />
           </Box>
           <Divider sx={{ marginBottom: 2 }} />
@@ -121,11 +240,11 @@ export default function PlatnoscPage() {
                   label={
                     <Box
                       sx={{
-                        border: metoda === m.value ? '2px solid #1976d2' : '2px solid #e0e0e0',
+                        border: metoda === m.value ? '2px solid #4caf50' : '2px solid #e0e0e0',
                         borderRadius: 2,
                         p: 2,
                         cursor: 'pointer',
-                        background: metoda === m.value ? '#e3f0ff' : '#fff',
+                        background: metoda === m.value ? '#e8f5e8' : '#fff',
                         transition: 'border 0.2s, background 0.2s',
                         boxShadow: metoda === m.value ? 2 : 0,
                         display: 'flex',
@@ -165,17 +284,52 @@ export default function PlatnoscPage() {
             label="E-mail"
             value={email}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-            sx={{ mb: 2 }}
+            sx={{ 
+              mb: 2,
+              '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': {
+                  borderColor: '#4caf50',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                '&.Mui-focused': {
+                  color: '#4caf50',
+                },
+              },
+            }}
           />
           <TextField
             fullWidth
             label="Podpis (opcjonalnie)"
             value={podpis}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPodpis(e.target.value)}
-            sx={{ mb: 2 }}
+            sx={{ 
+              mb: 2,
+              '& .MuiOutlinedInput-root': {
+                '&.Mui-focused fieldset': {
+                  borderColor: '#4caf50',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                '&.Mui-focused': {
+                  color: '#4caf50',
+                },
+              },
+            }}
           />
           <FormControlLabel
-            control={<Checkbox checked={ukryjPodpis} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUkryjPodpis(e.target.checked)} />}
+            control={
+              <Checkbox 
+                checked={ukryjPodpis} 
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUkryjPodpis(e.target.checked)}
+                sx={{
+                  color: '#4caf50',
+                  '&.Mui-checked': {
+                    color: '#4caf50',
+                  },
+                }}
+              />
+            }
             label="Ukryj mój podpis na liście wpłat"
             sx={{ mb: 2 }}
           />
@@ -184,24 +338,46 @@ export default function PlatnoscPage() {
             Podsumowanie
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-            <span>Wsparcie parafii</span>
-            <span>{suma} zł</span>
+            <span>Wsparcie parafii {typPlatnosci === 'abonamentowa' ? `(${czestotliwoscAbonamentu})` : ''}</span>
+            <span>{suma.toFixed(2)} zł</span>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-            <span>Wsparcie platformy</span>
-            <span>0 zł</span>
+            <span>Wsparcie platformy Taca.pl</span>
+            <span>{kwotaWsparciaPlatformy.toFixed(2)} zł</span>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, mb: 2 }}>
             <span>Łączna wpłata</span>
-            <span>{suma} zł</span>
+            <span>{calkowitaKwota.toFixed(2)} zł</span>
           </Box>
           <FormControlLabel
-            control={<Checkbox checked={zgodaRegulamin} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setZgodaRegulamin(e.target.checked)} />}
+            control={
+              <Checkbox 
+                checked={zgodaRegulamin} 
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setZgodaRegulamin(e.target.checked)}
+                sx={{
+                  color: '#4caf50',
+                  '&.Mui-checked': {
+                    color: '#4caf50',
+                  },
+                }}
+              />
+            }
             label={<span>Akceptuję <a href="#" target="_blank" rel="noopener noreferrer">regulamin</a> i <a href="#" target="_blank" rel="noopener noreferrer">politykę prywatności</a>.</span>}
             sx={{ mb: 1 }}
           />
           <FormControlLabel
-            control={<Checkbox checked={zgodaMarketing} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setZgodaMarketing(e.target.checked)} />}
+            control={
+              <Checkbox 
+                checked={zgodaMarketing} 
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setZgodaMarketing(e.target.checked)}
+                sx={{
+                  color: '#4caf50',
+                  '&.Mui-checked': {
+                    color: '#4caf50',
+                  },
+                }}
+              />
+            }
             label={<span>Otrzymuj okazjonalne wiadomości marketingowe.</span>}
             sx={{ mb: 2 }}
           />
@@ -211,9 +387,17 @@ export default function PlatnoscPage() {
             fullWidth
             size="large"
             disabled={!zgodaRegulamin || suma === 0}
-            sx={{ py: 1.5, fontSize: 18 }}
+            sx={{ 
+              py: 1.5, 
+              fontSize: 18,
+              bgcolor: '#4caf50',
+              '&:hover': { bgcolor: '#45a049' }
+            }}
           >
-            Wpłać teraz
+            {typPlatnosci === 'jednorazowa' 
+              ? `Wpłać teraz ${calkowitaKwota.toFixed(2)} zł` 
+              : `Ustaw abonament ${calkowitaKwota.toFixed(2)} zł ${czestotliwoscAbonamentu}`
+            }
           </Button>
           <Alert severity="info" sx={{ mt: 2 }}>
             Bezpieczne płatności online

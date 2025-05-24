@@ -102,6 +102,40 @@ export default async function ParafiaPage({ params }: ParafiaPageProps) {
 
     return (
       <Box sx={{ minHeight: '100vh', bgcolor: '#f8f9fa' }}>
+        {/* Navigation Bar */}
+        <AppBar position="static" sx={{ bgcolor: 'white', boxShadow: 2 }}>
+          <Container maxWidth="lg">
+            <Toolbar sx={{ px: 0 }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  flexGrow: 1, 
+                  fontWeight: 600, 
+                  color: '#4caf50',
+                  cursor: 'pointer',
+                  textDecoration: 'none'
+                }}
+                component="a"
+                href="/"
+              >
+                Taca.pl
+              </Typography>
+              <Button 
+                variant="contained"
+                href="/mapa"
+                sx={{ 
+                  fontWeight: 500,
+                  bgcolor: '#4caf50',
+                  color: 'white',
+                  '&:hover': { bgcolor: '#45a049' }
+                }}
+              >
+                Znajdź parafię
+              </Button>
+            </Toolbar>
+          </Container>
+        </AppBar>
+
         {/* Hero Section */}
         <Container maxWidth="lg" sx={{ pt: 4, pb: 2 }}>
           <Box sx={{ 
@@ -389,21 +423,64 @@ export default async function ParafiaPage({ params }: ParafiaPageProps) {
   } catch (error) {
     return (
       <Box sx={{ bgcolor: '#f5f5f5', minHeight: '100vh' }}>
-        <AppBar position="static" color="primary">
-          <Toolbar>
-            <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              Błąd ładowania
-            </Typography>
-            <Button color="inherit" href="/mapa">Mapa</Button>
-            <Button color="inherit" href="/platnosc">Płatność</Button>
-          </Toolbar>
+        <AppBar position="static" sx={{ bgcolor: 'white', boxShadow: 2 }}>
+          <Container maxWidth="lg">
+            <Toolbar sx={{ px: 0 }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  flexGrow: 1, 
+                  fontWeight: 600, 
+                  color: '#4caf50',
+                  cursor: 'pointer',
+                  textDecoration: 'none'
+                }}
+                component="a"
+                href="/"
+              >
+                Taca.pl
+              </Typography>
+              <Button 
+                variant="contained"
+                href="/"
+                sx={{ 
+                  mr: 2, 
+                  fontWeight: 500,
+                  bgcolor: '#4caf50',
+                  color: 'white',
+                  '&:hover': { bgcolor: '#45a049' }
+                }}
+              >
+                Taca.pl
+              </Button>
+              <Button 
+                variant="contained"
+                href="/mapa"
+                sx={{ 
+                  fontWeight: 500,
+                  bgcolor: '#4caf50',
+                  color: 'white',
+                  '&:hover': { bgcolor: '#45a049' }
+                }}
+              >
+                Znajdź parafię
+              </Button>
+            </Toolbar>
+          </Container>
         </AppBar>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 8 }}>
           <Paper elevation={3} sx={{ p: 4, maxWidth: 500, textAlign: 'center' }}>
             <Typography variant="h5" sx={{ mb: 2 }} color="error">
               Nie można załadować danych parafii
             </Typography>
-            <Button variant="contained" color="primary" href="/mapa">
+            <Button 
+              variant="contained" 
+              sx={{ 
+                bgcolor: '#4caf50',
+                '&:hover': { bgcolor: '#45a049' }
+              }}
+              href="/mapa"
+            >
               Wróć do mapy
             </Button>
           </Paper>

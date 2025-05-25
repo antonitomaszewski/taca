@@ -1,12 +1,13 @@
 'use client';
 
-import { Box, TextField, Paper, InputAdornment, Typography, List, ListItem, ListItemText } from '@mui/material';
+import { Box, TextField, Paper, InputAdornment, Typography, List, ListItem, ListItemText, AppBar, Toolbar, Button, Container } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useState, useEffect } from 'react';
 import MapWrapper from './MapWrapper';
 import { useRouter } from 'next/navigation';
 import { Parish } from '../../interfaces/types';
+import LoginButton from '../components/LoginButton';
 
 export default function MapaPage() {
   const [search, setSearch] = useState('');
@@ -44,7 +45,50 @@ export default function MapaPage() {
   };
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh', bgcolor: '#f5f5f5' }}>
+    <Box sx={{ bgcolor: "#f8f9fa", minHeight: "100vh" }}>
+      {/* AppBar - taki sam jak na stronie głównej */}
+      <AppBar position="static" sx={{ bgcolor: 'white', color: 'black' }} elevation={1}>
+        <Container maxWidth="lg">
+          <Toolbar sx={{ px: 0 }}>
+            <Typography 
+              variant="h5" 
+              sx={{ 
+                flexGrow: 1, 
+                fontWeight: 800, 
+                letterSpacing: 1, 
+                color: '#4caf50', 
+                fontFamily: 'Montserrat, Arial, sans-serif', 
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                textDecoration: 'none'
+              }}
+              component="a"
+              href="/"
+            >
+              Taca.pl
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button 
+                href="/rejestracja-parafii" 
+                sx={{ 
+                  fontWeight: 600, 
+                  color: '#4caf50', 
+                  border: '1px solid #4caf50', 
+                  borderRadius: 2, 
+                  px: 3, 
+                  '&:hover': { bgcolor: '#4caf50', color: 'white' } 
+                }}
+              >
+                Zarejestruj
+              </Button>
+              <LoginButton />
+            </Box>
+          </Toolbar>
+        </Container>
+      </AppBar>
+
+      {/* Główna zawartość mapy */}
+      <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)', bgcolor: '#f5f5f5' }}>
       {/* Panel wyszukiwania - lewa strona */}
       <Paper 
         sx={{ 
@@ -124,6 +168,7 @@ export default function MapaPage() {
       {/* Mapa - prawa strona */}
       <Box sx={{ flex: 1, position: 'relative', display: { xs: 'none', md: 'block' } }}>
         <MapWrapper search={search} parishes={filteredParishes} />
+      </Box>
       </Box>
     </Box>
   );

@@ -6,12 +6,20 @@ import { UserRole } from '@prisma/client'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { nazwaParafii, imieNazwisko, email, telefon, haslo } = body
+    const { nazwaParafii, imieNazwisko, email, telefon, haslo, powtorzHaslo } = body
 
     // Walidacja danych
-    if (!nazwaParafii || !imieNazwisko || !email || !haslo) {
+    if (!nazwaParafii || !imieNazwisko || !email || !haslo || !powtorzHaslo) {
       return NextResponse.json(
         { error: 'Wszystkie pola są wymagane' },
+        { status: 400 }
+      )
+    }
+
+    // Sprawdź czy hasła są identyczne
+    if (haslo !== powtorzHaslo) {
+      return NextResponse.json(
+        { error: 'Hasła nie są identyczne' },
         { status: 400 }
       )
     }

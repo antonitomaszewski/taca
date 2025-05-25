@@ -12,6 +12,7 @@ jest.mock('@/lib/prisma', () => ({
       create: jest.fn(),
     },
     parish: {
+      findFirst: jest.fn(),
       create: jest.fn(),
     },
   },
@@ -44,6 +45,9 @@ describe('/api/register', () => {
       name: 'Test Parish',
     }
 
+    // Mock'uj wszystkie wywołania Prisma
+    mockPrisma.user.findUnique.mockResolvedValue(null) // Użytkownik nie istnieje
+    mockPrisma.parish.findFirst.mockResolvedValue(null) // Parafia nie istnieje
     mockBcrypt.hash.mockResolvedValue('hashedpassword123')
     mockPrisma.$transaction.mockResolvedValue([mockUser, mockParish])
 

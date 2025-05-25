@@ -1,5 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSession, getSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { 
   AppBar, 
   Toolbar, 
@@ -9,7 +11,9 @@ import {
   Container,
   TextField,
   Card,
-  CardContent
+  CardContent,
+  CircularProgress,
+  Alert
 } from '@mui/material';
 import { 
   LocationOn as LocationOnIcon,
@@ -20,6 +24,14 @@ import {
 } from '@mui/icons-material';
 
 export default function EdycjaParafii() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [parishId, setParishId] = useState("");
+  
   const [formData, setFormData] = useState({
     nazwa: "",
     miejscowosc: "",
@@ -33,6 +45,55 @@ export default function EdycjaParafii() {
     celKwota: "",
     celOpis: ""
   });
+
+  // Sprawdź uwierzytelnienie i załaduj dane parafii
+  useEffect(() => {
+    if (status === "loading") return; // Czekaj na sprawdzenie sesji
+    
+    if (status === "unauthenticated") {
+      router.push("/"); // Przekieruj do strony głównej z loginem
+      return;
+    }
+    
+    if (session?.user?.parishId) {
+      loadParishData(session.user.parishId);
+      setParishId(session.user.parishId);
+    } else {
+      setError("Nie masz przypisanej parafii do edycji");
+      setLoading(false);
+    }
+  }, [session, status, router]);
+
+  const loadParishData = async (parishId: string) => {
+    try {
+      const response = await fetch(`/api/parishes/${parishId}`);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Nie udało się załadować danych parafii");
+      }
+      
+      const parish = data.parish;
+      setFormData({
+        nazwa: parish.name || "",
+        miejscowosc: parish.city || "",
+        adres: parish.address || "",
+        telefon: parish.phone || "",
+        email: parish.email || "",
+        strona: parish.website || "",
+        proboszcz: parish.pastor || "",
+        opis: parish.description || "",
+        photoUrl: "", // TODO: Dodać pole na zdjęcie w schema
+        celKwota: "", // TODO: Obsługa fundraising goals
+        celOpis: ""  // TODO: Obsługa fundraising goals
+      });
+      
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Wystąpił błąd podczas ładowania danych");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
@@ -74,16 +135,39 @@ export default function EdycjaParafii() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Walidacja podstawowych pól
     if (!formData.nazwa || !formData.miejscowosc) {
-      alert("Proszę wypełnić przynajmniej nazwę parafii i miejscowość.");
+      setError("Proszę wypełnić przynajmniej nazwę parafii i miejscowość.");
       return;
     }
     
-    // Symulacja zapisywania danych
-    console.log("Zapisano dane:", formData);
-    alert("Profil parafii został pomyślnie zapisany!");
+    setSaving(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await fetch(`/api/parishes/${parishId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Wystąpił błąd podczas zapisywania');
+      }
+
+      setSuccess("Profil parafii został pomyślnie zapisany!");
+      
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Wystąpił nieoczekiwany błąd');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -116,6 +200,29 @@ export default function EdycjaParafii() {
           Edytuj profil parafii
         </Typography>
 
+        {/* Loading State */}
+        {loading && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <CircularProgress color="success" />
+          </Box>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
+
+        {/* Success Message */}
+        {success && (
+          <Alert severity="success" sx={{ mb: 3 }}>
+            {success}
+          </Alert>
+        )}
+
+        {/* Form Content */}
+        {!loading && !error && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {/* Section 1: Basic Information */}
           <Card sx={{ bgcolor: '#e8f5e8', border: '2px solid #4caf50' }}>
@@ -347,18 +454,21 @@ export default function EdycjaParafii() {
               variant="contained" 
               size="large"
               onClick={handleSave}
+              disabled={saving}
               sx={{ 
                 bgcolor: '#2e7d32',
                 px: 4,
                 py: 1.5,
                 fontSize: '1.1rem',
-                '&:hover': { bgcolor: '#1b5e20' }
+                '&:hover': { bgcolor: '#1b5e20' },
+                '&:disabled': { bgcolor: '#cccccc' }
               }}
             >
-              Zapisz profil parafii
+              {saving ? 'Zapisywanie...' : 'Zapisz profil parafii'}
             </Button>
           </Box>
         </Box>
+        )}
       </Container>
     </Box>
   );

@@ -39,29 +39,63 @@ export default function RejestracjaParafii() {
     akceptacjaRegulaminu: false
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
       [field]: e.target.type === 'checkbox' ? e.target.checked : e.target.value
     }));
+    // Wyczyść błąd gdy użytkownik zaczyna pisać
+    if (error) setError("");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.akceptacjaRegulaminu) {
-      alert("Musisz zaakceptować regulamin");
+      setError("Musisz zaakceptować regulamin");
       return;
     }
     
     if (formData.haslo !== formData.powtorzHaslo) {
-      alert("Hasła nie są identyczne");
+      setError("Hasła nie są identyczne");
+      return;
+    }
+
+    if (formData.haslo.length < 6) {
+      setError("Hasło musi mieć co najmniej 6 znaków");
       return;
     }
     
-    // TODO: obsługa rejestracji
-    console.log("Dane rejestracji:", formData);    // Przekierowanie do edycji parafii po rejestracji
-    window.location.href = "/edycja-parafii";
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Wystąpił błąd podczas rejestracji');
+      }
+
+      // Rejestracja udana - przekieruj do edycji parafii
+      alert('Rejestracja przebiegła pomyślnie! Teraz możesz uzupełnić szczegóły swojej parafii.');
+      window.location.href = "/edycja-parafii";
+      
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Wystąpił nieoczekiwany błąd');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -242,14 +276,30 @@ export default function RejestracjaParafii() {
                     }
                   />
 
+                  {error && (
+                    <Box sx={{ 
+                      bgcolor: '#ffebee', 
+                      border: '1px solid #f44336',
+                      borderRadius: 1,
+                      p: 2,
+                      mt: 2
+                    }}>
+                      <Typography color="error" variant="body2">
+                        {error}
+                      </Typography>
+                    </Box>
+                  )}
+
                   <Button
                     type="submit"
                     variant="contained"
                     size="large"
                     fullWidth
+                    disabled={loading}
                     sx={{
                       bgcolor: '#4caf50',
                       '&:hover': { bgcolor: '#45a049' },
+                      '&:disabled': { bgcolor: '#cccccc' },
                       py: 2,
                       fontSize: '1.1rem',
                       fontWeight: 600,
@@ -257,7 +307,7 @@ export default function RejestracjaParafii() {
                       mt: 2
                     }}
                   >
-                    Zarejestruj parafię
+                    {loading ? 'Rejestruję...' : 'Zarejestruj parafię'}
                   </Button>
                 </Box>
               </form>

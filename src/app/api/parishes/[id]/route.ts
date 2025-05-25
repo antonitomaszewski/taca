@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../../../../lib/auth';
 import { prisma } from '../../../../lib/prisma';
 
 interface RouteParams {
@@ -107,6 +109,78 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Error fetching parish details:', error);
     return NextResponse.json({ error: 'Failed to fetch parish details' }, { status: 500 });
+  }
+}
+
+export async function PUT(request: NextRequest, { params }: RouteParams) {
+  try {
+    // Sprawdź uwierzytelnienie
+    const session = await getServerSession(authOptions);
+    
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { error: 'Musisz być zalogowany' },
+        { status: 401 }
+      );
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+    
+    const {
+      nazwa,
+      miejscowosc,
+      adres,
+      telefon,
+      email,
+      strona,
+      proboszcz,
+      opis,
+      photoUrl,
+      celKwota,
+      celOpis
+    } = body;
+
+    // Sprawdź czy użytkownik jest właścicielem tej parafii
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      include: { parish: true }
+    });
+
+    if (!user || user.parishId !== id) {
+      return NextResponse.json(
+        { error: 'Nie masz uprawnień do edycji tej parafii' },
+        { status: 403 }
+      );
+    }
+
+    // Aktualizuj parafię
+    const updatedParish = await prisma.parish.update({
+      where: { id },
+      data: {
+        name: nazwa || undefined,
+        city: miejscowosc || undefined,
+        address: adres || undefined,
+        phone: telefon || undefined,
+        email: email || undefined,
+        website: strona || undefined,
+        pastor: proboszcz || undefined,
+        description: opis || undefined,
+        updatedAt: new Date()
+      }
+    });
+
+    return NextResponse.json({
+      message: 'Parafia została pomyślnie zaktualizowana',
+      parish: updatedParish
+    });
+
+  } catch (error) {
+    console.error('Błąd aktualizacji parafii:', error);
+    return NextResponse.json(
+      { error: 'Wystąpił błąd podczas aktualizacji parafii' },
+      { status: 500 }
+    );
   }
 }
 

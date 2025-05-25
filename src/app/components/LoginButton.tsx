@@ -8,7 +8,15 @@ export default function LoginButton() {
   const [haslo, setHaslo] = useState('');
 
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    // Usuwamy focus z przycisku po zamknięciu dialogu
+    setTimeout(() => {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    }, 0);
+  };
 
   return (
     <>

@@ -27,3 +27,6 @@ ten punkt jest obowiązkowy
 wg mnie ksiądz może albo w interaktywnej mapie znaleźć swoją parafię i kliknąć coś w stylu zatwierdź i wtedy automatycznie uzupełni się adres,
 albo też jeśli ksiądz będzie wpisywał adres własnoręcznie to na mapce powinno być widać co on wpisuje i także się to będzie dało znaleźć w ten sposób
 ( w skrócie: potrzebujemy lokalizacji - albo z mapy, albo z adresu)
+
+czemu w src/interfaces/types.ts nie mamy photoUrl?
+czym się różni interfejs os schemy w bazie

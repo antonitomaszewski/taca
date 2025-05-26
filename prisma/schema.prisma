@@ -28,6 +28,8 @@ model Parish {
   description     String?
   pastor          String?
   massSchedule    String?
+  bankAccount     String?  // Numer konta bankowego
+  uniqueSlug      String?  @unique // Unikalny URL slug np. "katedra-wroclaw"
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   

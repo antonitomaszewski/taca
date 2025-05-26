@@ -277,7 +277,14 @@ export default async function ParafiaPage({ params }: ParafiaPageProps) {
                 <Typography variant="h4" sx={{ fontWeight: 600, mb: 3 }}>
                   O parafii
                 </Typography>
-                <Typography variant="h6" sx={{ lineHeight: 1.8, color: 'text.secondary' }}>
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    lineHeight: 1.8, 
+                    color: 'text.secondary',
+                    whiteSpace: 'pre-wrap' // Zachowuje znaki nowej linii i spacje
+                  }}
+                >
                   {parafia.opis}
                 </Typography>
               </Paper>

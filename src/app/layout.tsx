@@ -19,8 +19,12 @@ export const metadata: Metadata = {
   description: "Nowoczesna platforma do płatności na parafię. Wspieraj lokalną społeczność religijną szybko, bezpiecznie i online.",
   keywords: "parafia, płatności, kościół, wsparcie, taca, darowizny, społeczność religijna",
   authors: [{ name: "Taca.pl" }],
-  viewport: "width=device-width, initial-scale=1",
   robots: "index, follow",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Box, Link as MuiLink, Alert, CircularProgress } from "@mui/material";
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Box, Link as MuiLink, Alert, CircularProgress, Menu, MenuItem } from "@mui/material";
 
 export default function LoginButton() {
   const { data: session, status } = useSession();
@@ -12,6 +12,8 @@ export default function LoginButton() {
   const [haslo, setHaslo] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const menuOpen = Boolean(anchorEl);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -48,8 +50,8 @@ export default function LoginButton() {
         setError('Nieprawidłowy email lub hasło');
       } else if (result?.ok) {
         handleClose();
-        // Przekieruj do dashboardu/edycji parafii
-        router.push('/edycja-parafii');
+        // Pozostań na stronie głównej - nie przekierowuj
+        window.location.reload(); // Odśwież stronę, aby zaktualizować stan
       }
     } catch (error) {
       setError('Wystąpił błąd podczas logowania');
@@ -64,24 +66,65 @@ export default function LoginButton() {
     }
   };
 
-  // Jeśli użytkownik jest już zalogowany, pokaż button do dashboardu
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    handleMenuClose();
+    await signOut({ redirect: false });
+    window.location.reload(); // Odśwież stronę po wylogowaniu
+  };
+
+  const handleGoToPanel = () => {
+    handleMenuClose();
+    router.push('/edycja-parafii');
+  };
+
+  // Jeśli użytkownik jest już zalogowany, pokaż menu z opcjami
   if (status === "authenticated") {
+    const userName = session?.user?.name || session?.user?.email || 'Użytkownik';
+    
     return (
-      <Button
-        sx={{ 
-          fontWeight: 600, 
-          bgcolor: '#4caf50', 
-          color: 'white', 
-          borderRadius: 2, 
-          px: 3, 
-          boxShadow: 1, 
-          '&:hover': { bgcolor: '#45a049' },
-          textTransform: 'none'
-        }}
-        onClick={() => router.push('/edycja-parafii')}
-      >
-        Panel parafii
-      </Button>
+      <>
+        <Button
+          sx={{ 
+            fontWeight: 600, 
+            bgcolor: '#4caf50', 
+            color: 'white', 
+            borderRadius: 2, 
+            px: 3, 
+            boxShadow: 1, 
+            '&:hover': { bgcolor: '#45a049' },
+            textTransform: 'none'
+          }}
+          onClick={handleMenuClick}
+          aria-controls={menuOpen ? 'account-menu' : undefined}
+          aria-haspopup="true"
+          aria-expanded={menuOpen ? 'true' : undefined}
+        >
+          {userName} ▼
+        </Button>
+        
+        <Menu
+          id="account-menu"
+          anchorEl={anchorEl}
+          open={menuOpen}
+          onClose={handleMenuClose}
+          MenuListProps={{
+            'aria-labelledby': 'account-button',
+          }}
+          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        >
+          <MenuItem onClick={handleGoToPanel}>Panel parafii</MenuItem>
+          <MenuItem onClick={handleLogout}>Wyloguj się</MenuItem>
+        </Menu>
+      </>
     );
   }
 

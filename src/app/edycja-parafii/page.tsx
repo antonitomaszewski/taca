@@ -13,7 +13,10 @@ import {
   Card,
   CardContent,
   CircularProgress,
-  Alert
+  Alert,
+  IconButton,
+  Tooltip,
+  FormHelperText
 } from '@mui/material';
 import { 
   LocationOn as LocationOnIcon,
@@ -22,10 +25,139 @@ import {
   Description as DescriptionIcon,
   CloudUpload as CloudUploadIcon,
   AccountBalance as AccountBalanceIcon,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Info as InfoIcon
 } from '@mui/icons-material';
 
 export default function EdycjaParafii() {
+  // Definicje pól z tooltipami, walidacją i flagami wymaganych pól
+  const FIELD_DEFINITIONS = {
+    nazwa: {
+      label: "Nazwa parafii",
+      placeholder: "np. Parafia św. Marii Magdaleny",
+      tooltip: "Pełna oficjalna nazwa parafii wraz z wezwaniem",
+      required: true,
+      validate: (value: string) => {
+        if (!value.trim()) return "Nazwa parafii jest wymagana";
+        if (value.length < 3) return "Nazwa musi mieć co najmniej 3 znaki";
+        return "";
+      }
+    },
+    miejscowosc: {
+      label: "Miejscowość",
+      placeholder: "np. Wrocław",
+      tooltip: "Miasto lub miejscowość, w której znajduje się parafia",
+      required: true,
+      validate: (value: string) => {
+        if (!value.trim()) return "Miejscowość jest wymagana";
+        return "";
+      }
+    },
+    adres: {
+      label: "Adres",
+      placeholder: "ul. Szewska 10, 50-139",
+      tooltip: "Pełny adres parafii z ulicą, numerem i kodem pocztowym",
+      required: false,
+      validate: (value: string) => {
+        // Adres jest opcjonalny, ale jeśli podany to sprawdzamy format
+        return "";
+      }
+    },
+    telefon: {
+      label: "Telefon",
+      placeholder: "+48 71 344 23 75 lub 600 800 900",
+      tooltip: "Numer telefonu do parafii - może być stacjonarny z kierunkowym (+48...) lub komórkowy (bez kierunkowego)",
+      required: false,
+      validate: (value: string) => {
+        if (value) {
+          const cleanValue = value.replace(/\s/g, '');
+          // Sprawdź stacjonarny z kierunkowym: +48 + 2-3 cyfry + 7 cyfr = 12-13 cyfr total
+          const landlinePattern = /^\+48\d{9,10}$/;
+          // Sprawdź komórkowy: 9 cyfr (666666666)
+          const mobilePattern = /^\d{9}$/;
+          
+          if (!landlinePattern.test(cleanValue) && !mobilePattern.test(cleanValue)) {
+            return "Nieprawidłowy format telefonu (użyj: +48 71 344 23 75 lub 666 666 666)";
+          }
+        }
+        return "";
+      }
+    },
+    email: {
+      label: "Email",
+      placeholder: "kontakt@parafia.pl",
+      tooltip: "Adres email do kontaktu z parafią",
+      required: false,
+      validate: (value: string) => {
+        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          return "Nieprawidłowy format adresu email";
+        }
+        return "";
+      }
+    },
+    strona: {
+      label: "Strona internetowa",
+      placeholder: "www.parafia.pl",
+      tooltip: "Oficjalna strona internetowa parafii",
+      required: false,
+      validate: (value: string) => {
+        if (value && !/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(value)) {
+          return "Nieprawidłowy format strony internetowej";
+        }
+        return "";
+      }
+    },
+    proboszcz: {
+      label: "Proboszcz",
+      placeholder: "ks. Jan Kowalski",
+      tooltip: "Imię i nazwisko proboszcza parafii",
+      required: false,
+      validate: () => ""
+    },
+    kontoBank: {
+      label: "Numer konta bankowego",
+      placeholder: "12 3456 7890 1234 5678 9012 3456",
+      tooltip: "26-cyfrowy numer konta bankowego na które będą wpłacane dotacje",
+      required: false,
+      validate: (value: string) => {
+        if (value) {
+          const cleanValue = value.replace(/\s/g, '');
+          if (!/^\d{26}$/.test(cleanValue)) {
+            return "Numer konta musi składać się z 26 cyfr";
+          }
+        }
+        return "";
+      }
+    },
+    uniqueSlug: {
+      label: "Unikalny adres strony",
+      placeholder: "parafia-sw-marii-wroclaw",
+      tooltip: "Przyjazny adres URL dla Twojej parafii (tylko małe litery, cyfry i myślniki)",
+      required: false,
+      validate: (value: string) => {
+        if (value && !/^[a-z0-9-]+$/.test(value)) {
+          return "Adres może zawierać tylko małe litery, cyfry i myślniki";
+        }
+        if (value && value.length < 3) {
+          return "Adres musi mieć co najmniej 3 znaki";
+        }
+        return "";
+      }
+    },
+    celKwota: {
+      label: "Kwota potrzebna (PLN)",
+      placeholder: "50000",
+      tooltip: "Kwota pieniędzy potrzebna na realizację celu parafii",
+      required: false,
+      validate: (value: string) => {
+        if (value && (isNaN(Number(value)) || Number(value) <= 0)) {
+          return "Kwota musi być liczbą większą od 0";
+        }
+        return "";
+      }
+    }
+  } as const;
+
   const { data: session, status } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -33,6 +165,11 @@ export default function EdycjaParafii() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [parishId, setParishId] = useState("");
+  
+  // Stany walidacji - przechowują błędy dla każdego pola
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  // Stany touched - które pola użytkownik już dotknął
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   
   const [formData, setFormData] = useState({
     nazwa: "",
@@ -103,11 +240,71 @@ export default function EdycjaParafii() {
     }
   };
 
+  // Funkcja formatowania numeru konta bankowego
+  const formatBankAccount = (value: string) => {
+    // Usuń wszystkie spacje i nieistniejące znaki
+    const digitsOnly = value.replace(/[^\d]/g, '');
+    
+    // Ogranicz do 26 cyfr
+    const limited = digitsOnly.slice(0, 26);
+    
+    // Formatuj w grupach: XX XXXX XXXX XXXX XXXX XXXX XXXX
+    let formatted = '';
+    for (let i = 0; i < limited.length; i++) {
+      if (i === 2 || (i > 2 && (i - 2) % 4 === 0)) {
+        formatted += ' ';
+      }
+      formatted += limited[i];
+    }
+    
+    return formatted;
+  };
+
+  // Funkcja walidacji w czasie rzeczywistym
+  const validateField = (field: string, value: string) => {
+    const fieldDef = FIELD_DEFINITIONS[field as keyof typeof FIELD_DEFINITIONS];
+    if (fieldDef?.validate) {
+      return fieldDef.validate(value);
+    }
+    return "";
+  };
+
   const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    let value = e.target.value;
+    
+    // Specjalne formatowanie dla numeru konta bankowego
+    if (field === 'kontoBank') {
+      value = formatBankAccount(value);
+    }
+    
+    // Aktualizuj dane formularza
     setFormData(prev => ({
       ...prev,
-      [field]: e.target.value
+      [field]: value
     }));
+    
+    // Oznacz pole jako dotknięte
+    setTouchedFields(prev => ({
+      ...prev,
+      [field]: true
+    }));
+    
+    // Waliduj pole jeśli zostało dotknięte
+    const error = validateField(field, value);
+    setFieldErrors(prev => ({
+      ...prev,
+      [field]: error
+    }));
+  };
+
+  // Funkcja sprawdzająca, czy pole ma błąd
+  const hasError = (field: string) => {
+    return touchedFields[field] && fieldErrors[field] !== "";
+  };
+
+  // Funkcja pobierająca komunikat błędu
+  const getErrorMessage = (field: string) => {
+    return touchedFields[field] ? fieldErrors[field] : "";
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -144,21 +341,51 @@ export default function EdycjaParafii() {
   };
 
   const handleSave = async () => {
-    // Walidacja podstawowych pól
-    if (!formData.nazwa || !formData.miejscowosc) {
-      setError("Proszę wypełnić przynajmniej nazwę parafii i miejscowość.");
-      return;
-    }
+    // Walidacja wszystkich pól przed zapisem
+    const errors: Record<string, string> = {};
     
-    // Walidacja numeru konta bankowego (podstawowa - tylko cyfry i spacje)
-    if (formData.kontoBank && !/^[\d\s]*$/.test(formData.kontoBank.replace(/\s/g, ''))) {
-      setError("Numer konta bankowego może zawierać tylko cyfry i spacje.");
-      return;
-    }
+    console.log('🔍 VALIDATION DEBUG - Sprawdzanie pól:');
+    Object.keys(FIELD_DEFINITIONS).forEach(field => {
+      const value = formData[field as keyof typeof formData] || "";
+      const error = validateField(field, value);
+      console.log(`Pole "${field}": wartość="${value}", błąd="${error}"`);
+      if (error) {
+        errors[field] = error;
+      }
+    });
     
-    // Walidacja unique slug (tylko małe litery, cyfry i myślniki)
-    if (formData.uniqueSlug && !/^[a-z0-9-]+$/.test(formData.uniqueSlug)) {
-      setError("Unikalny adres może zawierać tylko małe litery, cyfry i myślniki.");
+    // Sprawdź czy są wymagane pola niezapełnione
+    Object.keys(FIELD_DEFINITIONS).forEach(field => {
+      const fieldDef = FIELD_DEFINITIONS[field as keyof typeof FIELD_DEFINITIONS];
+      const value = formData[field as keyof typeof formData]?.trim() || "";
+      console.log(`Pole wymagane "${field}": required=${fieldDef.required}, wartość="${value}"`);
+      if (fieldDef.required && !value) {
+        errors[field] = `${fieldDef.label} jest wymagane`;
+        console.log(`❌ Błąd dla wymaganego pola "${field}": ${errors[field]}`);
+      }
+    });
+    
+    console.log('🔍 VALIDATION DEBUG - Wszystkie błędy:', errors);
+    
+    // Jeśli są błędy, pokaż je i zatrzymaj zapis
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setTouchedFields(Object.keys(errors).reduce((acc, field) => {
+        acc[field] = true;
+        return acc;
+      }, {} as Record<string, boolean>));
+      
+      // Stwórz bardziej szczegółowy komunikat błędu
+      const errorMessages = Object.entries(errors).map(([field, message]) => {
+        const fieldDef = FIELD_DEFINITIONS[field as keyof typeof FIELD_DEFINITIONS];
+        return `• ${fieldDef?.label || field}: ${message}`;
+      });
+      
+      setError(`Proszę poprawić następujące błędy:\n${errorMessages.join('\n')}`);
+      
+      // Przewiń do góry strony, żeby użytkownik zobaczył komunikat błędu
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
       return;
     }
     
@@ -230,7 +457,13 @@ export default function EdycjaParafii() {
         {/* Error Message */}
         {error && (
           <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
+            <Box>
+              {error.split('\n').map((line, index) => (
+                <Typography key={index} variant="body2" sx={{ mb: index === 0 ? 1 : 0 }}>
+                  {line}
+                </Typography>
+              ))}
+            </Box>
           </Alert>
         )}
 
@@ -242,7 +475,7 @@ export default function EdycjaParafii() {
         )}
 
         {/* Form Content */}
-        {!loading && !error && (
+        {!loading && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {/* Section 1: Basic Information */}
           <Card sx={{ bgcolor: '#e8f5e8', border: '2px solid #4caf50' }}>
@@ -255,67 +488,213 @@ export default function EdycjaParafii() {
               </Box>
               
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <TextField
-                  fullWidth
-                  label="Nazwa parafii"
-                  value={formData.nazwa}
-                  onChange={handleChange('nazwa')}
-                  placeholder="np. Parafia św. Marii Magdaleny"
-                  variant="outlined"
-                />
-                <Box sx={{ display: 'flex', gap: 2 }}>
+                {/* Nazwa parafii */}
+                <Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      Nazwa parafii {FIELD_DEFINITIONS.nazwa.required && <span style={{ color: 'red' }}>*</span>}
+                    </Typography>
+                    <Tooltip title={FIELD_DEFINITIONS.nazwa.tooltip} arrow>
+                      <IconButton size="small" sx={{ p: 0.5 }}>
+                        <InfoIcon sx={{ fontSize: 16, color: '#666' }} />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                   <TextField
                     fullWidth
-                    label="Miejscowość"
-                    value={formData.miejscowosc}
-                    onChange={handleChange('miejscowosc')}
-                    placeholder="np. Wrocław"
+                    value={formData.nazwa}
+                    onChange={handleChange('nazwa')}
+                    placeholder={FIELD_DEFINITIONS.nazwa.placeholder}
                     variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Adres"
-                    value={formData.adres}
-                    onChange={handleChange('adres')}
-                    placeholder="ul. Szewska 10, 50-139"
-                    variant="outlined"
-                  />
-                </Box>
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                  <TextField
-                    fullWidth
-                    label="Telefon"
-                    value={formData.telefon}
-                    onChange={handleChange('telefon')}
-                    placeholder="+48 71 344 23 75"
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    value={formData.email}
-                    onChange={handleChange('email')}
-                    placeholder="kontakt@parafia.pl"
-                    variant="outlined"
+                    error={hasError('nazwa')}
+                    helperText={getErrorMessage('nazwa')}
+                    sx={{
+                      '& input:-webkit-autofill': {
+                        WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                        WebkitTextFillColor: '#000 !important',
+                      }
+                    }}
                   />
                 </Box>
+                
                 <Box sx={{ display: 'flex', gap: 2 }}>
-                  <TextField
-                    fullWidth
-                    label="Strona internetowa"
-                    value={formData.strona}
-                    onChange={handleChange('strona')}
-                    placeholder="www.parafia.pl"
-                    variant="outlined"
-                  />
-                  <TextField
-                    fullWidth
-                    label="Proboszcz"
-                    value={formData.proboszcz}
-                    onChange={handleChange('proboszcz')}
-                    placeholder="ks. Jan Kowalski"
-                    variant="outlined"
-                  />
+                  {/* Miejscowość */}
+                  <Box sx={{ flex: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        Miejscowość {FIELD_DEFINITIONS.miejscowosc.required && <span style={{ color: 'red' }}>*</span>}
+                      </Typography>
+                      <Tooltip title={FIELD_DEFINITIONS.miejscowosc.tooltip} arrow>
+                        <IconButton size="small" sx={{ p: 0.5 }}>
+                          <InfoIcon sx={{ fontSize: 16, color: '#666' }} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    <TextField
+                      fullWidth
+                      value={formData.miejscowosc}
+                      onChange={handleChange('miejscowosc')}
+                      placeholder={FIELD_DEFINITIONS.miejscowosc.placeholder}
+                      variant="outlined"
+                      error={hasError('miejscowosc')}
+                      helperText={getErrorMessage('miejscowosc')}
+                      sx={{
+                        '& input:-webkit-autofill': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: '#000 !important',
+                        }
+                      }}
+                    />
+                  </Box>
+                  
+                  {/* Adres */}
+                  <Box sx={{ flex: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        Adres {FIELD_DEFINITIONS.adres.required && <span style={{ color: 'red' }}>*</span>}
+                      </Typography>
+                      <Tooltip title={FIELD_DEFINITIONS.adres.tooltip} arrow>
+                        <IconButton size="small" sx={{ p: 0.5 }}>
+                          <InfoIcon sx={{ fontSize: 16, color: '#666' }} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    <TextField
+                      fullWidth
+                      value={formData.adres}
+                      onChange={handleChange('adres')}
+                      placeholder={FIELD_DEFINITIONS.adres.placeholder}
+                      variant="outlined"
+                      error={hasError('adres')}
+                      helperText={getErrorMessage('adres')}
+                      sx={{
+                        '& input:-webkit-autofill': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: '#000 !important',
+                        }
+                      }}
+                    />
+                  </Box>
+                </Box>
+                
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  {/* Telefon */}
+                  <Box sx={{ flex: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        Telefon {FIELD_DEFINITIONS.telefon.required && <span style={{ color: 'red' }}>*</span>}
+                      </Typography>
+                      <Tooltip title={FIELD_DEFINITIONS.telefon.tooltip} arrow>
+                        <IconButton size="small" sx={{ p: 0.5 }}>
+                          <InfoIcon sx={{ fontSize: 16, color: '#666' }} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    <TextField
+                      fullWidth
+                      value={formData.telefon}
+                      onChange={handleChange('telefon')}
+                      placeholder={FIELD_DEFINITIONS.telefon.placeholder}
+                      variant="outlined"
+                      error={hasError('telefon')}
+                      helperText={getErrorMessage('telefon')}
+                      sx={{
+                        '& input:-webkit-autofill': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: '#000 !important',
+                        }
+                      }}
+                    />
+                  </Box>
+                  
+                  {/* Email */}
+                  <Box sx={{ flex: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        Email {FIELD_DEFINITIONS.email.required && <span style={{ color: 'red' }}>*</span>}
+                      </Typography>
+                      <Tooltip title={FIELD_DEFINITIONS.email.tooltip} arrow>
+                        <IconButton size="small" sx={{ p: 0.5 }}>
+                          <InfoIcon sx={{ fontSize: 16, color: '#666' }} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    <TextField
+                      fullWidth
+                      value={formData.email}
+                      onChange={handleChange('email')}
+                      placeholder={FIELD_DEFINITIONS.email.placeholder}
+                      variant="outlined"
+                      error={hasError('email')}
+                      helperText={getErrorMessage('email')}
+                      sx={{
+                        '& input:-webkit-autofill': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: '#000 !important',
+                        }
+                      }}
+                    />
+                  </Box>
+                </Box>
+                
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  {/* Strona internetowa */}
+                  <Box sx={{ flex: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        Strona internetowa {FIELD_DEFINITIONS.strona.required && <span style={{ color: 'red' }}>*</span>}
+                      </Typography>
+                      <Tooltip title={FIELD_DEFINITIONS.strona.tooltip} arrow>
+                        <IconButton size="small" sx={{ p: 0.5 }}>
+                          <InfoIcon sx={{ fontSize: 16, color: '#666' }} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    <TextField
+                      fullWidth
+                      value={formData.strona}
+                      onChange={handleChange('strona')}
+                      placeholder={FIELD_DEFINITIONS.strona.placeholder}
+                      variant="outlined"
+                      error={hasError('strona')}
+                      helperText={getErrorMessage('strona')}
+                      sx={{
+                        '& input:-webkit-autofill': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: '#000 !important',
+                        }
+                      }}
+                    />
+                  </Box>
+                  
+                  {/* Proboszcz */}
+                  <Box sx={{ flex: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        Proboszcz {FIELD_DEFINITIONS.proboszcz.required && <span style={{ color: 'red' }}>*</span>}
+                      </Typography>
+                      <Tooltip title={FIELD_DEFINITIONS.proboszcz.tooltip} arrow>
+                        <IconButton size="small" sx={{ p: 0.5 }}>
+                          <InfoIcon sx={{ fontSize: 16, color: '#666' }} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    <TextField
+                      fullWidth
+                      value={formData.proboszcz}
+                      onChange={handleChange('proboszcz')}
+                      placeholder={FIELD_DEFINITIONS.proboszcz.placeholder}
+                      variant="outlined"
+                      error={hasError('proboszcz')}
+                      helperText={getErrorMessage('proboszcz')}
+                      sx={{
+                        '& input:-webkit-autofill': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: '#000 !important',
+                        }
+                      }}
+                    />
+                  </Box>
                 </Box>
               </Box>
             </CardContent>
@@ -332,40 +711,76 @@ export default function EdycjaParafii() {
               </Box>
               
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <TextField
-                  fullWidth
-                  label="Numer konta bankowego"
-                  value={formData.kontoBank}
-                  onChange={handleChange('kontoBank')}
-                  placeholder="np. 12 3456 7890 1234 5678 9012 3456"
-                  variant="outlined"
-                  helperText="Wprowadź numer konta na które będą wpłacane dotacje"
-                  sx={{
-                    '& .MuiInputBase-input': {
-                      fontFamily: 'monospace',
-                      fontSize: '1rem'
-                    }
-                  }}
-                />
-                
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <LinkIcon sx={{ fontSize: 24, color: '#2e7d32' }} />
+                {/* Numer konta bankowego */}
+                <Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      Numer konta bankowego {FIELD_DEFINITIONS.kontoBank.required && <span style={{ color: 'red' }}>*</span>}
+                    </Typography>
+                    <Tooltip title={FIELD_DEFINITIONS.kontoBank.tooltip} arrow>
+                      <IconButton size="small" sx={{ p: 0.5 }}>
+                        <InfoIcon sx={{ fontSize: 16, color: '#666' }} />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                   <TextField
                     fullWidth
-                    label="Unikalny adres strony"
-                    value={formData.uniqueSlug}
-                    onChange={handleChange('uniqueSlug')}
-                    placeholder="np. parafia-sw-marii-wroclaw"
+                    value={formData.kontoBank}
+                    onChange={handleChange('kontoBank')}
+                    placeholder={FIELD_DEFINITIONS.kontoBank.placeholder}
                     variant="outlined"
-                    helperText="Unikalny identyfikator dla Twojej parafii w adresie URL (tylko małe litery, cyfry i myślniki)"
-                    InputProps={{
-                      startAdornment: (
-                        <Typography variant="body2" sx={{ color: '#666', mr: 1 }}>
-                          taca.pl/
-                        </Typography>
-                      ),
+                    error={hasError('kontoBank')}
+                    helperText={getErrorMessage('kontoBank') || "Wprowadź numer konta na które będą wpłacane dotacje"}
+                    sx={{
+                      '& .MuiInputBase-input': {
+                        fontFamily: 'monospace',
+                        fontSize: '1rem'
+                      },
+                      '& input:-webkit-autofill': {
+                        WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                        WebkitTextFillColor: '#000 !important',
+                      }
                     }}
                   />
+                </Box>
+                
+                {/* Unikalny adres strony */}
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                  <LinkIcon sx={{ fontSize: 24, color: '#2e7d32', mt: 4.5 }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        Unikalny adres strony {FIELD_DEFINITIONS.uniqueSlug.required && <span style={{ color: 'red' }}>*</span>}
+                      </Typography>
+                      <Tooltip title={FIELD_DEFINITIONS.uniqueSlug.tooltip} arrow>
+                        <IconButton size="small" sx={{ p: 0.5 }}>
+                          <InfoIcon sx={{ fontSize: 16, color: '#666' }} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    <TextField
+                      fullWidth
+                      value={formData.uniqueSlug}
+                      onChange={handleChange('uniqueSlug')}
+                      placeholder={FIELD_DEFINITIONS.uniqueSlug.placeholder}
+                      variant="outlined"
+                      error={hasError('uniqueSlug')}
+                      helperText={getErrorMessage('uniqueSlug') || "Unikalny identyfikator dla Twojej parafii w adresie URL"}
+                      InputProps={{
+                        startAdornment: (
+                          <Typography variant="body2" sx={{ color: '#666', mr: 1 }}>
+                            taca.pl/
+                          </Typography>
+                        ),
+                      }}
+                      sx={{
+                        '& input:-webkit-autofill': {
+                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                          WebkitTextFillColor: '#000 !important',
+                        }
+                      }}
+                    />
+                  </Box>
                 </Box>
                 
                 <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
@@ -470,6 +885,10 @@ export default function EdycjaParafii() {
                 sx={{ 
                   '& .MuiOutlinedInput-root': {
                     bgcolor: '#fafafa'
+                  },
+                  '& textarea:-webkit-autofill': {
+                    WebkitBoxShadow: '0 0 0 1000px #fafafa inset !important',
+                    WebkitTextFillColor: '#000 !important',
                   }
                 }}
               />
@@ -490,16 +909,36 @@ export default function EdycjaParafii() {
               </Box>
               
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <TextField
-                  fullWidth
-                  label="Kwota potrzebna (PLN)"
-                  value={formData.celKwota}
-                  onChange={handleChange('celKwota')}
-                  placeholder="np. 50000"
-                  variant="outlined"
-                  type="number"
-                  helperText="Podaj kwotę, którą chcesz zebrać na cel parafii"
-                />
+                {/* Kwota potrzebna */}
+                <Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      Kwota potrzebna (PLN) {FIELD_DEFINITIONS.celKwota.required && <span style={{ color: 'red' }}>*</span>}
+                    </Typography>
+                    <Tooltip title={FIELD_DEFINITIONS.celKwota.tooltip} arrow>
+                      <IconButton size="small" sx={{ p: 0.5 }}>
+                        <InfoIcon sx={{ fontSize: 16, color: '#666' }} />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                  <TextField
+                    fullWidth
+                    value={formData.celKwota}
+                    onChange={handleChange('celKwota')}
+                    placeholder={FIELD_DEFINITIONS.celKwota.placeholder}
+                    variant="outlined"
+                    type="number"
+                    error={hasError('celKwota')}
+                    helperText={getErrorMessage('celKwota') || "Podaj kwotę, którą chcesz zebrać na cel parafii"}
+                    sx={{
+                      '& input:-webkit-autofill': {
+                        WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                        WebkitTextFillColor: '#000 !important',
+                      }
+                    }}
+                  />
+                </Box>
+                
                 <TextField
                   fullWidth
                   multiline
@@ -512,6 +951,10 @@ export default function EdycjaParafii() {
                   sx={{ 
                     '& .MuiOutlinedInput-root': {
                       bgcolor: '#fafafa'
+                    },
+                    '& textarea:-webkit-autofill': {
+                      WebkitBoxShadow: '0 0 0 1000px #fafafa inset !important',
+                      WebkitTextFillColor: '#000 !important',
                     }
                   }}
                 />

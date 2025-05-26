@@ -12,3 +12,19 @@ Please consider:
 - Best practices for [language/framework]
 Please do not unnecessarily remove any comments or code.
 Generate the code with clear comments explaining the logic.
+
+
+
+## do zrobienia
+
+### edycja-parafii
+
+po pomyślnym zapisie także chciałbym żeby przetransportowało nas na górę strony i wtedy jest git, bo widzimy napis o pomyślnym zapisie
+w Opisz swoją parafię nie działają entery (przez to na stronie /ppp nasz opis wyświetla się w jednej linii)
+
+dobra, teraz jeszcze ważny element:
+chcę żeby w edycji parafii można było ustawić pozycję naszej parafii na mapie (bo przecież ma się ją dać wyszukać na mapie)
+ten punkt jest obowiązkowy
+wg mnie ksiądz może albo w interaktywnej mapie znaleźć swoją parafię i kliknąć coś w stylu zatwierdź i wtedy automatycznie uzupełni się adres,
+albo też jeśli ksiądz będzie wpisywał adres własnoręcznie to na mapce powinno być widać co on wpisuje i także się to będzie dało znaleźć w ten sposób
+( w skrócie: potrzebujemy lokalizacji - albo z mapy, albo z adresu)

@@ -422,46 +422,13 @@ export default function EdycjaParafii() {
     }
   };
 
-  const handleLocationChange = async (lat: number, lng: number) => {
+  const handleLocationChange = (lat: number, lng: number) => {
+    // Aktualizuj tylko współrzędne, bez zmiany wpisanego adresu
     setFormData(prev => ({
       ...prev,
       latitude: lat,
       longitude: lng
     }));
-
-    // Reverse geocoding - uzyskaj adres z współrzędnych
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=pl`
-      );
-      const data = await response.json();
-      
-      if (data && data.address) {
-        const address = data.address;
-        
-        // Buduj adres ulicy z numerem domu
-        let streetAddress = '';
-        if (address.house_number && address.road) {
-          streetAddress = `${address.road} ${address.house_number}`;
-        } else if (address.road) {
-          streetAddress = address.road;
-        }
-        
-        // Dodaj kod pocztowy jeśli dostępny
-        if (address.postcode) {
-          streetAddress += `, ${address.postcode}`;
-        }
-        
-        // Aktualizuj pola adresowe jeśli są puste lub użytkownik je wyczyścił
-        setFormData(prev => ({
-          ...prev,
-          miejscowosc: address.city || address.town || address.village || prev.miejscowosc,
-          adres: streetAddress || prev.adres
-        }));
-      }
-    } catch (error) {
-      console.error('Reverse geocoding error:', error);
-    }
   };
 
   const handleSave = async () => {

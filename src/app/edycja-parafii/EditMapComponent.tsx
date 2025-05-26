@@ -37,8 +37,11 @@ function LocationMarker({ position, onLocationChange }: {
     <Marker position={position}>
       <Popup>
         <Typography variant="body2">
-          <strong>Lokalizacja parafii</strong><br />
-          Współrzędne: {position[0].toFixed(6)}, {position[1].toFixed(6)}
+          <strong>Lokalizacja kościoła</strong><br />
+          Współrzędne: {position[0].toFixed(6)}, {position[1].toFixed(6)}<br />
+          <em style={{ fontSize: '0.85em', color: '#666' }}>
+            To jest fizyczna lokalizacja kościoła na mapie
+          </em>
         </Typography>
       </Popup>
     </Marker>
@@ -122,7 +125,8 @@ export default function EditMapComponent({ latitude, longitude, onLocationChange
       </Typography>
       
       <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
-        Kliknij na mapie aby oznaczyć lokalizację parafii lub wyszukaj adres poniżej.
+        Wpisz adres parafii powyżej, aby automatycznie znaleźć lokalizację na mapie. 
+        Następnie możesz precyzyjnie dostosować znacznik, klikając na mapie w dokładnym miejscu kościoła.
       </Typography>
 
       {/* Wyszukiwanie adresu */}
@@ -180,7 +184,7 @@ export default function EditMapComponent({ latitude, longitude, onLocationChange
       </Box>
 
       <Typography variant="caption" sx={{ display: 'block', mt: 1, color: 'text.secondary' }}>
-        Wskazówka: Kliknij na mapie aby oznaczyć dokładną lokalizację parafii
+        Wskazówka: Kliknij na mapie aby precyzyjnie oznaczyć lokalizację kościoła (nie zmieni to wpisanego adresu parafii)
       </Typography>
     </Box>
   );

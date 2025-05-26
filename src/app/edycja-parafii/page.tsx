@@ -933,66 +933,96 @@ export default function EdycjaParafii() {
                 </Typography>
               </Box>
               
-              <Box 
-                sx={{ 
-                  border: '2px dashed #2196f3',
-                  borderRadius: 2,
-                  p: 4,
-                  textAlign: 'center',
-                  bgcolor: '#f8fbff',
-                  cursor: 'pointer',
-                  '&:hover': { bgcolor: '#f0f8ff' },
-                  position: 'relative'
-                }}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-              >
-                {formData.photoUrl ? (
-                  <Box sx={{ position: 'relative', mb: 2 }}>
+              {formData.photoUrl ? (
+                // Podgląd zdjęcia
+                <Box sx={{ textAlign: 'center' }}>
+                  <Box 
+                    sx={{ 
+                      position: 'relative',
+                      display: 'inline-block',
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                      boxShadow: 2,
+                      mb: 2
+                    }}
+                  >
                     <img 
                       src={formData.photoUrl} 
-                      alt="Podgląd zdjęcia parafii" 
+                      alt="Zdjęcie parafii" 
                       style={{ 
-                        maxWidth: '100%', 
-                        maxHeight: '200px', 
-                        borderRadius: '8px',
-                        objectFit: 'cover'
+                        width: '100%',
+                        maxWidth: '400px',
+                        height: '250px',
+                        objectFit: 'cover',
+                        display: 'block'
                       }} 
                     />
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+                    <Button 
+                      variant="contained" 
+                      component="label"
+                      sx={{ bgcolor: '#1976d2' }}
+                    >
+                      Zmień zdjęcie
+                      <input 
+                        type="file" 
+                        hidden 
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                      />
+                    </Button>
                     <Button 
                       variant="outlined" 
-                      size="small"
+                      color="error"
                       onClick={() => setFormData(prev => ({ ...prev, photoUrl: "" }))}
-                      sx={{ mt: 1 }}
                     >
                       Usuń zdjęcie
                     </Button>
                   </Box>
-                ) : (
-                  <>
-                    <CloudUploadIcon sx={{ fontSize: 48, color: '#1976d2', mb: 2 }} />
-                    <Typography variant="h6" sx={{ color: '#1976d2', mb: 1 }}>
-                      Kliknij lub przeciągnij zdjęcie tutaj
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#666' }}>
-                      Dodaj główne zdjęcie parafii (kościół, wnętrze, fasada)
-                    </Typography>
-                  </>
-                )}
-                <Button 
-                  variant="contained" 
-                  sx={{ mt: 2, bgcolor: '#1976d2' }}
-                  component="label"
+                </Box>
+              ) : (
+                // Upload area
+                <Box 
+                  sx={{ 
+                    border: '2px dashed #2196f3',
+                    borderRadius: 2,
+                    p: 4,
+                    textAlign: 'center',
+                    bgcolor: '#f8fbff',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    '&:hover': { 
+                      bgcolor: '#f0f8ff',
+                      borderColor: '#1976d2'
+                    }
+                  }}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
                 >
-                  {formData.photoUrl ? 'Zmień zdjęcie' : 'Wybierz plik'}
-                  <input 
-                    type="file" 
-                    hidden 
-                    accept="image/*"
-                    onChange={handlePhotoUpload}
-                  />
-                </Button>
-              </Box>
+                  <CloudUploadIcon sx={{ fontSize: 48, color: '#1976d2', mb: 2 }} />
+                  <Typography variant="h6" sx={{ color: '#1976d2', mb: 1 }}>
+                    Kliknij lub przeciągnij zdjęcie tutaj
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#666', mb: 3 }}>
+                    Dodaj główne zdjęcie parafii (kościół, wnętrze, fasada)
+                  </Typography>
+                  <Button 
+                    variant="contained" 
+                    size="large"
+                    component="label"
+                    sx={{ bgcolor: '#1976d2' }}
+                  >
+                    Wybierz plik
+                    <input 
+                      type="file" 
+                      hidden 
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                    />
+                  </Button>
+                </Box>
+              )}
             </CardContent>
           </Card>
 

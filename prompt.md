@@ -30,5 +30,19 @@ Podczas tworzenia konta powinny być dwie opcje (tak jak przy płatności : abon
 parafianin nie ma możliwości rejestrowania parafii
 proboszcz ma
 
+wygląd parafii:
+na samej górze (?) przycisk wesprzyj parafię
+zdjęcie z lewej (nie takie duże, pewnie kwadratowe) , z prawej dane kontaktowe
+poniżej opis parafii
+i ewentualne zbiórki
 
+usunięcie translacji slug -> id
+powinnobyć jak na githubie
+/
+/mapa
+/[slug]
+/slug/wsparcie
+/slug/edycja (tu możesz nie mieć dostępu)
+/user/
+trzeba uważać, żeby nikt sobie nie ustawił slug = parafia (trzeba wprowadzić zabronione opcje)
 

@@ -19,11 +19,6 @@ Generate the code with clear comments explaining the logic.
 
 ### edycja-parafii
 
-przycisk zmień zdjęcie nie zapisuje zmian
-usuń zdjęcie także nie działa
-
-wszystkie suwaki boczne na naszej stronie są ciemne, niepotrzebnie. zwyczajna kolorystyka suwaka jest jak najbardziej ok
-
 chciałbym, żeby Not Found wyświetlało się dla każdego niepoprawnego adresu (np a/b/c/d)
 
 dobra, teraz jeszcze ważny element:

@@ -178,6 +178,9 @@ export default function EdycjaParafii() {
   // Stany touched - które pola użytkownik już dotknął
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   
+  // Debounced geocoding - żeby nie wysyłać zbyt wielu requestów
+  const [geocodingTimeout, setGeocodingTimeout] = useState<NodeJS.Timeout | null>(null);
+  
   const [formData, setFormData] = useState({
     nazwa: "",
     miejscowosc: "",
@@ -213,6 +216,15 @@ export default function EdycjaParafii() {
       setLoading(false);
     }
   }, [session, status, router]);
+
+  // Cleanup timeout przy odmontowaniu komponentu
+  useEffect(() => {
+    return () => {
+      if (geocodingTimeout) {
+        clearTimeout(geocodingTimeout);
+      }
+    };
+  }, [geocodingTimeout]);
 
   const loadParishData = async (parishId: string) => {
     try {
@@ -280,6 +292,48 @@ export default function EdycjaParafii() {
     return "";
   };
 
+  const [isGeocoding, setIsGeocoding] = useState(false);
+
+  const geocodeAddress = async (city: string, address: string) => {
+    if (!city.trim()) return; // Miejscowość jest wymagana do geokodowania
+    
+    setIsGeocoding(true);
+    try {
+      // Buduj zapytanie adresowe
+      let searchQuery = city.trim();
+      if (address.trim()) {
+        searchQuery = `${address.trim()}, ${city.trim()}`;
+      }
+      
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1&countrycodes=pl`
+      );
+      
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
+        
+        // Aktualizuj współrzędne tylko jeśli są różne od aktualnych
+        setFormData(prev => {
+          if (prev.latitude !== lat || prev.longitude !== lng) {
+            return {
+              ...prev,
+              latitude: lat,
+              longitude: lng
+            };
+          }
+          return prev;
+        });
+      }
+    } catch (error) {
+      console.error('Geocoding error:', error);
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
+
   const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     let value = e.target.value;
     
@@ -306,6 +360,23 @@ export default function EdycjaParafii() {
       ...prev,
       [field]: error
     }));
+
+    // Geokodowanie dla pól adresowych (z debouncing)
+    if (field === 'miejscowosc' || field === 'adres') {
+      // Wyczyść poprzedni timeout
+      if (geocodingTimeout) {
+        clearTimeout(geocodingTimeout);
+      }
+      
+      // Ustaw nowy timeout - geokoduj po 1 sekundzie od ostatniej zmiany
+      const newTimeout = setTimeout(() => {
+        const currentCity = field === 'miejscowosc' ? value : formData.miejscowosc;
+        const currentAddress = field === 'adres' ? value : formData.adres;
+        geocodeAddress(currentCity, currentAddress);
+      }, 1000);
+      
+      setGeocodingTimeout(newTimeout);
+    }
   };
 
   // Funkcja sprawdzająca, czy pole ma błąd
@@ -351,12 +422,46 @@ export default function EdycjaParafii() {
     }
   };
 
-  const handleLocationChange = (lat: number, lng: number) => {
+  const handleLocationChange = async (lat: number, lng: number) => {
     setFormData(prev => ({
       ...prev,
       latitude: lat,
       longitude: lng
     }));
+
+    // Reverse geocoding - uzyskaj adres z współrzędnych
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=pl`
+      );
+      const data = await response.json();
+      
+      if (data && data.address) {
+        const address = data.address;
+        
+        // Buduj adres ulicy z numerem domu
+        let streetAddress = '';
+        if (address.house_number && address.road) {
+          streetAddress = `${address.road} ${address.house_number}`;
+        } else if (address.road) {
+          streetAddress = address.road;
+        }
+        
+        // Dodaj kod pocztowy jeśli dostępny
+        if (address.postcode) {
+          streetAddress += `, ${address.postcode}`;
+        }
+        
+        // Aktualizuj pola adresowe jeśli są puste lub użytkownik je wyczyścił
+        setFormData(prev => ({
+          ...prev,
+          miejscowosc: address.city || address.town || address.village || prev.miejscowosc,
+          adres: streetAddress || prev.adres
+        }));
+      }
+    } catch (error) {
+      console.error('Reverse geocoding error:', error);
+    }
   };
 
   const handleSave = async () => {
@@ -617,6 +722,25 @@ export default function EdycjaParafii() {
                       }}
                     />
                   </Box>
+                </Box>
+
+                {/* Interactive Map for Location */}
+                <Box sx={{ mt: 3 }}>
+                  <EditMapComponent
+                    latitude={formData.latitude || undefined}
+                    longitude={formData.longitude || undefined}
+                    onLocationChange={handleLocationChange}
+                    currentAddress={formData.miejscowosc && formData.adres ? `${formData.adres}, ${formData.miejscowosc}` : formData.miejscowosc}
+                  />
+                  <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary', fontStyle: 'italic' }}>
+                    💡 Wskazówka: Wpisz adres w polach powyżej, a mapa automatycznie pokaże lokalizację. Możesz też kliknąć na mapie aby ustawić dokładną pozycję.
+                    {isGeocoding && (
+                      <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', ml: 1 }}>
+                        <CircularProgress size={12} sx={{ mr: 0.5 }} />
+                        Szukam lokalizacji...
+                      </Box>
+                    )}
+                  </Typography>
                 </Box>
                 
                 <Box sx={{ display: 'flex', gap: 2 }}>
@@ -940,18 +1064,7 @@ export default function EdycjaParafii() {
             </CardContent>
           </Card>
 
-          {/* Section 5: Location Map */}
-          <Card sx={{ bgcolor: '#e8f5e8', border: '2px solid #4caf50' }}>
-            <CardContent sx={{ p: 3 }}>
-              <EditMapComponent
-                latitude={formData.latitude || undefined}
-                longitude={formData.longitude || undefined}
-                onLocationChange={handleLocationChange}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Section 6: Fundraising */}
+          {/* Section 5: Fundraising */}
           <Card sx={{ bgcolor: '#fff3e0', border: '2px solid #ff9800' }}>
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>

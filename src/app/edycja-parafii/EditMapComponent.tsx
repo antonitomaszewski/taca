@@ -19,6 +19,7 @@ interface EditMapComponentProps {
   latitude?: number;
   longitude?: number;
   onLocationChange: (lat: number, lng: number) => void;
+  currentAddress?: string; // Dodaj prop dla aktualnego adresu
 }
 
 // Komponent do obsługi kliknięć na mapie
@@ -44,7 +45,7 @@ function LocationMarker({ position, onLocationChange }: {
   );
 }
 
-export default function EditMapComponent({ latitude, longitude, onLocationChange }: EditMapComponentProps) {
+export default function EditMapComponent({ latitude, longitude, onLocationChange, currentAddress }: EditMapComponentProps) {
   const [position, setPosition] = useState<[number, number] | null>(
     latitude && longitude ? [latitude, longitude] : null
   );
@@ -60,6 +61,13 @@ export default function EditMapComponent({ latitude, longitude, onLocationChange
       setPosition([latitude, longitude]);
     }
   }, [latitude, longitude]);
+
+  // Synchronizuj pole wyszukiwania z przekazanym adresem
+  useEffect(() => {
+    if (currentAddress && currentAddress !== searchAddress) {
+      setSearchAddress(currentAddress);
+    }
+  }, [currentAddress]);
 
   const handleLocationChange = (lat: number, lng: number) => {
     const newPosition: [number, number] = [lat, lng];

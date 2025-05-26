@@ -12,6 +12,7 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    // console.log('🔍 API DEBUG - Received parish ID:', id);
 
     const parish = await prisma.parish.findUnique({
       where: { id },
@@ -35,6 +36,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         }
       }
     });
+
+    // console.log('🔍 API DEBUG - Found parish:', parish ? 'YES' : 'NO');
+    // console.log('🔍 API DEBUG - Parish data:', JSON.stringify(parish, null, 2));
 
     if (!parish) {
       return NextResponse.json({ error: 'Parish not found' }, { status: 404 });

@@ -73,19 +73,21 @@ export default function EdycjaParafii() {
         throw new Error(data.error || "Nie udało się załadować danych parafii");
       }
       
-      const parish = data.parish;
+      console.log('🔍 FRONTEND DEBUG - Received data:', data);
+      
+      // API zwraca dane bezpośrednio w data, nie w data.parish
       setFormData({
-        nazwa: parish.name || "",
-        miejscowosc: parish.city || "",
-        adres: parish.address || "",
-        telefon: parish.phone || "",
-        email: parish.email || "",
-        strona: parish.website || "",
-        proboszcz: parish.pastor || "",
-        opis: parish.description || "",
-        photoUrl: "", // TODO: Dodać pole na zdjęcie w schema
-        celKwota: "", // TODO: Obsługa fundraising goals
-        celOpis: ""  // TODO: Obsługa fundraising goals
+        nazwa: data.nazwa || data.name || "",
+        miejscowosc: data.miejscowosc || data.city || "",
+        adres: data.adres || data.address || "",
+        telefon: data.telefon || data.phone || "",
+        email: data.email || "",
+        strona: data.strona || data.website || "",
+        proboszcz: data.proboszcz || data.pastor || "",
+        opis: data.opis || data.description || "",
+        photoUrl: data.photoUrl || "",
+        celKwota: data.cel ? data.cel.toString() : "",
+        celOpis: data.celOpis || ""
       });
       
     } catch (error) {

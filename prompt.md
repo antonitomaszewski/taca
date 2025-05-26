@@ -17,7 +17,18 @@ Generate the code with clear comments explaining the logic.
 
 ## do zrobienia
 
-usunąć flagę ukrainy w rogu przy napisie leaflet
-.leaflet-attribution-flag { display: none !important; }
+gdy nasz ksiądz jest zalogowany to klik dowylogowywania powinien być przez ały czas dostępny
 
-dodanie footera do strony
+tworzenie, edycja zbiórki powinny być osobnym widokiem
+
+Powinno dać się edytować profil użytkownika 
+(imie, nazwisko, etc)
+
+jak już profil jest zalogowany i ma zarejestrowaną parafię - to nie powinno być przycisku zarejestruj
+
+Podczas tworzenia konta powinny być dwie opcje (tak jak przy płatności : abonamentowa i jednorazowa) - parafianin - proboszcz
+parafianin nie ma możliwości rejestrowania parafii
+proboszcz ma
+
+
+

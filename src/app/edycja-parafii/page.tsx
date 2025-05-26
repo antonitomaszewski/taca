@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useSession, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import dynamic from 'next/dynamic';
 import { 
   AppBar, 
   Toolbar, 
@@ -28,6 +29,12 @@ import {
   Link as LinkIcon,
   Info as InfoIcon
 } from '@mui/icons-material';
+
+// Ładowanie komponentu mapy dynamicznie (bez SSR)
+const EditMapComponent = dynamic(() => import('./EditMapComponent'), {
+  ssr: false,
+  loading: () => <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>
+});
 
 export default function EdycjaParafii() {
   // Definicje pól z tooltipami, walidacją i flagami wymaganych pól
@@ -184,7 +191,9 @@ export default function EdycjaParafii() {
     kontoBank: "",
     uniqueSlug: "",
     celKwota: "",
-    celOpis: ""
+    celOpis: "",
+    latitude: null as number | null,
+    longitude: null as number | null
   });
 
   // Sprawdź uwierzytelnienie i załaduj dane parafii
@@ -230,7 +239,9 @@ export default function EdycjaParafii() {
         celKwota: data.cel ? data.cel.toString() : "",
         celOpis: data.celOpis || "",
         kontoBank: data.kontoBank || data.bankAccount || "", // lub odpowiednia wartość
-        uniqueSlug: data.uniqueSlug || "" // lub odpowiednia wartość
+        uniqueSlug: data.uniqueSlug || "", // lub odpowiednia wartość
+        latitude: data.latitude || null,
+        longitude: data.longitude || null
       });
       
     } catch (error) {
@@ -340,13 +351,21 @@ export default function EdycjaParafii() {
     }
   };
 
+  const handleLocationChange = (lat: number, lng: number) => {
+    setFormData(prev => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng
+    }));
+  };
+
   const handleSave = async () => {
     // Walidacja wszystkich pól przed zapisem
     const errors: Record<string, string> = {};
     
     console.log('🔍 VALIDATION DEBUG - Sprawdzanie pól:');
     Object.keys(FIELD_DEFINITIONS).forEach(field => {
-      const value = formData[field as keyof typeof formData] || "";
+      const value = String(formData[field as keyof typeof formData] || "");
       const error = validateField(field, value);
       console.log(`Pole "${field}": wartość="${value}", błąd="${error}"`);
       if (error) {
@@ -357,7 +376,8 @@ export default function EdycjaParafii() {
     // Sprawdź czy są wymagane pola niezapełnione
     Object.keys(FIELD_DEFINITIONS).forEach(field => {
       const fieldDef = FIELD_DEFINITIONS[field as keyof typeof FIELD_DEFINITIONS];
-      const value = formData[field as keyof typeof formData]?.trim() || "";
+      const rawValue = formData[field as keyof typeof formData];
+      const value = typeof rawValue === 'string' ? rawValue.trim() : String(rawValue || "");
       console.log(`Pole wymagane "${field}": required=${fieldDef.required}, wartość="${value}"`);
       if (fieldDef.required && !value) {
         errors[field] = `${fieldDef.label} jest wymagane`;
@@ -898,7 +918,18 @@ export default function EdycjaParafii() {
             </CardContent>
           </Card>
 
-          {/* Section 5: Fundraising */}
+          {/* Section 5: Location Map */}
+          <Card sx={{ bgcolor: '#e8f5e8', border: '2px solid #4caf50' }}>
+            <CardContent sx={{ p: 3 }}>
+              <EditMapComponent
+                latitude={formData.latitude || undefined}
+                longitude={formData.longitude || undefined}
+                onLocationChange={handleLocationChange}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Section 6: Fundraising */}
           <Card sx={{ bgcolor: '#fff3e0', border: '2px solid #ff9800' }}>
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>

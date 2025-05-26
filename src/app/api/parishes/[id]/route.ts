@@ -103,6 +103,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       photoUrl: '/katedra_wroclaw.jpg', // Default image for now
       kontoBank: parish.bankAccount, // Numer konta bankowego
       uniqueSlug: parish.uniqueSlug, // Unikalny URL slug
+      latitude: parish.latitude, // Współrzędne geograficzne
+      longitude: parish.longitude, // Współrzędne geograficzne
       zebrane: totalRaised,
       cel: totalTarget,
       wspierajacy: totalSupporters,
@@ -146,7 +148,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       kontoBank,
       uniqueSlug,
       celKwota,
-      celOpis
+      celOpis,
+      latitude,
+      longitude
     } = body;
 
     // Sprawdź czy użytkownik jest właścicielem tej parafii
@@ -193,6 +197,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         description: opis || undefined,
         bankAccount: kontoBank || undefined,
         uniqueSlug: uniqueSlug || undefined,
+        latitude: latitude !== null ? latitude : undefined,
+        longitude: longitude !== null ? longitude : undefined,
         updatedAt: new Date()
       }
     });

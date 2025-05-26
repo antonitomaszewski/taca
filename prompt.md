@@ -22,6 +22,14 @@ Generate the code with clear comments explaining the logic.
 po pomyślnym zapisie także chciałbym żeby przetransportowało nas na górę strony i wtedy jest git, bo widzimy napis o pomyślnym zapisie
 w Opisz swoją parafię nie działają entery (przez to na stronie /ppp nasz opis wyświetla się w jednej linii)
 
+
+przycisk zmień zdjęcie nie zapisuje zmian
+usuń zdjęcie także nie działa
+
+wszystkie suwaki boczne na naszej stronie są ciemne, niepotrzebnie. zwyczajna kolorystyka suwaka jest jak najbardziej ok
+
+chciałbym, żeby Not Found wyświetlało się dla każdego niepoprawnego adresu (np a/b/c/d)
+
 dobra, teraz jeszcze ważny element:
 chcę żeby w edycji parafii można było ustawić pozycję naszej parafii na mapie (bo przecież ma się ją dać wyszukać na mapie)
 ten punkt jest obowiązkowy

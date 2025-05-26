@@ -430,6 +430,9 @@ export default function EdycjaParafii() {
 
       setSuccess("Profil parafii został pomyślnie zapisany!");
       
+      // Przewiń do góry strony, żeby użytkownik zobaczył komunikat o sukcesie
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Wystąpił nieoczekiwany błąd');
     } finally {
@@ -457,6 +460,25 @@ export default function EdycjaParafii() {
             >
               Taca.pl
             </Typography>
+            
+            {/* Przycisk do strony parafii - tylko jeśli mamy parishId */}
+            {parishId && (
+              <Button
+                variant="outlined"
+                color="success"
+                href={`/parafia/${parishId}`}
+                sx={{
+                  borderColor: '#4caf50',
+                  color: '#4caf50',
+                  '&:hover': {
+                    borderColor: '#2e7d32',
+                    backgroundColor: '#e8f5e8'
+                  }
+                }}
+              >
+                Przejdź do Twojej parafii
+              </Button>
+            )}
           </Toolbar>
         </Container>
       </AppBar>

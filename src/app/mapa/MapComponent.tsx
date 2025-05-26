@@ -25,9 +25,14 @@ export default function MapComponent({ search, parishes }: MapComponentProps) {
   const router = useRouter();
 
   return (
-    <MapContainer center={[51.1079, 17.0385]} zoom={13} style={{ height: '100%', width: '100%' }}>
+    <MapContainer 
+      center={[51.1079, 17.0385]} 
+      zoom={13} 
+      style={{ height: '100%', width: '100%' }}
+      attributionControl={false}
+    >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution=''
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       {parishes.map(parish => (

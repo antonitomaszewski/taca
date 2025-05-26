@@ -13,3 +13,10 @@ info każdej parafii: http://www.psiepole.archidiecezja.wroc.pl/kontakt.html
 svg repo https://www.svgrepo.com/vectors/map-marker/multicolor/
 
 npx prisma studio
+npx prisma db push
+
+
+ważne:
+DZIAŁAJĄCE PŁATNOŚCI Stripe/PayU payments
+POWIADOMIENIA MAILOWE Email notifications
+Admin panel

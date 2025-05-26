@@ -183,3 +183,5 @@ Flow niezalogowany
 npm run db:seed
 npx prisma generate
 npx tsc --noEmit
+npm run lint
+npm test

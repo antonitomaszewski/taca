@@ -155,3 +155,29 @@ GET  /api/dashboard         - dane dashboardu
 ├── /cele-fundraisingowe    - [CHRONIONE] zarządzanie zbiórkami
 └── /ustawienia             - [CHRONIONE] ustawienia konta
 ```
+
+
+
+🔄 JAK TO WSZYSTKO WSPÓŁPRACUJE
+Przepływ rejestracji księdza:
+📝 Ksiądz wypełnia formularz /rejestracja-parafii
+🔐 System tworzy rekord w tabeli User z hashowanym hasłem
+🏛️ System tworzy/łączy parafię z księdzem
+✅ Ksiądz może się logować przez LoginButton
+Przepływ logowania:
+🔑 Ksiądz podaje email/hasło w LoginButton
+🔍 NextAuth sprawdza dane w tabeli User
+🎫 Tworzy sesję w tabeli Session
+🚪 Przekierowuje do dashboardu parafii
+Bezpieczeństwo:
+🛡️ Hasła hashowane bcrypt
+🎫 Sesje zarządzane przez NextAuth
+🚫 Chronione trasy przez middleware
+🔒 CSRF protection wbudowana
+🎯 NASTĘPNE KROKI
+Teraz gdy baza jest gotowa, możemy:
+
+✅ Połączyć formularz rejestracji z zapisem do tabeli User
+✅ Połączyć LoginButton z prawdziwą autentykacją
+✅ Stworzyć dashboard dla zalogowanych księży
+✅ Dodać middleware chroniące trasy

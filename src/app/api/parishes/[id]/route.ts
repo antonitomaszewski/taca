@@ -100,7 +100,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       proboszcz: parish.pastor || "",
       rozkladMszy: parish.massSchedule || "",
       opis: parish.description || 'Brak opisu parafii.',
-      photoUrl: '/katedra_wroclaw.jpg', // Default image for now
+      photoUrl: parish.photoUrl || '/katedra_wroclaw.jpg', // Użyj zapisanego zdjęcia lub domyślnego
       kontoBank: parish.bankAccount || "", // Numer konta bankowego
       uniqueSlug: parish.uniqueSlug || "", // Unikalny URL slug
       latitude: parish.latitude, // Współrzędne geograficzne
@@ -195,6 +195,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         website: strona && strona.trim() ? strona.trim() : null,
         pastor: proboszcz && proboszcz.trim() ? proboszcz.trim() : null,
         description: opis && opis.trim() ? opis.trim() : null,
+        photoUrl: photoUrl !== undefined ? (photoUrl && photoUrl.trim() ? photoUrl.trim() : null) : undefined,
         bankAccount: kontoBank && kontoBank.trim() ? kontoBank.trim() : null,
         uniqueSlug: uniqueSlug && uniqueSlug.trim() ? uniqueSlug.trim() : null,
         latitude: latitude !== null ? latitude : undefined,

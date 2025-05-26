@@ -30,6 +30,7 @@ model Parish {
   massSchedule    String?
   bankAccount     String?  // Numer konta bankowego
   uniqueSlug      String?  @unique // Unikalny URL slug np. "katedra-wroclaw"
+  photoUrl        String?  // URL lub base64 zdjęcia parafii
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   

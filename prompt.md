@@ -19,10 +19,6 @@ Generate the code with clear comments explaining the logic.
 
 ### edycja-parafii
 
-po pomyślnym zapisie także chciałbym żeby przetransportowało nas na górę strony i wtedy jest git, bo widzimy napis o pomyślnym zapisie
-w Opisz swoją parafię nie działają entery (przez to na stronie /ppp nasz opis wyświetla się w jednej linii)
-
-
 przycisk zmień zdjęcie nie zapisuje zmian
 usuń zdjęcie także nie działa
 

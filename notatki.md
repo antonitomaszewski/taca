@@ -13,6 +13,7 @@ info każdej parafii: http://www.psiepole.archidiecezja.wroc.pl/kontakt.html
 svg repo https://www.svgrepo.com/vectors/map-marker/multicolor/
 
 npx prisma migrate dev --name add_bank_account_and_unique_slug
+npx prisma generate
 npx prisma studio
 npx prisma db push
 
@@ -26,3 +27,4 @@ Admin panel
 npm run dev
 
 - Environments: .env.local, .env
+jedną z ważniejszych stron jest not found - ją należy zaimplementować na samym początku. Wyświetla się zawsze, gdy nie mamy dostępu do danego widoku

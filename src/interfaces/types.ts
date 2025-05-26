@@ -14,6 +14,7 @@ export interface Parish {
   massSchedule?: string;
   bankAccount?: string;  // Numer konta bankowego
   uniqueSlug?: string;   // Unikalny URL slug
+  photoUrl?: string;     // URL zdjęcia parafii
   createdAt: Date;
   updatedAt: Date;
   fundraisingGoals?: FundraisingGoal[];

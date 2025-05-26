@@ -19,14 +19,9 @@ Generate the code with clear comments explaining the logic.
 
 ### edycja-parafii
 
-chciałbym, żeby Not Found wyświetlało się dla każdego niepoprawnego adresu (np a/b/c/d)
-
 dobra, teraz jeszcze ważny element:
 chcę żeby w edycji parafii można było ustawić pozycję naszej parafii na mapie (bo przecież ma się ją dać wyszukać na mapie)
 ten punkt jest obowiązkowy
 wg mnie ksiądz może albo w interaktywnej mapie znaleźć swoją parafię i kliknąć coś w stylu zatwierdź i wtedy automatycznie uzupełni się adres,
 albo też jeśli ksiądz będzie wpisywał adres własnoręcznie to na mapce powinno być widać co on wpisuje i także się to będzie dało znaleźć w ten sposób
 ( w skrócie: potrzebujemy lokalizacji - albo z mapy, albo z adresu)
-
-czemu w src/interfaces/types.ts nie mamy photoUrl?
-czym się różni interfejs os schemy w bazie

@@ -94,15 +94,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       nazwa: parish.name,
       miejscowosc: parish.city,
       adres: parish.address,
-      telefon: parish.phone,
-      email: parish.email,
-      strona: parish.website,
-      proboszcz: parish.pastor,
-      rozkladMszy: parish.massSchedule,
+      telefon: parish.phone || "", // Konwertuj null na pusty string dla frontendu
+      email: parish.email || "",
+      strona: parish.website || "",
+      proboszcz: parish.pastor || "",
+      rozkladMszy: parish.massSchedule || "",
       opis: parish.description || 'Brak opisu parafii.',
       photoUrl: '/katedra_wroclaw.jpg', // Default image for now
-      kontoBank: parish.bankAccount, // Numer konta bankowego
-      uniqueSlug: parish.uniqueSlug, // Unikalny URL slug
+      kontoBank: parish.bankAccount || "", // Numer konta bankowego
+      uniqueSlug: parish.uniqueSlug || "", // Unikalny URL slug
       latitude: parish.latitude, // Współrzędne geograficzne
       longitude: parish.longitude, // Współrzędne geograficzne
       zebrane: totalRaised,
@@ -190,13 +190,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         name: nazwa || undefined,
         city: miejscowosc || undefined,
         address: adres || undefined,
-        phone: telefon || undefined,
-        email: email || undefined,
-        website: strona || undefined,
-        pastor: proboszcz || undefined,
-        description: opis || undefined,
-        bankAccount: kontoBank || undefined,
-        uniqueSlug: uniqueSlug || undefined,
+        phone: telefon && telefon.trim() ? telefon.trim() : null,
+        email: email && email.trim() ? email.trim() : null,
+        website: strona && strona.trim() ? strona.trim() : null,
+        pastor: proboszcz && proboszcz.trim() ? proboszcz.trim() : null,
+        description: opis && opis.trim() ? opis.trim() : null,
+        bankAccount: kontoBank && kontoBank.trim() ? kontoBank.trim() : null,
+        uniqueSlug: uniqueSlug && uniqueSlug.trim() ? uniqueSlug.trim() : null,
         latitude: latitude !== null ? latitude : undefined,
         longitude: longitude !== null ? longitude : undefined,
         updatedAt: new Date()

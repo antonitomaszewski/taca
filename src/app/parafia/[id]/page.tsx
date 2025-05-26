@@ -23,7 +23,8 @@ import {
   Email as EmailIcon,
   Language as LanguageIcon,
   Person as PersonIcon,
-  AccessTime as AccessTimeIcon
+  AccessTime as AccessTimeIcon,
+  AccountBalance as AccountBalanceIcon
 } from '@mui/icons-material';
 import Image from 'next/image';
 
@@ -64,6 +65,8 @@ async function getParafiaData(id: string) {
       rozkladMszy: data.rozkladMszy || null,
       opis: data.opis || 'Brak opisu parafii.',
       photoUrl: data.photoUrl || `/kosciol-${id}.jpg`, // Użyj zdjęcia z API lub domyślnego
+      kontoBank: data.kontoBank || null, // Konto bankowe
+      uniqueSlug: data.uniqueSlug || null, // Unikalny URL slug
       zebrane: data.zebrane || 0,
       cel: data.cel || 10000,
       wspierajacy: data.wspierajacy || 0,
@@ -387,6 +390,17 @@ export default async function ParafiaPage({ params }: ParafiaPageProps) {
                       <ListItemText 
                         primary={parafia.rozkladMszy}
                         primaryTypographyProps={{ variant: 'h6' }}
+                      />
+                    </ListItem>
+                  )}
+                  {parafia.kontoBank && (
+                    <ListItem sx={{ px: 0, py: 2 }}>
+                      <AccountBalanceIcon sx={{ mr: 3, color: 'text.secondary', fontSize: 28 }} />
+                      <ListItemText 
+                        primary="Konto bankowe"
+                        secondary={parafia.kontoBank}
+                        primaryTypographyProps={{ variant: 'body2', color: 'text.secondary', fontWeight: 600 }}
+                        secondaryTypographyProps={{ variant: 'h6', fontFamily: 'monospace', letterSpacing: 1 }}
                       />
                     </ListItem>
                   )}

@@ -21,3 +21,8 @@ ważne:
 DZIAŁAJĄCE PŁATNOŚCI Stripe/PayU payments
 POWIADOMIENIA MAILOWE Email notifications
 Admin panel
+
+.env.local ma pioriory
+npm run dev
+
+- Environments: .env.local, .env

@@ -20,7 +20,9 @@ import {
   PhotoCamera as PhotoCameraIcon,
   AttachMoney as MoneyIcon,
   Description as DescriptionIcon,
-  CloudUpload as CloudUploadIcon
+  CloudUpload as CloudUploadIcon,
+  AccountBalance as AccountBalanceIcon,
+  Link as LinkIcon
 } from '@mui/icons-material';
 
 export default function EdycjaParafii() {
@@ -42,6 +44,8 @@ export default function EdycjaParafii() {
     proboszcz: "",
     opis: "",
     photoUrl: "",
+    kontoBank: "",
+    uniqueSlug: "",
     celKwota: "",
     celOpis: ""
   });
@@ -87,7 +91,9 @@ export default function EdycjaParafii() {
         opis: data.opis || data.description || "",
         photoUrl: data.photoUrl || "",
         celKwota: data.cel ? data.cel.toString() : "",
-        celOpis: data.celOpis || ""
+        celOpis: data.celOpis || "",
+        kontoBank: data.kontoBank || data.bankAccount || "", // lub odpowiednia wartość
+        uniqueSlug: data.uniqueSlug || "" // lub odpowiednia wartość
       });
       
     } catch (error) {
@@ -141,6 +147,18 @@ export default function EdycjaParafii() {
     // Walidacja podstawowych pól
     if (!formData.nazwa || !formData.miejscowosc) {
       setError("Proszę wypełnić przynajmniej nazwę parafii i miejscowość.");
+      return;
+    }
+    
+    // Walidacja numeru konta bankowego (podstawowa - tylko cyfry i spacje)
+    if (formData.kontoBank && !/^[\d\s]*$/.test(formData.kontoBank.replace(/\s/g, ''))) {
+      setError("Numer konta bankowego może zawierać tylko cyfry i spacje.");
+      return;
+    }
+    
+    // Walidacja unique slug (tylko małe litery, cyfry i myślniki)
+    if (formData.uniqueSlug && !/^[a-z0-9-]+$/.test(formData.uniqueSlug)) {
+      setError("Unikalny adres może zawierać tylko małe litery, cyfry i myślniki.");
       return;
     }
     
@@ -303,7 +321,61 @@ export default function EdycjaParafii() {
             </CardContent>
           </Card>
 
-          {/* Section 2: Photo Upload */}
+          {/* Section 2: Bank Account & Unique URL */}
+          <Card sx={{ bgcolor: '#e8f5e8', border: '2px solid #4caf50' }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                <AccountBalanceIcon sx={{ fontSize: 32, color: '#2e7d32', mr: 2 }} />
+                <Typography variant="h5" sx={{ color: '#2e7d32', fontWeight: 'bold' }}>
+                  🏦 Konto bankowe i adres strony
+                </Typography>
+              </Box>
+              
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <TextField
+                  fullWidth
+                  label="Numer konta bankowego"
+                  value={formData.kontoBank}
+                  onChange={handleChange('kontoBank')}
+                  placeholder="np. 12 3456 7890 1234 5678 9012 3456"
+                  variant="outlined"
+                  helperText="Wprowadź numer konta na które będą wpłacane dotacje"
+                  sx={{
+                    '& .MuiInputBase-input': {
+                      fontFamily: 'monospace',
+                      fontSize: '1rem'
+                    }
+                  }}
+                />
+                
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <LinkIcon sx={{ fontSize: 24, color: '#2e7d32' }} />
+                  <TextField
+                    fullWidth
+                    label="Unikalny adres strony"
+                    value={formData.uniqueSlug}
+                    onChange={handleChange('uniqueSlug')}
+                    placeholder="np. parafia-sw-marii-wroclaw"
+                    variant="outlined"
+                    helperText="Unikalny identyfikator dla Twojej parafii w adresie URL (tylko małe litery, cyfry i myślniki)"
+                    InputProps={{
+                      startAdornment: (
+                        <Typography variant="body2" sx={{ color: '#666', mr: 1 }}>
+                          taca.pl/
+                        </Typography>
+                      ),
+                    }}
+                  />
+                </Box>
+                
+                <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
+                  💡 Podanie numeru konta i unikalnego adresu pomoże darczyńcom łatwiej znaleźć i wesprzeć Twoją parafię
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+
+          {/* Section 3: Photo Upload */}
           <Card sx={{ bgcolor: '#e3f2fd', border: '2px solid #2196f3' }}>
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -376,7 +448,7 @@ export default function EdycjaParafii() {
             </CardContent>
           </Card>
 
-          {/* Section 3: Description */}
+          {/* Section 4: Description */}
           <Card sx={{ bgcolor: '#f3e5f5', border: '2px solid #9c27b0' }}>
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -407,7 +479,7 @@ export default function EdycjaParafii() {
             </CardContent>
           </Card>
 
-          {/* Section 4: Fundraising */}
+          {/* Section 5: Fundraising */}
           <Card sx={{ bgcolor: '#fff3e0', border: '2px solid #ff9800' }}>
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>

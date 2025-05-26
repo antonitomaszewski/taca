@@ -91,7 +91,20 @@ export async function POST(request: NextRequest) {
     )
 
   } catch (error) {
-    console.error('Błąd rejestracji:', error)
+    console.error('Błąd rejestracji:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      error: String(error)
+    })
+    
+    // Sprawdź czy to błąd związany z polami wymaganymi
+    if (error instanceof Error && error.message.includes('required')) {
+      return NextResponse.json(
+        { error: 'Brakuje wymaganych danych parafii' },
+        { status: 400 }
+      )
+    }
+    
     return NextResponse.json(
       { error: 'Wystąpił błąd podczas rejestracji' },
       { status: 500 }

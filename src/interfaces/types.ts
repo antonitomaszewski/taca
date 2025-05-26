@@ -12,6 +12,8 @@ export interface Parish {
   description?: string;
   pastor?: string;
   massSchedule?: string;
+  bankAccount?: string;  // Numer konta bankowego
+  uniqueSlug?: string;   // Unikalny URL slug
   createdAt: Date;
   updatedAt: Date;
   fundraisingGoals?: FundraisingGoal[];

@@ -73,6 +73,8 @@ export default function RejestracjaParafii() {
     setError("");
 
     try {
+      console.log('🔄 Wysyłanie danych rejestracji:', formData);
+      
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: {
@@ -81,7 +83,22 @@ export default function RejestracjaParafii() {
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      console.log('📡 Odpowiedź serwera - status:', response.status);
+      console.log('📡 Odpowiedź serwera - headers:', response.headers);
+
+      // Sprawdź czy response ma zawartość
+      const text = await response.text();
+      console.log('📡 Raw response text:', text);
+
+      let data;
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (parseError) {
+        console.error('❌ Błąd parsowania JSON:', parseError);
+        throw new Error('Serwer zwrócił niepoprawną odpowiedź');
+      }
+
+      console.log('📡 Parsed response data:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Wystąpił błąd podczas rejestracji');
@@ -92,6 +109,7 @@ export default function RejestracjaParafii() {
       window.location.href = "/edycja-parafii";
       
     } catch (error) {
+      console.error('❌ Błąd rejestracji:', error);
       setError(error instanceof Error ? error.message : 'Wystąpił nieoczekiwany błąd');
     } finally {
       setLoading(false);

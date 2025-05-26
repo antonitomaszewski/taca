@@ -101,6 +101,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       rozkladMszy: parish.massSchedule,
       opis: parish.description || 'Brak opisu parafii.',
       photoUrl: '/katedra_wroclaw.jpg', // Default image for now
+      kontoBank: parish.bankAccount, // Numer konta bankowego
+      uniqueSlug: parish.uniqueSlug, // Unikalny URL slug
       zebrane: totalRaised,
       cel: totalTarget,
       wspierajacy: totalSupporters,
@@ -141,6 +143,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       proboszcz,
       opis,
       photoUrl,
+      kontoBank,
+      uniqueSlug,
       celKwota,
       celOpis
     } = body;
@@ -158,6 +162,23 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // Walidacja unique slug jeśli został podany
+    if (uniqueSlug) {
+      const existingParish = await prisma.parish.findFirst({
+        where: {
+          uniqueSlug: uniqueSlug,
+          id: { not: id } // Wyklucz obecną parafię
+        }
+      });
+      
+      if (existingParish) {
+        return NextResponse.json(
+          { error: 'Ten unikalny adres jest już zajęty przez inną parafię' },
+          { status: 400 }
+        );
+      }
+    }
+
     // Aktualizuj parafię
     const updatedParish = await prisma.parish.update({
       where: { id },
@@ -170,6 +191,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         website: strona || undefined,
         pastor: proboszcz || undefined,
         description: opis || undefined,
+        bankAccount: kontoBank || undefined,
+        uniqueSlug: uniqueSlug || undefined,
         updatedAt: new Date()
       }
     });
@@ -180,7 +203,20 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     });
 
   } catch (error) {
-    console.error('Błąd aktualizacji parafii:', error);
+    console.error('Błąd aktualizacji parafii:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      error: String(error)
+    });
+    
+    // Sprawdź czy to błąd unikalności w bazie danych
+    if (error instanceof Error && error.message.includes('Unique constraint')) {
+      return NextResponse.json(
+        { error: 'Ten unikalny adres jest już zajęty przez inną parafię' },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Wystąpił błąd podczas aktualizacji parafii' },
       { status: 500 }

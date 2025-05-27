@@ -46,3 +46,6 @@ powinnobyć jak na githubie
 /user/
 trzeba uważać, żeby nikt sobie nie ustawił slug = parafia (trzeba wprowadzić zabronione opcje)
 
+potrzeba dodać forbidden: tak samo jak not found
+(gdy wejdziemy w link edycji parafii, mimo ze nie możemy)
+

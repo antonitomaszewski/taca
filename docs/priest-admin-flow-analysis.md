@@ -2,40 +2,7 @@
 
 ## 🔍 OBECNY STAN
 
-### ✅ GOTOWE KOMPONENTY:
-1. **Strona główna** (`/`) - z przyciskiem logowania i rejestracji
-2. **Rejestracja parafii** (`/rejestracja-parafii`) - kompletny formularz
-3. **Edycja profilu parafii** (`/edycja-parafii`) - 4-sekcyjny interface
-4. **LoginButton** - modal w stylu Facebook z zielonym motywem
-5. **API endpointy** - `/api/parishes` i `/api/parishes/[id]`
-6. **Baza danych** - Prisma schema z modelami Parish, FundraisingGoal, Payment
-
 ### ❌ GŁÓWNE LUKI W PRZEPŁYWIE:
-
-## 1. 🔐 SYSTEM AUTENTYKACJI
-**Problem**: Brak prawdziwego systemu uwierzytelniania
-- ❌ Brak NextAuth.js
-- ❌ Brak hashowania haseł (bcrypt)
-- ❌ Brak zarządzania sesjami
-- ❌ Brak middleware ochrony tras
-- ❌ LoginButton nie łączy się z bazą danych
-
-**Konsekwencje**:
-- Księża nie mogą się zalogować
-- Brak ochrony danych parafii
-- Niemożliwe zarządzanie kontem
-
-## 2. 💾 INTEGRACJA Z BAZĄ DANYCH
-**Problem**: Formularze nie zapisują danych
-- ❌ Rejestracja nie tworzy konta w bazie
-- ❌ Edycja parafii nie zapisuje zmian
-- ❌ Brak API endpointów POST/PUT/DELETE
-- ❌ Brak walidacji po stronie serwera
-
-**Konsekwencje**:
-- Dane parafii giną po odświeżeniu
-- Niemożliwe zakładanie prawdziwych kont
-- Formularz edycji jest tylko "demo"
 
 ## 3. 📊 PANEL ADMINISTRATORA PARAFII
 **Problem**: Brak miejsca docelowego po zalogowaniu
@@ -50,10 +17,7 @@
 - Niemożliwe monitorowanie wpłat
 
 ## 4. ✅ WALIDACJA I BEZPIECZEŃSTWO
-**Problem**: Podstawowa walidacja tylko frontend
-- ❌ Brak walidacji email/telefon
 - ❌ Brak sprawdzania siły hasła
-- ❌ Brak zabezpieczeń CSRF
 - ❌ Brak ograniczeń rate limiting
 
 ## 5. 🔄 NAWIGACJA I UX

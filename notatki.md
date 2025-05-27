@@ -29,3 +29,19 @@ npm run dev
 
 - Environments: .env.local, .env
 jedną z ważniejszych stron jest not found - ją należy zaimplementować na samym początku. Wyświetla się zawsze, gdy nie mamy dostępu do danego widoku
+
+
+Gotowe sklepy:
+2click.pl (Trol)
+Aptusshop
+Comarch
+inna
+KQS.store
+Magento 1
+Magento 2
+OpenCart
+PrestaShop
+Sote
+Sellsmart
+Woocommerce
+

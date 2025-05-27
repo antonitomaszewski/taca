@@ -42,7 +42,14 @@ export default function MapComponent({ search, parishes }: MapComponentProps) {
             <br />
             <button
               style={{marginTop:8, padding:'6px 16px', background:'#1976d2', color:'#fff', border:'none', borderRadius:4, cursor:'pointer'}}
-              onClick={() => router.push(`/parafia/${parish.id}`)}
+              onClick={() => {
+                // Użyj slug-a jeśli dostępny, w przeciwnym razie fallback na ID
+                if (parish.uniqueSlug) {
+                  router.push(`/${parish.uniqueSlug}`);
+                } else {
+                  router.push(`/parafia/${parish.id}`);
+                }
+              }}
             >
               Wybierz
             </button>

@@ -29,6 +29,7 @@ import {
   Link as LinkIcon,
   Info as InfoIcon
 } from '@mui/icons-material';
+import { validateSlug, generateSlugSuggestion } from '../../lib/forbiddenSlugs';
 
 // Ładowanie komponentu mapy dynamicznie (bez SSR)
 const EditMapComponent = dynamic(() => import('./EditMapComponent'), {
@@ -142,11 +143,12 @@ export default function EdycjaParafii() {
       tooltip: "Przyjazny adres URL dla Twojej parafii (tylko małe litery, cyfry i myślniki)",
       required: false,
       validate: (value: string) => {
-        if (value && !/^[a-z0-9-]+$/.test(value)) {
-          return "Adres może zawierać tylko małe litery, cyfry i myślniki";
-        }
-        if (value && value.length < 3) {
-          return "Adres musi mieć co najmniej 3 znaki";
+        if (value) {
+          // Użyj naszej centralnej funkcji walidacji slug'ów
+          const error = validateSlug(value);
+          if (error) {
+            return error;
+          }
         }
         return "";
       }
@@ -538,7 +540,7 @@ export default function EdycjaParafii() {
               <Button
                 variant="outlined"
                 color="success"
-                href={`/parafia/${parishId}`}
+                href={formData.uniqueSlug ? `/${formData.uniqueSlug}` : `/parafia/${parishId}`}
                 sx={{
                   borderColor: '#4caf50',
                   color: '#4caf50',
@@ -891,28 +893,59 @@ export default function EdycjaParafii() {
                         </IconButton>
                       </Tooltip>
                     </Box>
-                    <TextField
-                      fullWidth
-                      value={formData.uniqueSlug}
-                      onChange={handleChange('uniqueSlug')}
-                      placeholder={FIELD_DEFINITIONS.uniqueSlug.placeholder}
-                      variant="outlined"
-                      error={hasError('uniqueSlug')}
-                      helperText={getErrorMessage('uniqueSlug') || "Unikalny identyfikator dla Twojej parafii w adresie URL"}
-                      InputProps={{
-                        startAdornment: (
-                          <Typography variant="body2" sx={{ color: '#666', mr: 1 }}>
-                            taca.pl/
-                          </Typography>
-                        ),
-                      }}
-                      sx={{
-                        '& input:-webkit-autofill': {
-                          WebkitBoxShadow: '0 0 0 1000px white inset !important',
-                          WebkitTextFillColor: '#000 !important',
-                        }
-                      }}
-                    />
+                    <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                      <TextField
+                        fullWidth
+                        value={formData.uniqueSlug}
+                        onChange={handleChange('uniqueSlug')}
+                        placeholder={FIELD_DEFINITIONS.uniqueSlug.placeholder}
+                        variant="outlined"
+                        error={hasError('uniqueSlug')}
+                        helperText={getErrorMessage('uniqueSlug') || "Unikalny identyfikator dla Twojej parafii w adresie URL"}
+                        InputProps={{
+                          startAdornment: (
+                            <Typography variant="body2" sx={{ color: '#666', mr: 1 }}>
+                              taca.pl/
+                            </Typography>
+                          ),
+                        }}
+                        sx={{
+                          '& input:-webkit-autofill': {
+                            WebkitBoxShadow: '0 0 0 1000px white inset !important',
+                            WebkitTextFillColor: '#000 !important',
+                          }
+                        }}
+                      />
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => {
+                          const suggestion = generateSlugSuggestion(formData.nazwa, formData.miejscowosc);
+                          setFormData(prev => ({ ...prev, uniqueSlug: suggestion }));
+                          // Oznacz pole jako dotknięte i waliduj
+                          setTouchedFields(prev => ({ ...prev, uniqueSlug: true }));
+                          const error = validateField('uniqueSlug', suggestion);
+                          setFieldErrors(prev => ({ ...prev, uniqueSlug: error }));
+                        }}
+                        disabled={!formData.nazwa.trim() || !formData.miejscowosc.trim()}
+                        sx={{
+                          whiteSpace: 'nowrap',
+                          borderColor: '#4caf50',
+                          color: '#4caf50',
+                          height: '56px',
+                          '&:hover': {
+                            borderColor: '#2e7d32',
+                            backgroundColor: '#e8f5e8'
+                          },
+                          '&:disabled': {
+                            borderColor: '#ccc',
+                            color: '#999'
+                          }
+                        }}
+                      >
+                        Auto-generuj
+                      </Button>
+                    </Box>
                   </Box>
                 </Box>
                 

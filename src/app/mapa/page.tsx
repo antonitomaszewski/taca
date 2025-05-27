@@ -40,8 +40,13 @@ export default function MapaPage() {
     p.city.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleSelectParish = (id: string) => {
-    router.push(`/parafia/${id}`);
+  const handleSelectParish = (parish: Parish) => {
+    // Użyj slug-a jeśli dostępny, w przeciwnym razie fallback na ID
+    if (parish.uniqueSlug) {
+      router.push(`/${parish.uniqueSlug}`);
+    } else {
+      router.push(`/parafia/${parish.id}`);
+    }
   };
 
   return (
@@ -150,7 +155,7 @@ export default function MapaPage() {
                     cursor: 'pointer',
                     '&:hover': { bgcolor: '#f8f9fa' }
                   }}
-                  onClick={() => handleSelectParish(parish.id)}
+                  onClick={() => handleSelectParish(parish)}
                 >
                   <LocationOnIcon sx={{ color: 'primary.main', mr: 2 }} />
                   <ListItemText

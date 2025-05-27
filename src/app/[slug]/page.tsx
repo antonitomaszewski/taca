@@ -1,5 +1,7 @@
-import { notFound, redirect } from 'next/navigation';
-import { prisma } from '../../lib/prisma';
+import { notFound } from 'next/navigation';
+import { getParafiaDataBySlug } from '../../lib/parafiaData';
+import ParafiaView from '../../components/ParafiaView';
+import { isForbiddenSlug } from '../../lib/forbiddenSlugs';
 
 interface SlugPageProps {
   params: Promise<{
@@ -10,26 +12,23 @@ interface SlugPageProps {
 export default async function SlugPage({ params }: SlugPageProps) {
   const { slug } = await params;
   
+  // Sprawdź czy to nie jest plik (z rozszerzeniem)
+  if (/\.(jpg|jpeg|png|gif|webp|svg|pdf|txt|css|js|ico|xml|json)$/i.test(slug)) {
+    notFound();
+  }
+  
+  // Sprawdź czy slug nie jest zakazany (np. "parafia", "admin", itp.)
+  if (isForbiddenSlug(slug)) {
+    notFound();
+  }
+  
   try {
-    // Znajdź parafię po uniqueSlug
-    const parish = await prisma.parish.findUnique({
-      where: { uniqueSlug: slug }
-    });
-
-    if (!parish) {
-      // Jeśli nie znaleziono parafii z tym slugiem, pokaż 404
-      notFound();
-    }
-
-    // Przekieruj do standardowej strony parafii
-    redirect(`/parafia/${parish.id}`);
-  } catch (error) {
-    // Sprawdź czy to błąd przekierowania (normalny przypadek)
-    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
-      // To nie jest prawdziwy błąd - Next.js używa tego do przekierowań
-      throw error;
-    }
+    // Pobierz dane parafii po uniqueSlug
+    const parafia = await getParafiaDataBySlug(slug);
     
+    // Wyświetl parafię bezpośrednio używając komponentu ParafiaView
+    return <ParafiaView parafia={parafia} showEditButton={false} />;
+  } catch (error) {
     console.error('Error finding parish by slug:', error);
     notFound();
   }
@@ -39,24 +38,29 @@ export default async function SlugPage({ params }: SlugPageProps) {
 export async function generateMetadata({ params }: SlugPageProps) {
   const { slug } = await params;
   
-  try {
-    const parish = await prisma.parish.findUnique({
-      where: { uniqueSlug: slug }
-    });
-
-    if (!parish) {
-      return {
-        title: 'Parafia nie znaleziona - Taca.pl'
-      };
-    }
-
+  // Sprawdź czy slug nie jest zakazany
+  if (isForbiddenSlug(slug)) {
     return {
-      title: `${parish.name} - Taca.pl`,
-      description: parish.description || `Wspieraj parafię ${parish.name} w ${parish.city}`,
+      title: 'Nie znaleziono - Taca.pl',
+      description: 'Strona nie została znaleziona.'
     };
-  } catch {
+  }
+  
+  try {
+    const parafia = await getParafiaDataBySlug(slug);
+
     return {
-      title: 'Parafia - Taca.pl'
+      title: `${parafia.nazwa} - ${parafia.miejscowosc} | Taca.pl`,
+      description: `Wesprzyj parafię ${parafia.nazwa} w ${parafia.miejscowosc}. ${parafia.opis.substring(0, 150)}...`,
+      openGraph: {
+        title: `${parafia.nazwa} - ${parafia.miejscowosc}`,
+        description: parafia.opis.substring(0, 200),
+        images: [parafia.photoUrl],
+      },
+    };
+  } catch (error) {
+    return {
+      title: 'Parafia nie znaleziona - Taca.pl'
     };
   }
 }

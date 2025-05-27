@@ -8,7 +8,8 @@ import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import Radio from '@mui/material/Radio';
@@ -20,8 +21,12 @@ import Alert from '@mui/material/Alert';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Slider from '@mui/material/Slider';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function PlatnoscPage() {
+  const searchParams = useSearchParams();
+  const parishId = searchParams.get('parishId');
+  
   const [kwota, setKwota] = useState('50');
   const [wlasnaKwota, setWlasnaKwota] = useState('');
   const [metoda, setMetoda] = useState('blik');
@@ -33,6 +38,118 @@ export default function PlatnoscPage() {
   const [typPlatnosci, setTypPlatnosci] = useState<'jednorazowa' | 'abonamentowa'>('jednorazowa');
   const [czestotliwoscAbonamentu, setCzestotliwoscAbonamentu] = useState<'tygodniowo' | 'miesiecznie'>('miesiecznie');
   const [wsparciePlatformy, setWsparciePlatformy] = useState(5); // Domyślnie 5%
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Stan dla danych parafii
+  const [parish, setParish] = useState<{
+    id: string;
+    name: string;
+    city: string;
+  } | null>(null);
+  const [parishLoading, setParishLoading] = useState(false);
+
+  // Pobierz dane parafii gdy ID się zmieni
+  useEffect(() => {
+    const fetchParishData = async () => {
+      if (!parishId) {
+        // Jeśli brak ID parafii, ustaw domyślną
+        setParish({
+          id: 'default-parish-id',
+          name: 'Domyślna parafia',
+          city: 'Wrocław'
+        });
+        return;
+      }
+
+      setParishLoading(true);
+      try {
+        const response = await fetch(`/api/parishes/${parishId}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Nie udało się pobrać danych parafii');
+        }
+
+        setParish({
+          id: data.id,
+          name: data.name || data.nazwa,
+          city: data.city || data.miejscowosc
+        });
+      } catch (err) {
+        console.error('Błąd pobierania danych parafii:', err);
+        setError('Nie udało się pobrać danych parafii');
+      } finally {
+        setParishLoading(false);
+      }
+    };
+
+    fetchParishData();
+  }, [parishId]);
+
+  // Funkcja obsługi płatności
+  const handlePayment = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Walidacja danych
+      if (!email) {
+        throw new Error('Email jest wymagany');
+      }
+      if (!email.includes('@')) {
+        throw new Error('Podaj poprawny adres email');
+      }
+      if (suma === 0) {
+        throw new Error('Kwota musi być większa od 0');
+      }
+
+      // Przygotowanie danych płatności zgodnych z API
+      const paymentData = {
+        parishId: parish?.id || 'default-parish-id', // Użyj rzeczywistego ID parafii
+        amount: calkowitaKwota, // Łączna kwota w PLN
+        donorName: podpis || undefined,
+        donorEmail: email,
+        message: `Wsparcie parafii${parish ? ` - ${parish.name}` : ''} - ${typPlatnosci}${typPlatnosci === 'abonamentowa' ? ` (${czestotliwoscAbonamentu})` : ''}`,
+        isAnonymous: ukryjPodpis,
+        paymentMethod: metoda,
+        isRecurring: typPlatnosci === 'abonamentowa',
+        recurringFrequency: typPlatnosci === 'abonamentowa' ? 
+          (czestotliwoscAbonamentu === 'tygodniowo' ? 'weekly' : 'monthly') : 
+          undefined,
+      };
+
+      console.log('Wysyłanie danych płatności:', paymentData);
+
+      // Wywołanie API płatności
+      const response = await fetch('/api/payments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Wystąpił błąd podczas przetwarzania płatności');
+      }
+
+      // Przekierowanie do Przelewy24
+      if (result.paymentUrl) {
+        console.log('Przekierowanie na:', result.paymentUrl);
+        window.location.href = result.paymentUrl;
+      } else {
+        throw new Error('Nie otrzymano adresu przekierowania');
+      }
+    } catch (err) {
+      console.error('Błąd płatności:', err);
+      setError(err instanceof Error ? err.message : 'Wystąpił nieoczekiwany błąd');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const kwoty = ['10', '20', '50', '100', '200', '500', '1000'];
   const metody = [
@@ -128,8 +245,22 @@ export default function PlatnoscPage() {
             </Box>
           )}
           <Typography variant="h5" sx={{ mb: 2 }}>
-            Wspierasz parafię
+            {parishLoading ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CircularProgress size={20} />
+                Ładowanie danych parafii...
+              </Box>
+            ) : parish ? (
+              `Wspierasz ${parish.name}`
+            ) : (
+              'Wspierasz parafię'
+            )}
           </Typography>
+          {parish && (
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              {parish.city}
+            </Typography>
+          )}
           <Divider sx={{ marginBottom: 2 }} />
           <Typography variant="subtitle1" sx={{ mb: 1 }}>
             Wybierz kwotę
@@ -381,23 +512,41 @@ export default function PlatnoscPage() {
             label={<span>Otrzymuj okazjonalne wiadomości marketingowe.</span>}
             sx={{ mb: 2 }}
           />
+          
+          {/* Wyświetlanie błędów */}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+          
           <Button
             variant="contained"
             color="primary"
             fullWidth
             size="large"
-            disabled={!zgodaRegulamin || suma === 0}
+            disabled={!zgodaRegulamin || suma === 0 || loading}
+            onClick={handlePayment}
             sx={{ 
               py: 1.5, 
               fontSize: 18,
               bgcolor: '#4caf50',
-              '&:hover': { bgcolor: '#45a049' }
+              '&:hover': { bgcolor: '#45a049' },
+              '&:disabled': {
+                bgcolor: '#cccccc',
+              }
             }}
           >
-            {typPlatnosci === 'jednorazowa' 
-              ? `Wpłać teraz ${calkowitaKwota.toFixed(2)} zł` 
-              : `Ustaw abonament ${calkowitaKwota.toFixed(2)} zł ${czestotliwoscAbonamentu}`
-            }
+            {loading ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CircularProgress size={20} color="inherit" />
+                Przetwarzanie...
+              </Box>
+            ) : (
+              typPlatnosci === 'jednorazowa' 
+                ? `Wpłać teraz ${calkowitaKwota.toFixed(2)} zł` 
+                : `Ustaw abonament ${calkowitaKwota.toFixed(2)} zł ${czestotliwoscAbonamentu}`
+            )}
           </Button>
           <Alert severity="info" sx={{ mt: 2 }}>
             Bezpieczne płatności online

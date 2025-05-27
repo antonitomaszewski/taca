@@ -13,9 +13,10 @@ info każdej parafii: http://www.psiepole.archidiecezja.wroc.pl/kontakt.html
 svg repo https://www.svgrepo.com/vectors/map-marker/multicolor/
 
 npx prisma migrate dev --name add_bank_account_and_unique_slug
-npx prisma generate
-npx prisma studio
+npx prisma db seed
 npx prisma db push
+<!-- npx prisma generate -->
+npx prisma studio
 
 
 ważne:

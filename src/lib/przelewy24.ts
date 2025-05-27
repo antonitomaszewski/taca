@@ -128,7 +128,19 @@ export function generateSessionId(): string {
 export async function createPrzelewy24Transaction(
   transactionData: Przelewy24TransactionData
 ): Promise<{ paymentUrl: string; token: string }> {
+  // TRYB DEMO - jeśli nie ma poprawnych credentials
   const config = getPrzelewy24Config();
+  
+  // Sprawdź czy to są testowe credentials
+  if (config.merchantId === 123456 || config.apiKey === 'twoj-api-key-tutaj') {
+    console.log('TRYB DEMO: Używam mocka Przelewy24');
+    // Zwróć mocki URL dla testów
+    const mockToken = `mock_${Date.now()}`;
+    return {
+      paymentUrl: `http://localhost:3000/platnosc/sukces?token=${mockToken}`,
+      token: mockToken,
+    };
+  }
   
   // Generuj podpis CRC dla bezpieczeństwa
   const crcSignature = generateCrcSignature(
@@ -168,6 +180,15 @@ export async function createPrzelewy24Transaction(
     : PRZELEWY24_CONFIG.PRODUCTION_API_URL;
 
   try {
+    console.log('Wysyłanie żądania do Przelewy24:', {
+      url: `${apiUrl}/transaction/register`,
+      merchantId: config.merchantId,
+      posId: config.posId,
+      sessionId: transactionData.sessionId,
+      amount: transactionData.amount,
+      // Nie loguj wrażliwych danych jak API key
+    });
+
     // Wyślij żądanie do Przelewy24 API
     const response = await fetch(`${apiUrl}/transaction/register`, {
       method: 'POST',
@@ -178,23 +199,50 @@ export async function createPrzelewy24Transaction(
       body: JSON.stringify(requestData),
     });
 
+    console.log('Odpowiedź Przelewy24:', {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+    });
+
     if (!response.ok) {
       const errorData = await response.text();
+      console.error('Błąd Przelewy24 API:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorData,
+      });
       throw new Error(`Przelewy24 API Error: ${response.status} - ${errorData}`);
     }
 
     const responseData = await response.json();
+    
+    console.log('Pełna odpowiedź Przelewy24:', JSON.stringify(responseData, null, 2));
+    
+    // Sprawdź różne możliwe struktury odpowiedzi
+    let token = null;
+    
+    if (responseData.data && responseData.data.token) {
+      token = responseData.data.token;
+    } else if (responseData.token) {
+      token = responseData.token;
+    } else if (responseData.sessionId) {
+      token = responseData.sessionId;
+    } else {
+      console.error('Nie znaleziono tokenu/sessionId w odpowiedzi:', responseData);
+      throw new Error('Brak identyfikatora sesji płatności');
+    }
     
     // Przelewy24 zwraca token, z którego budujemy URL płatności
     const baseUrl = config.isSandbox 
       ? PRZELEWY24_CONFIG.SANDBOX_URL 
       : PRZELEWY24_CONFIG.PRODUCTION_URL;
     
-    const paymentUrl = `${baseUrl}/trnRequest/${responseData.data.token}`;
+    const paymentUrl = `${baseUrl}/trnRequest/${token}`;
 
     return {
       paymentUrl,
-      token: responseData.data.token,
+      token,
     };
 
   } catch (error) {

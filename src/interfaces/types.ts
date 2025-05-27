@@ -46,6 +46,7 @@ export interface Payment {
   status: PaymentStatus;
   paymentMethod?: string;
   transactionId?: string;
+  metadata?: string; // JSON z dodatkowymi danymi z Przelewy24
   createdAt: Date;
   updatedAt: Date;
   parishId: string;

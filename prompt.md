@@ -12,7 +12,7 @@ Please consider:
 - Best practices for [language/framework]
 Please do not unnecessarily remove any comments or code.
 Generate the code with clear comments explaining the logic.
-
+Ja wykonuje komendy w terminalu, ty mi je podawaj, ale sam będę je puszczał i podawał Ci ich wynik
 
 
 ## do zrobienia

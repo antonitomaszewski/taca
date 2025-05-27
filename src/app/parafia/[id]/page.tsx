@@ -260,7 +260,7 @@ export default async function ParafiaPage({ params }: ParafiaPageProps) {
                       fontWeight: 600,
                       borderRadius: 3,
                     }}
-                    href="/platnosc"
+                    href={`/platnosc?parishId=${id}`}
                   >
                     Wesprzyj parafię
                   </Button>

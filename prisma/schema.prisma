@@ -71,6 +71,7 @@ model Payment {
   status        PaymentStatus @default(PENDING)
   paymentMethod String?
   transactionId String?
+  metadata      Json?    // Dodatkowe dane z Przelewy24 (token, URL, itp.)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   

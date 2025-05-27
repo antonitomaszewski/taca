@@ -3,6 +3,22 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const parishes = [
+  // Domyślna parafia dla testów płatności
+  {
+    name: "Parafia Testowa Taca.pl",
+    address: "ul. Testowa 1",
+    city: "Wrocław",
+    zipCode: "00-000",
+    latitude: 51.1079,
+    longitude: 17.0385,
+    phone: "+48 000 000 000",
+    email: "test@taca.pl",
+    website: "https://taca.pl",
+    description: "Parafia testowa dla systemu płatności Taca.pl",
+    pastor: "ks. Test Testowy",
+    massSchedule: "Testowe: 10:00",
+    uniqueSlug: "parafia-testowa-taca-pl"
+  },
   {
     name: "Parafia św. Eliziety",
     address: "ul. św. Antoniego 26",

@@ -95,23 +95,62 @@ export async function POST(request: NextRequest) {
     // Rejestracja proboszcza z parafią (dwuetapowa)
     if (accountType === ACCOUNT_TYPES.PARISH_ADMIN) {
       // Walidacja danych parafii
-      if (!parishData || !parishData.nazwaParafii || !parishData.adresParafii || !parishData.miastoParafii) {
+      if (!parishData || !parishData.nazwaParafii || !parishData.adresParafii || !parishData.miastoParafii || !parishData.identyfikatorParafii || !parishData.numerKonta) {
         return NextResponse.json(
           { error: 'Brakuje wymaganych danych parafii' },
           { status: 400 }
         )
       }
 
+      // Walidacja identyfikatora parafii (uniqueSlug)
+      const slugRegex = /^[a-z0-9-]+$/;
+      if (!slugRegex.test(parishData.identyfikatorParafii)) {
+        return NextResponse.json(
+          { error: 'Identyfikator parafii może zawierać tylko małe litery, cyfry i myślniki' },
+          { status: 400 }
+        )
+      }
+
+      // Walidacja numeru konta (26 cyfr)
+      const accountRegex = /^\d{26}$/;
+      if (!accountRegex.test(parishData.numerKonta.replace(/\s/g, ''))) {
+        return NextResponse.json(
+          { error: 'Numer konta musi zawierać dokładnie 26 cyfr' },
+          { status: 400 }
+        )
+      }
+
+      // Walidacja zdjęcia parafii
+      if (!parishData.zdjecieParafii) {
+        return NextResponse.json(
+          { error: 'Zdjęcie parafii jest wymagane' },
+          { status: 400 }
+        )
+      }
+
       // Sprawdź czy parafia o tej nazwie już istnieje
       const existingParish = await prisma.parish.findFirst({
-        where: { name: parishData.nazwaParafii }
+        where: { 
+          OR: [
+            { name: parishData.nazwaParafii },
+            { uniqueSlug: parishData.identyfikatorParafii }
+          ]
+        }
       })
 
       if (existingParish) {
-        return NextResponse.json(
-          { error: 'Parafia o tej nazwie już istnieje' },
-          { status: 400 }
-        )
+        if (existingParish.name === parishData.nazwaParafii) {
+          return NextResponse.json(
+            { error: 'Parafia o tej nazwie już istnieje' },
+            { status: 400 }
+          )
+        }
+        if (existingParish.uniqueSlug === parishData.identyfikatorParafii) {
+          return NextResponse.json(
+            { error: 'Identyfikator parafii jest już zajęty' },
+            { status: 400 }
+          )
+        }
       }
 
       // Stwórz parafię i użytkownika w transakcji
@@ -120,18 +159,20 @@ export async function POST(request: NextRequest) {
         const parish = await tx.parish.create({
           data: {
             name: parishData.nazwaParafii,
+            uniqueSlug: parishData.identyfikatorParafii,
             address: parishData.adresParafii,
             city: parishData.miastoParafii,
             zipCode: parishData.kodPocztowyParafii || null,
-            latitude: 0, // Tymczasowe wartości - będą uzupełnione
-            longitude: 0, // Tymczasowe wartości - będą uzupełnione
+            latitude: parishData.latitude || 0, // Użyj przekazanych współrzędnych lub domyślnych
+            longitude: parishData.longitude || 0, // Użyj przekazanych współrzędnych lub domyślnych
             phone: parishData.telefonParafii || null,
             email: parishData.emailParafii || userData.email,
             website: parishData.stronkaParafii || null,
             description: parishData.opisParafii || null,
             pastor: parishData.proboszczParafii || userData.imieNazwisko,
             massSchedule: parishData.godzinyMsz || null,
-            bankAccount: parishData.numerKonta || null,
+            bankAccount: parishData.numerKonta,
+            photoUrl: parishData.zdjecieParafii ? `parish-${parishData.identyfikatorParafii}.jpg` : null, // Tymczasowo - będzie implementowany upload
           }
         })
 
@@ -153,6 +194,7 @@ export async function POST(request: NextRequest) {
         { 
           message: 'Rejestracja parafii przebiegła pomyślnie',
           parishId: result.parish.id,
+          parishSlug: result.parish.uniqueSlug,
           userId: result.user.id,
           accountType: ACCOUNT_TYPES.PARISH_ADMIN
         },
@@ -176,68 +218,6 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error && error.message.includes('required')) {
       return NextResponse.json(
         { error: 'Brakuje wymaganych danych' },
-        { status: 400 }
-      )
-    }
-    
-    return NextResponse.json(
-      { error: 'Wystąpił błąd podczas rejestracji' },
-      { status: 500 }
-    )
-  }
-}
-    const hashedPassword = await bcrypt.hash(haslo, 12)
-
-    // Stwórz parafię i użytkownika w transakcji
-    const result = await prisma.$transaction(async (tx) => {
-      // Najpierw stwórz parafię
-      const parish = await tx.parish.create({
-        data: {
-          name: nazwaParafii,
-          address: '', // Będzie uzupełnione później w edycji
-          city: '', // Będzie uzupełnione później w edycji
-          latitude: 0, // Tymczasowe wartości - będą uzupełnione
-          longitude: 0, // Tymczasowe wartości - będą uzupełnione
-          phone: telefon || '',
-          email: email,
-          // Inne pola opcjonalne - będą uzupełnione w edycji
-        }
-      })
-
-      // Potem stwórz użytkownika i połącz z parafią
-      const user = await tx.user.create({
-        data: {
-          email,
-          name: imieNazwisko,
-          password: hashedPassword,
-          role: UserRole.PARISH_ADMIN,
-          parishId: parish.id
-        }
-      })
-
-      return { parish, user }
-    })
-
-    return NextResponse.json(
-      { 
-        message: 'Rejestracja przebiegła pomyślnie',
-        parishId: result.parish.id,
-        userId: result.user.id
-      },
-      { status: 201 }
-    )
-
-  } catch (error) {
-    console.error('Błąd rejestracji:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      error: String(error)
-    })
-    
-    // Sprawdź czy to błąd związany z polami wymaganymi
-    if (error instanceof Error && error.message.includes('required')) {
-      return NextResponse.json(
-        { error: 'Brakuje wymaganych danych parafii' },
         { status: 400 }
       )
     }

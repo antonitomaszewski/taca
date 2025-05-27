@@ -60,6 +60,7 @@ export default function RejestracjaParafii() {
 
   // Stan danych parafii (drugi etap - tylko dla proboszczów)
   const [parishFormData, setParishFormData] = useState({
+    identyfikatorParafii: "",
     nazwaParafii: "",
     adresParafii: "",
     miastoParafii: "",
@@ -70,7 +71,10 @@ export default function RejestracjaParafii() {
     opisParafii: "",
     proboszczParafii: "",
     godzinyMsz: "",
-    numerKonta: ""
+    numerKonta: "",
+    zdjecieParafii: null as File | null,
+    latitude: undefined as number | undefined,
+    longitude: undefined as number | undefined
   });
 
   const [loading, setLoading] = useState(false);
@@ -97,6 +101,7 @@ export default function RejestracjaParafii() {
       ...prev,
       [field]: e.target.value
     }));
+    
     // Wyczyść błąd gdy użytkownik zaczyna pisać
     if (errors[field]) {
       setErrors(prev => {
@@ -104,6 +109,79 @@ export default function RejestracjaParafii() {
         delete newErrors[field];
         return newErrors;
       });
+    }
+
+    // Geokodowanie dla pól adresowych (z debouncing)
+    if (field === 'miastoParafii' || field === 'adresParafii') {
+      // Wyczyść poprzedni timeout
+      if (geocodingTimeout) {
+        clearTimeout(geocodingTimeout);
+      }
+      
+      // Ustaw nowy timeout - geokoduj po 1 sekundzie od ostatniej zmiany
+      const newTimeout = setTimeout(() => {
+        const currentCity = field === 'miastoParafii' ? e.target.value : parishFormData.miastoParafii;
+        const currentAddress = field === 'adresParafii' ? e.target.value : parishFormData.adresParafii;
+        geocodeAddress(currentCity, currentAddress);
+      }, 1000);
+      
+      setGeocodingTimeout(newTimeout);
+    }
+  };
+
+  const handleParishFileChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setParishFormData(prev => ({
+      ...prev,
+      [field]: file
+    }));
+    // Wyczyść błąd gdy użytkownik wybiera plik
+    if (errors[field]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  // Obsługa zmiany lokalizacji na mapie
+  const handleLocationChange = (lat: number, lng: number) => {
+    setParishFormData(prev => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng
+    }));
+  };
+
+  // Automatyczne geokodowanie przy zmianie adresu
+  const [geocodingTimeout, setGeocodingTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  // Funkcja geokodowania adresu
+  const geocodeAddress = async (city: string, address: string) => {
+    if (!city.trim()) return;
+
+    try {
+      // Buduj zapytanie adresowe
+      let searchQuery = city.trim();
+      if (address.trim()) {
+        searchQuery = `${address.trim()}, ${city.trim()}`;
+      }
+      
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1&countrycodes=pl`
+      );
+      
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
+        
+        handleLocationChange(lat, lng);
+      }
+    } catch (error) {
+      console.error('Geocoding error:', error);
     }
   };
 
@@ -143,8 +221,24 @@ export default function RejestracjaParafii() {
   const validateParishData = (): boolean => {
     const newErrors: Record<string, string> = {};
 
+    if (!parishFormData.identyfikatorParafii.trim()) {
+      newErrors.identyfikatorParafii = "Identyfikator parafii jest wymagany";
+    } else if (!/^[a-z0-9-]+$/.test(parishFormData.identyfikatorParafii)) {
+      newErrors.identyfikatorParafii = "Identyfikator może zawierać tylko małe litery, cyfry i myślniki";
+    }
+
     if (!parishFormData.nazwaParafii.trim()) {
       newErrors.nazwaParafii = "Nazwa parafii jest wymagana";
+    }
+
+    if (!parishFormData.numerKonta.trim()) {
+      newErrors.numerKonta = "Numer konta bankowego jest wymagany";
+    } else if (!/^\d{26}$/.test(parishFormData.numerKonta.replace(/\s/g, ''))) {
+      newErrors.numerKonta = "Numer konta musi zawierać dokładnie 26 cyfr";
+    }
+
+    if (!parishFormData.zdjecieParafii) {
+      newErrors.zdjecieParafii = "Zdjęcie parafii jest wymagane";
     }
 
     if (!parishFormData.adresParafii.trim()) {
@@ -271,6 +365,8 @@ export default function RejestracjaParafii() {
         <ParishDataForm
           formData={parishFormData}
           onChange={handleParishDataChange}
+          onFileChange={handleParishFileChange}
+          onLocationChange={handleLocationChange}
           errors={errors}
         />
       );

@@ -13,9 +13,21 @@ import {
   AccordionDetails
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import dynamic from 'next/dynamic';
+
+// Dynamiczny import komponentu mapy z wyłączonym SSR
+const EditMapComponent = dynamic(() => import('../app/edycja-parafii/EditMapComponent'), { 
+  ssr: false,
+  loading: () => (
+    <Box sx={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f5f5f5', borderRadius: 1 }}>
+      <Typography>Ładowanie mapy...</Typography>
+    </Box>
+  )
+});
 
 interface ParishDataFormProps {
   formData: {
+    identyfikatorParafii: string;
     nazwaParafii: string;
     adresParafii: string;
     miastoParafii: string;
@@ -27,14 +39,21 @@ interface ParishDataFormProps {
     proboszczParafii: string;
     godzinyMsz: string;
     numerKonta: string;
+    zdjecieParafii: File | null;
+    latitude?: number;
+    longitude?: number;
   };
   onChange: (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onFileChange: (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onLocationChange?: (lat: number, lng: number) => void;
   errors: Record<string, string>;
 }
 
 export default function ParishDataForm({ 
   formData, 
   onChange, 
+  onFileChange,
+  onLocationChange,
   errors 
 }: ParishDataFormProps) {
   
@@ -58,6 +77,23 @@ export default function ParishDataForm({
           <AccordionDetails>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
               <TextField
+                label="Identyfikator parafii"
+                value={formData.identyfikatorParafii}
+                onChange={onChange('identyfikatorParafii')}
+                required
+                fullWidth
+                variant="outlined"
+                error={!!errors.identyfikatorParafii}
+                helperText={errors.identyfikatorParafii || 'Unikalny identyfikator URL np. "katedra-wroclaw". Tylko małe litery, cyfry i myślniki.'}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': { borderColor: '#4caf50' },
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
+                }}
+              />
+
+              <TextField
                 label="Nazwa parafii"
                 value={formData.nazwaParafii}
                 onChange={onChange('nazwaParafii')}
@@ -73,6 +109,59 @@ export default function ParishDataForm({
                   '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
                 }}
               />
+
+              <TextField
+                label="Numer konta bankowego"
+                value={formData.numerKonta}
+                onChange={onChange('numerKonta')}
+                required
+                fullWidth
+                variant="outlined"
+                error={!!errors.numerKonta}
+                helperText={errors.numerKonta || 'Numer konta do otrzymywania darowizn (format: 26 cyfr bez spacji)'}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&.Mui-focused fieldset': { borderColor: '#4caf50' },
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
+                }}
+              />
+
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                  Zdjęcie parafii *
+                </Typography>
+                <Box
+                  sx={{
+                    border: '2px dashed #ccc',
+                    borderRadius: 2,
+                    p: 3,
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    '&:hover': { borderColor: '#4caf50' },
+                    ...(errors.zdjecieParafii && { borderColor: '#f44336' })
+                  }}
+                  onClick={() => document.getElementById('parish-photo-upload')?.click()}
+                >
+                  <input
+                    id="parish-photo-upload"
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={onFileChange('zdjecieParafii')}
+                  />
+                  <Typography variant="body2" color="text.secondary">
+                    {formData.zdjecieParafii 
+                      ? `Wybrano: ${formData.zdjecieParafii.name}`
+                      : 'Kliknij aby wybrać zdjęcie parafii'}
+                  </Typography>
+                  {errors.zdjecieParafii && (
+                    <Typography variant="caption" color="error" sx={{ display: 'block', mt: 1 }}>
+                      {errors.zdjecieParafii}
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
 
               <TextField
                 label="Imię i nazwisko proboszcza"
@@ -153,6 +242,21 @@ export default function ParishDataForm({
                   }}
                 />
               </Box>
+
+              {/* Mapa lokalizacji */}
+              {onLocationChange && (
+                <Box sx={{ mt: 3 }}>
+                  <EditMapComponent
+                    latitude={formData.latitude}
+                    longitude={formData.longitude}
+                    onLocationChange={onLocationChange}
+                    currentAddress={formData.adresParafii && formData.miastoParafii ? `${formData.adresParafii}, ${formData.miastoParafii}` : formData.miastoParafii}
+                  />
+                  <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary', fontStyle: 'italic' }}>
+                    💡 Wskazówka: Wpisz adres w polach powyżej, a mapa automatycznie pokaże lokalizację. Możesz też kliknąć na mapie aby ustawić dokładną pozycję kościoła.
+                  </Typography>
+                </Box>
+              )}
             </Box>
           </AccordionDetails>
         </Accordion>
@@ -255,22 +359,6 @@ export default function ParishDataForm({
                 variant="outlined"
                 error={!!errors.opisParafii}
                 helperText={errors.opisParafii || 'Krótki opis historii i charakteru parafii'}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
-                }}
-              />
-
-              <TextField
-                label="Numer konta bankowego"
-                value={formData.numerKonta}
-                onChange={onChange('numerKonta')}
-                fullWidth
-                variant="outlined"
-                error={!!errors.numerKonta}
-                helperText={errors.numerKonta || 'Konto, na które będą przekazywane wpłaty'}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     '&.Mui-focused fieldset': { borderColor: '#4caf50' },

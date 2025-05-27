@@ -1,12 +1,14 @@
+/**
+ * Główny widok rejestracji z dwoma opcjami:
+ * 1. Konto parafianina - jednoetapowa rejestracja
+ * 2. Konto parafii - dwuetapowa rejestracja (dane użytkownika + dane parafii)
+ */
 "use client";
 import React, { useState } from "react";
 import {
   Container,
   Paper,
-  TextField,
   Button,
-  Checkbox,
-  FormControlLabel,
   Typography,
   Box,
   AppBar,
@@ -17,7 +19,10 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider
+  Divider,
+  Stepper,
+  Step,
+  StepLabel
 } from '@mui/material';
 import Link from "next/link";
 import CheckIcon from '@mui/icons-material/Check';
@@ -27,10 +32,24 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import SecurityIcon from '@mui/icons-material/Security';
 import SupportIcon from '@mui/icons-material/Support';
 import CloudIcon from '@mui/icons-material/Cloud';
+import AccountTypeSelection from '@/components/AccountTypeSelection';
+import UserDataForm from '@/components/UserDataForm';
+import ParishDataForm from '@/components/ParishDataForm';
+import { 
+  ACCOUNT_TYPES, 
+  AccountType, 
+  REGISTRATION_STEPS 
+} from '@/constants/accountTypes';
 
 export default function RejestracjaParafii() {
-  const [formData, setFormData] = useState({
-    nazwaParafii: "",
+  // Stan wyboru typu konta
+  const [selectedAccountType, setSelectedAccountType] = useState<AccountType | null>(null);
+  
+  // Stan kroków rejestracji
+  const [currentStep, setCurrentStep] = useState(0);
+  
+  // Stan danych użytkownika (pierwszy etap)
+  const [userFormData, setUserFormData] = useState({
     imieNazwisko: "",
     email: "",
     telefon: "",
@@ -39,81 +58,293 @@ export default function RejestracjaParafii() {
     akceptacjaRegulaminu: false
   });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  // Stan danych parafii (drugi etap - tylko dla proboszczów)
+  const [parishFormData, setParishFormData] = useState({
+    nazwaParafii: "",
+    adresParafii: "",
+    miastoParafii: "",
+    kodPocztowyParafii: "",
+    telefonParafii: "",
+    emailParafii: "",
+    stronkaParafii: "",
+    opisParafii: "",
+    proboszczParafii: "",
+    godzinyMsz: "",
+    numerKonta: ""
+  });
 
-  const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Obsługa zmian w formularzach
+  const handleUserDataChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserFormData(prev => ({
       ...prev,
       [field]: e.target.type === 'checkbox' ? e.target.checked : e.target.value
     }));
     // Wyczyść błąd gdy użytkownik zaczyna pisać
-    if (error) setError("");
+    if (errors[field]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.akceptacjaRegulaminu) {
-      setError("Musisz zaakceptować regulamin");
-      return;
+  const handleParishDataChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setParishFormData(prev => ({
+      ...prev,
+      [field]: e.target.value
+    }));
+    // Wyczyść błąd gdy użytkownik zaczyna pisać
+    if (errors[field]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
     }
-    
-    if (formData.haslo !== formData.powtorzHaslo) {
-      setError("Hasła nie są identyczne");
+  };
+
+  // Walidacja danych użytkownika
+  const validateUserData = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!userFormData.imieNazwisko.trim()) {
+      newErrors.imieNazwisko = "Imię i nazwisko są wymagane";
+    }
+
+    if (!userFormData.email.trim()) {
+      newErrors.email = "Adres email jest wymagany";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userFormData.email)) {
+      newErrors.email = "Niepoprawny format adresu email";
+    }
+
+    if (!userFormData.haslo) {
+      newErrors.haslo = "Hasło jest wymagane";
+    } else if (userFormData.haslo.length < 6) {
+      newErrors.haslo = "Hasło musi mieć co najmniej 6 znaków";
+    }
+
+    if (userFormData.haslo !== userFormData.powtorzHaslo) {
+      newErrors.powtorzHaslo = "Hasła nie są identyczne";
+    }
+
+    if (!userFormData.akceptacjaRegulaminu) {
+      newErrors.akceptacjaRegulaminu = "Musisz zaakceptować regulamin";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Walidacja danych parafii
+  const validateParishData = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!parishFormData.nazwaParafii.trim()) {
+      newErrors.nazwaParafii = "Nazwa parafii jest wymagana";
+    }
+
+    if (!parishFormData.adresParafii.trim()) {
+      newErrors.adresParafii = "Adres parafii jest wymagany";
+    }
+
+    if (!parishFormData.miastoParafii.trim()) {
+      newErrors.miastoParafii = "Miasto jest wymagane";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Przejście do następnego kroku
+  const handleNextStep = () => {
+    if (currentStep === 0 && !validateUserData()) {
       return;
     }
 
-    if (formData.haslo.length < 6) {
-      setError("Hasło musi mieć co najmniej 6 znaków");
-      return;
+    if (selectedAccountType === ACCOUNT_TYPES.PARISHIONER) {
+      // Dla parafianina - od razu wyślij rejestrację
+      handleSubmitParishioner();
+    } else {
+      // Dla proboszcza - przejdź do następnego kroku
+      setCurrentStep(1);
     }
-    
+  };
+
+  // Powrót do poprzedniego kroku
+  const handlePrevStep = () => {
+    setCurrentStep(0);
+  };
+
+  // Rejestracja parafianina
+  const handleSubmitParishioner = async () => {
     setLoading(true);
-    setError("");
-
     try {
-      console.log('🔄 Wysyłanie danych rejestracji:', formData);
-      
       const response = await fetch('/api/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accountType: ACCOUNT_TYPES.PARISHIONER,
+          userData: userFormData
+        }),
       });
 
-      console.log('📡 Odpowiedź serwera - status:', response.status);
-      console.log('📡 Odpowiedź serwera - headers:', response.headers);
-
-      // Sprawdź czy response ma zawartość
-      const text = await response.text();
-      console.log('📡 Raw response text:', text);
-
-      let data;
-      try {
-        data = text ? JSON.parse(text) : {};
-      } catch (parseError) {
-        console.error('❌ Błąd parsowania JSON:', parseError);
-        throw new Error('Serwer zwrócił niepoprawną odpowiedź');
-      }
-
-      console.log('📡 Parsed response data:', data);
+      const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || 'Wystąpił błąd podczas rejestracji');
       }
 
-      // Rejestracja udana - przekieruj do edycji parafii
-      alert('Rejestracja przebiegła pomyślnie! Teraz możesz uzupełnić szczegóły swojej parafii.');
-      window.location.href = "/edycja-parafii";
+      alert('Rejestracja przebiegła pomyślnie! Możesz się teraz zalogować.');
+      window.location.href = "/login";
       
     } catch (error) {
-      console.error('❌ Błąd rejestracji:', error);
-      setError(error instanceof Error ? error.message : 'Wystąpił nieoczekiwany błąd');
+      console.error('❌ Błąd rejestracji parafianina:', error);
+      setErrors({ general: error instanceof Error ? error.message : 'Wystąpił nieoczekiwany błąd' });
     } finally {
       setLoading(false);
     }
+  };
+
+  // Rejestracja proboszcza z parafią
+  const handleSubmitParishAdmin = async () => {
+    if (!validateParishData()) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accountType: ACCOUNT_TYPES.PARISH_ADMIN,
+          userData: userFormData,
+          parishData: parishFormData
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Wystąpił błąd podczas rejestracji');
+      }
+
+      alert('Rejestracja przebiegła pomyślnie! Możesz teraz edytować szczegóły swojej parafii.');
+      window.location.href = "/edycja-parafii";
+      
+    } catch (error) {
+      console.error('❌ Błąd rejestracji proboszcza:', error);
+      setErrors({ general: error instanceof Error ? error.message : 'Wystąpił nieoczekiwany błąd' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Renderowanie formularza w zależności od etapu
+  const renderFormContent = () => {
+    if (!selectedAccountType) {
+      return (
+        <AccountTypeSelection
+          selectedType={selectedAccountType}
+          onTypeChange={setSelectedAccountType}
+        />
+      );
+    }
+
+    if (currentStep === 0) {
+      return (
+        <UserDataForm
+          accountType={selectedAccountType}
+          formData={userFormData}
+          onChange={handleUserDataChange}
+          errors={errors}
+        />
+      );
+    }
+
+    if (currentStep === 1 && selectedAccountType === ACCOUNT_TYPES.PARISH_ADMIN) {
+      return (
+        <ParishDataForm
+          formData={parishFormData}
+          onChange={handleParishDataChange}
+          errors={errors}
+        />
+      );
+    }
+
+    return null;
+  };
+
+  // Renderowanie przycisków nawigacji
+  const renderNavigationButtons = () => {
+    if (!selectedAccountType) {
+      return null;
+    }
+
+    const isLastStep = selectedAccountType === ACCOUNT_TYPES.PARISHIONER || 
+                      (selectedAccountType === ACCOUNT_TYPES.PARISH_ADMIN && currentStep === 1);
+
+    return (
+      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between', mt: 4 }}>
+        <Button
+          variant="outlined"
+          onClick={() => {
+            if (currentStep > 0) {
+              handlePrevStep();
+            } else {
+              setSelectedAccountType(null);
+              setCurrentStep(0);
+            }
+          }}
+          sx={{ 
+            borderColor: '#4caf50', 
+            color: '#4caf50',
+            '&:hover': { borderColor: '#45a049', bgcolor: 'rgba(76, 175, 80, 0.04)' }
+          }}
+        >
+          {currentStep > 0 ? 'Poprzedni krok' : 'Zmień typ konta'}
+        </Button>
+
+        <Button
+          variant="contained"
+          onClick={isLastStep ? 
+            (selectedAccountType === ACCOUNT_TYPES.PARISHIONER ? handleSubmitParishioner : handleSubmitParishAdmin) : 
+            handleNextStep
+          }
+          disabled={loading}
+          sx={{
+            bgcolor: '#4caf50',
+            '&:hover': { bgcolor: '#45a049' },
+            '&:disabled': { bgcolor: '#ccc' }
+          }}
+        >
+          {loading ? 'Rejestruję...' : (isLastStep ? 'Zarejestruj się' : 'Dalej')}
+        </Button>
+      </Box>
+    );
+  };
+
+  // Renderowanie steppera dla proboszczów
+  const renderStepper = () => {
+    if (!selectedAccountType || selectedAccountType === ACCOUNT_TYPES.PARISHIONER) {
+      return null;
+    }
+
+    const steps = ['Twoje dane', 'Dane parafii'];
+
+    return (
+      <Stepper activeStep={currentStep} sx={{ mb: 4 }}>
+        {steps.map((label) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+    );
   };
 
   return (
@@ -147,188 +378,35 @@ export default function RejestracjaParafii() {
           <Box sx={{ flex: { xs: 1, md: 2 } }}>
             <Paper elevation={2} sx={{ p: 4, borderRadius: 3 }}>
               <Typography variant="h4" sx={{ fontWeight: 700, color: '#4caf50', mb: 1 }}>
-                Rejestracja parafii
+                Rejestracja
               </Typography>
               <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
-                Dołącz do nowoczesnej platformy płatności dla parafii
+                {selectedAccountType ? 
+                  (selectedAccountType === ACCOUNT_TYPES.PARISHIONER ? 
+                    'Stwórz konto parafianina, aby wspierać parafie' :
+                    'Stwórz konto parafii i zarządzaj wpłatami'
+                  ) :
+                  'Wybierz typ konta, aby rozpocząć rejestrację'
+                }
               </Typography>
 
-              <form onSubmit={handleSubmit}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  <TextField
-                    label="Nazwa parafii"
-                    value={formData.nazwaParafii}
-                    onChange={handleChange('nazwaParafii')}
-                    required
-                    fullWidth
-                    variant="outlined"
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-                      },
-                      '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
-                    }}
-                  />
+              {/* Stepper dla proboszczów */}
+              {renderStepper()}
 
-                  <TextField
-                    label="Imię i nazwisko proboszcza/administratora"
-                    value={formData.imieNazwisko}
-                    onChange={handleChange('imieNazwisko')}
-                    required
-                    fullWidth
-                    variant="outlined"
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-                      },
-                      '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
-                    }}
-                  />
-
-                  <TextField
-                    label="Adres email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange('email')}
-                    required
-                    fullWidth
-                    variant="outlined"
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-                      },
-                      '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
-                    }}
-                  />
-
-                  <TextField
-                    label="Numer telefonu"
-                    value={formData.telefon}
-                    onChange={handleChange('telefon')}
-                    required
-                    fullWidth
-                    variant="outlined"
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-                      },
-                      '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
-                    }}
-                  />
-
-                  <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
-                    <Box sx={{ flex: 1 }}>
-                      <TextField
-                        label="Hasło"
-                        type="password"
-                        value={formData.haslo}
-                        onChange={handleChange('haslo')}
-                        required
-                        fullWidth
-                        variant="outlined"
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-                          },
-                          '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
-                        }}
-                      />
-                    </Box>
-                    <Box sx={{ flex: 1 }}>
-                      <TextField
-                        label="Powtórz hasło"
-                        type="password"
-                        value={formData.powtorzHaslo}
-                        onChange={handleChange('powtorzHaslo')}
-                        required
-                        fullWidth
-                        variant="outlined"
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-                          },
-                          '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
-                        }}
-                      />
-                    </Box>
-                  </Box>
-
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formData.akceptacjaRegulaminu}
-                        onChange={handleChange('akceptacjaRegulaminu')}
-                        sx={{
-                          color: '#4caf50',
-                          '&.Mui-checked': { color: '#4caf50' },
-                        }}
-                      />
-                    }
-                    label={
-                      <Typography variant="body2">
-                        Akceptuję{' '}
-                        <Typography 
-                          component="a" 
-                          href="/regulamin" 
-                          sx={{ 
-                            color: '#4caf50', 
-                            textDecoration: 'underline',
-                            '&:hover': { color: '#45a049' }
-                          }}
-                        >
-                          regulamin serwisu
-                        </Typography>
-                        {' '}oraz{' '}
-                        <Typography 
-                          component="a" 
-                          href="/polityka-prywatnosci" 
-                          sx={{ 
-                            color: '#4caf50', 
-                            textDecoration: 'underline',
-                            '&:hover': { color: '#45a049' }
-                          }}
-                        >
-                          politykę prywatności
-                        </Typography>
-                      </Typography>
-                    }
-                  />
-
-                  {error && (
-                    <Box sx={{ 
-                      bgcolor: '#ffebee', 
-                      border: '1px solid #f44336',
-                      borderRadius: 1,
-                      p: 2,
-                      mt: 2
-                    }}>
-                      <Typography color="error" variant="body2">
-                        {error}
-                      </Typography>
-                    </Box>
-                  )}
-
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    size="large"
-                    fullWidth
-                    disabled={loading}
-                    sx={{
-                      bgcolor: '#4caf50',
-                      '&:hover': { bgcolor: '#45a049' },
-                      '&:disabled': { bgcolor: '#cccccc' },
-                      py: 2,
-                      fontSize: '1.1rem',
-                      fontWeight: 600,
-                      borderRadius: 2,
-                      mt: 2
-                    }}
-                  >
-                    {loading ? 'Rejestruję...' : 'Zarejestruj parafię'}
-                  </Button>
+              {/* Wyświetlenie błędów globalnych */}
+              {errors.general && (
+                <Box sx={{ mb: 3, p: 2, bgcolor: '#ffebee', borderRadius: 1, border: '1px solid #ffcdd2' }}>
+                  <Typography color="error" variant="body2">
+                    {errors.general}
+                  </Typography>
                 </Box>
-              </form>
+              )}
+
+              {/* Zawartość formularza */}
+              {renderFormContent()}
+
+              {/* Przyciski nawigacji */}
+              {renderNavigationButtons()}
             </Paper>
           </Box>
 

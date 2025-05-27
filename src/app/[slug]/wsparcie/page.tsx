@@ -1,6 +1,7 @@
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { getParafiaDataBySlug } from '../../../lib/parafiaData';
 import { isForbiddenSlug } from '../../../lib/forbiddenSlugs';
+import WsparcieForm from './WsparcieForm';
 
 interface WsparciePageProps {
   params: Promise<{ slug: string }>;
@@ -14,11 +15,14 @@ export default async function WsparciePage({ params }: WsparciePageProps) {
     notFound();
   }
 
-  const parafiaData = await getParafiaDataBySlug(slug).catch((error) => {
+  let parafiaData;
+  try {
+    parafiaData = await getParafiaDataBySlug(slug);
+  } catch (error) {
     console.error('Error loading parish data:', error);
     notFound();
-  });
+  }
 
-  // Przekieruj do formularza płatności z ID parafii
-  redirect(`/platnosc?parishId=${parafiaData.id}`);
+  // Renderuj formularz wsparcia bezpośrednio na tym URL-u
+  return <WsparcieForm parafiaData={parafiaData} />;
 }

@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import {
   Box, Paper, Typography, TextField, Button, Divider, Alert, CircularProgress,
   Radio, RadioGroup, FormControlLabel, Checkbox, ToggleButton, ToggleButtonGroup,
-  Slider, InputAdornment
+  Slider, InputAdornment, AppBar, Toolbar, Container
 } from '@mui/material';
 
 interface WsparcieFormProps {
@@ -113,8 +114,20 @@ export default function WsparcieForm({ parafiaData }: WsparcieFormProps) {
   const calkowitaKwota = suma + kwotaWsparciaPlatformy;
 
   return (
-    <Box sx={{ maxWidth: 700, mx: 'auto', mt: 4 }}>
-      <Paper elevation={3} sx={{ p: 3 }}>
+    <Box sx={{ bgcolor: '#f5f5f5', minHeight: '100vh' }}>
+      <AppBar position="static" sx={{ bgcolor: 'white', color: 'black' }}>
+        <Container maxWidth="lg">
+          <Toolbar>
+            <Link href="/" style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}>
+              <Typography variant="h6" sx={{ color: '#4caf50', fontWeight: 'bold' }}>
+                Taca.pl
+              </Typography>
+            </Link>
+          </Toolbar>
+        </Container>
+      </AppBar>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
+        <Paper elevation={3} sx={{ p: 3, width: '100%', maxWidth: 700 }}>
         {/* Przełącznik typu płatności */}
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
           <ToggleButtonGroup
@@ -482,7 +495,8 @@ export default function WsparcieForm({ parafiaData }: WsparcieFormProps) {
         <Alert severity="info" sx={{ mt: 2 }}>
           Bezpieczne płatności online
         </Alert>
-      </Paper>
+        </Paper>
+      </Box>
     </Box>
   );
 }

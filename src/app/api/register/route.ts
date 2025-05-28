@@ -86,7 +86,17 @@ export async function POST(request: NextRequest) {
         { 
           message: 'Rejestracja parafianina przebiegła pomyślnie',
           userId: user.id,
-          accountType: ACCOUNT_TYPES.PARISHIONER
+          accountType: ACCOUNT_TYPES.PARISHIONER,
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role
+          },
+          autoLogin: {
+            email: userData.email,
+            password: userData.haslo
+          }
         },
         { status: 201 }
       )
@@ -196,7 +206,23 @@ export async function POST(request: NextRequest) {
           parishId: result.parish.id,
           parishSlug: result.parish.uniqueSlug,
           userId: result.user.id,
-          accountType: ACCOUNT_TYPES.PARISH_ADMIN
+          accountType: ACCOUNT_TYPES.PARISH_ADMIN,
+          user: {
+            id: result.user.id,
+            email: result.user.email,
+            name: result.user.name,
+            role: result.user.role,
+            parishId: result.user.parishId
+          },
+          parish: {
+            id: result.parish.id,
+            name: result.parish.name,
+            uniqueSlug: result.parish.uniqueSlug
+          },
+          autoLogin: {
+            email: userData.email,
+            password: userData.haslo
+          }
         },
         { status: 201 }
       )

@@ -1,8 +1,12 @@
+"use client";
 import { Box, Typography, Button, AppBar, Toolbar, Container } from "@mui/material";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import LoginButton from "./components/LoginButton";
 
 export default function Home() {
+  const { status } = useSession();
+
   return (
     <Box sx={{ bgcolor: "#f8f9fa", minHeight: "100vh" }}>
       {/* AppBar */}
@@ -12,9 +16,22 @@ export default function Home() {
             Taca.pl
           </Typography>
           <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button href="/rejestracja-parafii" sx={{ fontWeight: 600, color: '#4caf50', border: '1px solid #4caf50', borderRadius: 2, px: 3, '&:hover': { bgcolor: '#4caf50', color: 'white' } }}>
-              Zarejestruj
-            </Button>
+            {/* Ukryj przycisk rejestracji dla zalogowanych użytkowników */}
+            {status === "unauthenticated" && (
+              <Button 
+                href="/rejestracja-parafii" 
+                sx={{ 
+                  fontWeight: 600, 
+                  color: '#4caf50', 
+                  border: '1px solid #4caf50', 
+                  borderRadius: 2, 
+                  px: 3, 
+                  '&:hover': { bgcolor: '#4caf50', color: 'white' } 
+                }}
+              >
+                Zarejestruj
+              </Button>
+            )}
             <LoginButton />
           </Box>
         </Toolbar>

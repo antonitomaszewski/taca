@@ -113,7 +113,7 @@ export default function UserDataForm({
           fullWidth
           variant="outlined"
           error={!!errors.haslo}
-          helperText={errors.haslo || 'Minimum 6 znaków'}
+          helperText={errors.haslo || 'Minimum 8 znaków, zawierać musi małą literę, wielką literę i cyfrę'}
           sx={{
             '& .MuiOutlinedInput-root': {
               '&.Mui-focused fieldset': { borderColor: '#4caf50' },

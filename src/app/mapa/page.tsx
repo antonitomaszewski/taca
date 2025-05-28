@@ -4,6 +4,7 @@ import { Box, TextField, Paper, InputAdornment, Typography, List, ListItem, List
 import SearchIcon from '@mui/icons-material/Search';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import MapWrapper from './MapWrapper';
 import { useRouter } from 'next/navigation';
 import { Parish } from '../../interfaces/types';
@@ -13,6 +14,7 @@ export default function MapaPage() {
   const [search, setSearch] = useState('');
   const [parishes, setParishes] = useState<Parish[]>([]);
   const [loading, setLoading] = useState(true);
+  const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
@@ -73,19 +75,22 @@ export default function MapaPage() {
               Taca.pl
             </Typography>
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button 
-                href="/rejestracja-parafii" 
-                sx={{ 
-                  fontWeight: 600, 
-                  color: '#4caf50', 
-                  border: '1px solid #4caf50', 
-                  borderRadius: 2, 
-                  px: 3, 
-                  '&:hover': { bgcolor: '#4caf50', color: 'white' } 
-                }}
-              >
-                Zarejestruj
-              </Button>
+              {/* Ukryj przycisk rejestracji dla zalogowanych użytkowników */}
+              {status === "unauthenticated" && (
+                <Button 
+                  href="/rejestracja-parafii" 
+                  sx={{ 
+                    fontWeight: 600, 
+                    color: '#4caf50', 
+                    border: '1px solid #4caf50', 
+                    borderRadius: 2, 
+                    px: 3, 
+                    '&:hover': { bgcolor: '#4caf50', color: 'white' } 
+                  }}
+                >
+                  Zarejestruj
+                </Button>
+              )}
               <LoginButton />
             </Box>
           </Toolbar>

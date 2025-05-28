@@ -1,5 +1,11 @@
 I need to implement [specific functionality] in [programming language].
 Key requirements:
+0. dbaj o wysoki poziom bezpieczeństwa naszej aplikacji. 
+    + waliduj dane na froncie
+    + używaj orm by uniknąć sql injection
+    + stosuj oauth2, jwt, csrf, 
+    + tokenizacja
+1. produkujmy kod zgodny z OpenAPI
 1. nie powtarzamy kodu - jak jakaś funkcjonalnośc, zmienna występuje w paru miejscach to masz ją wyciągnąć do zmiennej
 2. każdą zmienną i funkcję nazywamy - nie chcę żeby mi się walały losowe liczy po kodzie
 3. dodawaj opisy, żebym wszystko rozumiał, chcę żeby w każdym pliku był opis od czego to
@@ -13,6 +19,7 @@ Please consider:
 Please do not unnecessarily remove any comments or code.
 Generate the code with clear comments explaining the logic.
 Ja wykonuje komendy w terminalu, ty mi je podawaj, ale sam będę je puszczał i podawał Ci ich wynik
+
 
 
 ## do zrobienia
@@ -108,3 +115,61 @@ potrzeba dodać forbidden: tak samo jak not found
 1. **Wybór dostawcy płatności**
 2. **Integracja API**
 3. **Testy end-to-end**
+
+
+
+
+
+
+
+
+
+
+
+
+## uwagi
+
+1. po zarejestrowaniu na konto użytkownika przekierowuje do takiego widoku
+http://localhost:3000/login
+
+a powinno nas automatycznie pozostawić zalogowanym, i przekierować do strony, z której kliknęliśmy w przycisk zarejestruj
+
+2. gdy jesteśmy zalogowani to w żadnym widoku nie powinien się pojawiaj przycik `zarejestruj`
+
+3. zalogowany parishioner powinien w przycisku pod swoim imieniem mieć :
+'ustawienia'
+'wyloguj się
+
+ten przycisk w navbar powinien być wtedy widoczny na każdym z widoków
+
+4. jeśli użytkownik jest zalogowany to pole email powinno się samo automatycznie wypełniać w widoku http://localhost:3000/[slug]/wsparcie
+
+5. rejestracja administratora i parafii
+
+Unikalny identyfikator URL np. "katedra-wroclaw". Tylko małe litery, cyfry i myślniki.
+tu powinno być wytłumaczone że link to będzie taca.pl/katedra-wrocław
+oraz że nie można używać lokalnych znaków (bez alt)
+
+nr konta bankowego - powinny być spacje XX XXXX XXXX ....
+
+w polu zdjęcie parafii powinna się wyświetlać mini thumbnail pokazujący jakie zdjęcie wybraliśmy
+(obecnie tylko nazwa pliku)
+
+
+do każdego z pól powinna być zrobiona walidacja na frontendzie
+gdy coś jest nie tak, to powinien się pokazywać komunikat
+gdy klikniemy zarejestruj i coś będzie nie tak, to powinno nas przejechać na górę strony - tam powinien być komunikat na czerwono wylistowujący wszystkie pola, które źle wypeł/niliśmy
+
+obecnie po udanej rejestracji przekierowuje nas do takiego adresu:
+http://localhost:3000/?callbackUrl=http%3A%2F%2Flocalhost%3A3000%2Fedycja-parafii
+- chyba coś tu jest nie tak.
+Powinno albo do strony głównej
+albo do /[slug] - widoku naszej właśnie stworzonej parafii
+
+TU znów uwaga, po udanej rejestracjii parafii powinniśmy pozostawać zalogowani.
+
+wcześniej jak dodawaliśmy zdjęcie to zapisywane było ono w bazie jako data:image/jpeg base 64
+przy rejestracji, utworzony w bazie jest poprostu link parish-katedra-wroclaw.jpg
+tak nie powinno być. zrób tak by mieć także i w tym przypadku base 64
+
+numer konta bankowego powinien być zapisywany jako ciąg 26 cyfr (bez spacji)) 

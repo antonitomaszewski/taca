@@ -27,6 +27,7 @@ import {
   AccountBalance as AccountBalanceIcon
 } from '@mui/icons-material';
 import Image from 'next/image';
+import { formatBankAccount } from '@/lib/formatters';
 
 export interface ParafiaData {
   id: string;
@@ -203,7 +204,7 @@ export default function ParafiaView({ parafia, showEditButton = false }: Parafia
                       Numer konta bankowego:
                     </Typography>
                     <Typography variant="body1" sx={{ fontFamily: 'monospace', letterSpacing: 1, fontWeight: 500, color: '#333333' }}>
-                      {parafia.kontoBank.replace(/(.{2})/g, '$1 ').trim()}
+                      {formatBankAccount(parafia.kontoBank)}
                     </Typography>
                   </Box>
                 </Box>

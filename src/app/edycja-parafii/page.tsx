@@ -30,6 +30,7 @@ import {
   Info as InfoIcon
 } from '@mui/icons-material';
 import { validateSlug, generateSlugSuggestion } from '../../lib/forbiddenSlugs';
+import { formatBankAccount } from '../../lib/formatters';
 
 // Ładowanie komponentu mapy dynamicznie (bez SSR)
 const EditMapComponent = dynamic(() => import('./EditMapComponent'), {
@@ -263,26 +264,6 @@ export default function EdycjaParafii() {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Funkcja formatowania numeru konta bankowego
-  const formatBankAccount = (value: string) => {
-    // Usuń wszystkie spacje i nieistniejące znaki
-    const digitsOnly = value.replace(/[^\d]/g, '');
-    
-    // Ogranicz do 26 cyfr
-    const limited = digitsOnly.slice(0, 26);
-    
-    // Formatuj w grupach: XX XXXX XXXX XXXX XXXX XXXX XXXX
-    let formatted = '';
-    for (let i = 0; i < limited.length; i++) {
-      if (i === 2 || (i > 2 && (i - 2) % 4 === 0)) {
-        formatted += ' ';
-      }
-      formatted += limited[i];
-    }
-    
-    return formatted;
   };
 
   // Funkcja walidacji w czasie rzeczywistym

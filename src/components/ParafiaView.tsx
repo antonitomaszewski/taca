@@ -150,53 +150,59 @@ export default function ParafiaView({ parafia, showEditButton = false }: Parafia
           </Box>
 
           {/* Parish Info */}
-          <Box sx={{ flex: 1 }}>
+          <Paper sx={{ 
+            flex: 1, 
+            p: 4, 
+            borderRadius: 3, 
+            boxShadow: 3,
+            bgcolor: 'white'
+          }}>
             <Typography variant="h3" sx={{ fontWeight: 700, mb: 2, color: '#2e7d32' }}>
               {parafia.nazwa}
             </Typography>
-            <Typography variant="h5" sx={{ color: 'text.secondary', display: 'flex', alignItems: 'center', mb: 3 }}>
-              <LocationOnIcon sx={{ mr: 1 }} />
+            <Typography variant="h5" sx={{ color: '#666666', display: 'flex', alignItems: 'center', mb: 3 }}>
+              <LocationOnIcon sx={{ mr: 1, color: '#4caf50' }} />
               {parafia.miejscowosc}
             </Typography>
             
             {/* Contact Details */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 4 }}>
-              <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
-                <LocationOnIcon sx={{ mr: 2, color: 'text.secondary', fontSize: 20 }} />
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 4 }}>
+              <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', color: '#333333' }}>
+                <LocationOnIcon sx={{ mr: 2, color: '#4caf50', fontSize: 20 }} />
                 {parafia.adres || parafia.miejscowosc}
               </Typography>
               {parafia.telefon && (
-                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
-                  <PhoneIcon sx={{ mr: 2, color: 'text.secondary', fontSize: 20 }} />
+                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', color: '#333333' }}>
+                  <PhoneIcon sx={{ mr: 2, color: '#4caf50', fontSize: 20 }} />
                   {parafia.telefon}
                 </Typography>
               )}
               {parafia.email && (
-                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
-                  <EmailIcon sx={{ mr: 2, color: 'text.secondary', fontSize: 20 }} />
+                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', color: '#333333' }}>
+                  <EmailIcon sx={{ mr: 2, color: '#4caf50', fontSize: 20 }} />
                   {parafia.email}
                 </Typography>
               )}
               {parafia.proboszcz && (
-                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
-                  <PersonIcon sx={{ mr: 2, color: 'text.secondary', fontSize: 20 }} />
+                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', color: '#333333' }}>
+                  <PersonIcon sx={{ mr: 2, color: '#4caf50', fontSize: 20 }} />
                   {parafia.proboszcz}
                 </Typography>
               )}
               {parafia.rozkladMszy && (
-                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center' }}>
-                  <AccessTimeIcon sx={{ mr: 2, color: 'text.secondary', fontSize: 20 }} />
+                <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', color: '#333333' }}>
+                  <AccessTimeIcon sx={{ mr: 2, color: '#4caf50', fontSize: 20 }} />
                   {parafia.rozkladMszy}
                 </Typography>
               )}
               {parafia.kontoBank && (
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, p: 2, bgcolor: '#f5f5f5', borderRadius: 2 }}>
-                  <AccountBalanceIcon sx={{ mr: 2, color: 'text.secondary', fontSize: 20 }} />
+                  <AccountBalanceIcon sx={{ mr: 2, color: '#4caf50', fontSize: 20 }} />
                   <Box>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#333333' }}>
                       Numer konta bankowego:
                     </Typography>
-                    <Typography variant="body1" sx={{ fontFamily: 'monospace', letterSpacing: 1, fontWeight: 500 }}>
+                    <Typography variant="body1" sx={{ fontFamily: 'monospace', letterSpacing: 1, fontWeight: 500, color: '#333333' }}>
                       {parafia.kontoBank.replace(/(.{2})/g, '$1 ').trim()}
                     </Typography>
                   </Box>
@@ -221,36 +227,36 @@ export default function ParafiaView({ parafia, showEditButton = false }: Parafia
             >
               Wesprzyj parafię
             </Button>
-          </Box>
+          </Paper>
         </Box>
       </Container>
 
       {/* Main Content */}
       <Container maxWidth="lg" sx={{ py: 6 }}>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 6 }}>
-          {/* Left Column - Main Info */}
-          <Box sx={{ flex: { xs: 1, md: 2 } }}>
-            {/* Description */}
-            <Paper sx={{ p: 4, mb: 4, borderRadius: 3, boxShadow: 3 }}>
-              <Typography variant="h4" sx={{ fontWeight: 600, mb: 3 }}>
-                O parafii
-              </Typography>
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  lineHeight: 1.8, 
-                  color: 'text.secondary',
-                  whiteSpace: 'pre-wrap' // Zachowuje znaki nowej linii i spacje
-                }}
-              >
-                {parafia.opis}
-              </Typography>
-            </Paper>
+        {/* Description - Full Width */}
+        <Paper sx={{ p: 4, mb: 6, borderRadius: 3, boxShadow: 3 }}>
+          <Typography variant="h4" sx={{ fontWeight: 600, mb: 3, color: '#2e7d32' }}>
+            O parafii
+          </Typography>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              lineHeight: 1.8, 
+              color: '#333333',
+              whiteSpace: 'pre-wrap' // Zachowuje znaki nowej linii i spacje
+            }}
+          >
+            {parafia.opis}
+          </Typography>
+        </Paper>
 
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 6 }}>
+          {/* Left Column - Goals */}
+          <Box sx={{ flex: { xs: 1, md: 2 } }}>
             {/* Goals - only if there are active goals */}
             {parafia.cele.filter(cel => cel.aktywny).length > 0 && (
               <Paper sx={{ p: 4, borderRadius: 3, boxShadow: 3 }}>
-                <Typography variant="h4" sx={{ fontWeight: 600, mb: 4 }}>
+                <Typography variant="h4" sx={{ fontWeight: 600, mb: 4, color: '#2e7d32' }}>
                   Aktywne zbiórki
                 </Typography>
                 {parafia.cele.filter(cel => cel.aktywny).map((cel) => {
@@ -258,7 +264,7 @@ export default function ParafiaView({ parafia, showEditButton = false }: Parafia
                   return (
                     <Box key={cel.id} sx={{ mb: 4, pb: 4, borderBottom: '1px solid #e0e0e0', '&:last-child': { border: 'none', mb: 0, pb: 0 } }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                        <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                        <Typography variant="h5" sx={{ fontWeight: 600, color: '#333333' }}>
                           {cel.tytul}
                         </Typography>
                         <Chip
@@ -267,14 +273,14 @@ export default function ParafiaView({ parafia, showEditButton = false }: Parafia
                           size="medium"
                         />
                       </Box>
-                      <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
+                      <Typography variant="h6" sx={{ mb: 3, color: '#666666' }}>
                         {cel.opis}
                       </Typography>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                        <Typography variant="h6">
+                        <Typography variant="h6" sx={{ color: '#333333' }}>
                           {cel.kwotaZebrana.toLocaleString()} zł / {cel.kwotaCel.toLocaleString()} zł
                         </Typography>
-                        <Typography variant="h6">
+                        <Typography variant="h6" sx={{ color: '#4caf50', fontWeight: 600 }}>
                           {celPostep.toFixed(1)}%
                         </Typography>
                       </Box>
@@ -303,14 +309,15 @@ export default function ParafiaView({ parafia, showEditButton = false }: Parafia
             {/* Mass Schedule */}
             {parafia.rozkladMszy && (
               <Paper sx={{ p: 4, mb: 4, borderRadius: 3, boxShadow: 3 }}>
-                <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>
+                <Typography variant="h5" sx={{ fontWeight: 600, mb: 3, color: '#2e7d32' }}>
                   Rozkład mszy świętych
                 </Typography>
                 <Typography 
                   variant="body1" 
                   sx={{ 
                     lineHeight: 1.6,
-                    whiteSpace: 'pre-wrap' 
+                    whiteSpace: 'pre-wrap',
+                    color: '#333333'
                   }}
                 >
                   {parafia.rozkladMszy}
@@ -321,11 +328,11 @@ export default function ParafiaView({ parafia, showEditButton = false }: Parafia
             {/* Website */}
             {parafia.strona && (
               <Paper sx={{ p: 4, borderRadius: 3, boxShadow: 3 }}>
-                <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>
+                <Typography variant="h5" sx={{ fontWeight: 600, mb: 3, color: '#2e7d32' }}>
                   Strona internetowa
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <LanguageIcon sx={{ mr: 2, color: 'text.secondary', fontSize: 24 }} />
+                  <LanguageIcon sx={{ mr: 2, color: '#4caf50', fontSize: 24 }} />
                   <Typography 
                     component="a"
                     href={parafia.strona.startsWith('http') ? parafia.strona : `https://${parafia.strona}`}
@@ -335,6 +342,7 @@ export default function ParafiaView({ parafia, showEditButton = false }: Parafia
                     sx={{ 
                       color: '#4caf50',
                       textDecoration: 'none',
+                      fontWeight: 500,
                       '&:hover': {
                         textDecoration: 'underline'
                       }

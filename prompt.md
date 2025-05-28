@@ -16,6 +16,7 @@ Please consider:
 - Edge cases
 - Performance optimization
 - Best practices for [language/framework]
+- wygląd ma być prosty, elegancki
 Please do not unnecessarily remove any comments or code.
 Generate the code with clear comments explaining the logic.
 Ja wykonuje komendy w terminalu, ty mi je podawaj, ale sam będę je puszczał i podawał Ci ich wynik
@@ -32,10 +33,6 @@ Powinno dać się edytować profil użytkownika
 (imie, nazwisko, etc)
 
 jak już profil jest zalogowany i ma zarejestrowaną parafię - to nie powinno być przycisku zarejestruj
-
-Podczas tworzenia konta powinny być dwie opcje (tak jak przy płatności : abonamentowa i jednorazowa) - parafianin - proboszcz
-parafianin nie ma możliwości rejestrowania parafii
-proboszcz ma
 
 wygląd parafii:
 na samej górze (?) przycisk wesprzyj parafię

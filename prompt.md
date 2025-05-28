@@ -36,12 +36,6 @@ zdjęcie z lewej (nie takie duże, pewnie kwadratowe) , z prawej dane kontaktowe
 poniżej opis parafii
 i ewentualne zbiórki
 
-usunięcie translacji slug -> id
-powinnobyć jak na githubie
-/
-/mapa
-/[slug]
-/slug/wsparcie
 /slug/edycja (tu możesz nie mieć dostępu)
 /user/
 trzeba uważać, żeby nikt sobie nie ustawił slug = parafia (trzeba wprowadzić zabronione opcje)
@@ -54,10 +48,7 @@ potrzeba dodać forbidden: tak samo jak not found
 ## 🎯 PLAN PRACY - FINALIZACJA PROJEKTU
 
 ### **ETAP 1: Podstawowa infrastruktura** ⚡
-1. **Strona 404/Not Found** + **403/Forbidden**
-2. **Routing według slug** (/{slug}, /{slug}/wsparcie, /{slug}/edycja)
-3. **Zabronione slug'i** (parafia, user, api, admin itp.)
-4. **System ról użytkowników** (parafianin/proboszcz)
+1. **System ról użytkowników** (parafianin/proboszcz)
 
 ### **ETAP 2: Autentykacja i profile** 👥
 

@@ -129,7 +129,7 @@ model User {
   password      String    // Hashowane hasło
   emailVerified DateTime?
   image         String?
-  role          UserRole  @default(PARISH_ADMIN)
+  role          UserRole  @default(PARISHIONER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -154,6 +154,7 @@ model VerificationToken {
 }
 
 enum UserRole {
-  PARISH_ADMIN  // Administrator parafii
+  PARISHIONER   // Parafianin/darczyńca
+  PARISH_ADMIN  // Administrator parafii (proboszcz)
   SUPER_ADMIN   // Administrator platformy
 }

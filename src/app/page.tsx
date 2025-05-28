@@ -16,8 +16,8 @@ export default function Home() {
             Taca.pl
           </Typography>
           <Box sx={{ display: 'flex', gap: 2 }}>
-            {/* Ukryj przycisk rejestracji dla zalogowanych użytkowników */}
-            {status === "unauthenticated" && (
+            {/* Ukryj przycisk rejestracji dla zalogowanych użytkowników - tylko pokazuj gdy status jest sprawdzony */}
+            {status !== "loading" && status === "unauthenticated" && (
               <Button 
                 href="/rejestracja-parafii" 
                 sx={{ 

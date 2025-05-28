@@ -12,6 +12,7 @@ import {
   AccordionSummary,
   AccordionDetails
 } from '@mui/material';
+import { PhotoCamera as PhotoCameraIcon } from '@mui/icons-material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import dynamic from 'next/dynamic';
 
@@ -57,12 +58,17 @@ export default function ParishDataForm({
   errors 
 }: ParishDataFormProps) {
   
-  // Funkcja formatowania numeru konta (dodaje spacje co 2 cyfry)
+  // Funkcja formatowania numeru konta (dodaje spacje co 4 cyfry - standard IBAN)
   const formatAccountNumber = (value: string): string => {
     // Usuń wszystkie znaki niebędące cyframi
     const digitsOnly = value.replace(/\D/g, '');
-    // Dodaj spacje co 2 cyfry
-    return digitsOnly.replace(/(.{2})/g, '$1 ').trim();
+    // Formatuj pierwszy blok 2 cyfry, potem bloki po 4 cyfry: XX XXXX XXXX XXXX XXXX XXXX XXXX
+    if (digitsOnly.length <= 2) {
+      return digitsOnly;
+    }
+    const firstPart = digitsOnly.slice(0, 2);
+    const remainingParts = digitsOnly.slice(2).replace(/(.{4})/g, '$1 ').trim();
+    return `${firstPart} ${remainingParts}`.trim();
   };
 
   // Funkcja usuwania formatowania (tylko cyfry)
@@ -164,7 +170,7 @@ export default function ParishDataForm({
               />
 
               <Box>
-                <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>
                   Zdjęcie parafii *
                 </Typography>
                 <Box
@@ -175,7 +181,8 @@ export default function ParishDataForm({
                     textAlign: 'center',
                     cursor: 'pointer',
                     '&:hover': { borderColor: '#4caf50' },
-                    ...(errors.zdjecieParafii && { borderColor: '#f44336' })
+                    ...(errors.zdjecieParafii && { borderColor: '#f44336' }),
+                    ...(formData.zdjecieParafii && { borderColor: '#4caf50', borderStyle: 'solid' })
                   }}
                   onClick={() => document.getElementById('parish-photo-upload')?.click()}
                 >
@@ -186,13 +193,37 @@ export default function ParishDataForm({
                     style={{ display: 'none' }}
                     onChange={onFileChange('zdjecieParafii')}
                   />
-                  <Typography variant="body2" color="text.secondary">
-                    {formData.zdjecieParafii 
-                      ? `Wybrano: ${formData.zdjecieParafii.name}`
-                      : 'Kliknij aby wybrać zdjęcie parafii'}
-                  </Typography>
+                  
+                  {formData.zdjecieParafii ? (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                      <PhotoCameraIcon sx={{ fontSize: 40, color: '#4caf50' }} />
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#4caf50' }}>
+                        Wybrano zdjęcie
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {formData.zdjecieParafii.name}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Rozmiar: {(formData.zdjecieParafii.size / 1024 / 1024).toFixed(2)} MB
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#4caf50', fontStyle: 'italic' }}>
+                        Kliknij aby zmienić zdjęcie
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                      <PhotoCameraIcon sx={{ fontSize: 40, color: '#ccc' }} />
+                      <Typography variant="body2" color="text.secondary">
+                        Kliknij aby wybrać zdjęcie parafii
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Formaty: JPG, PNG, WEBP | Max 5MB
+                      </Typography>
+                    </Box>
+                  )}
+                  
                   {errors.zdjecieParafii && (
-                    <Typography variant="caption" color="error" sx={{ display: 'block', mt: 1 }}>
+                    <Typography variant="caption" color="error" sx={{ display: 'block', mt: 2 }}>
                       {errors.zdjecieParafii}
                     </Typography>
                   )}
@@ -203,6 +234,7 @@ export default function ParishDataForm({
                 label="Imię i nazwisko proboszcza"
                 value={formData.proboszczParafii}
                 onChange={onChange('proboszczParafii')}
+                required
                 fullWidth
                 variant="outlined"
                 error={!!errors.proboszczParafii}
@@ -249,6 +281,7 @@ export default function ParishDataForm({
                   label="Kod pocztowy"
                   value={formData.kodPocztowyParafii}
                   onChange={onChange('kodPocztowyParafii')}
+                  required
                   variant="outlined"
                   error={!!errors.kodPocztowyParafii}
                   helperText={errors.kodPocztowyParafii}

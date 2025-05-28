@@ -85,9 +85,15 @@ export default function LoginButton() {
     router.push('/edycja-parafii');
   };
 
+  const handleGoToSettings = () => {
+    handleMenuClose();
+    router.push('/ustawienia');
+  };
+
   // Jeśli użytkownik jest już zalogowany, pokaż menu z opcjami
   if (status === "authenticated") {
     const userName = session?.user?.name || session?.user?.email || 'Użytkownik';
+    const userRole = session?.user?.role || 'PARISHIONER';
     
     return (
       <>
@@ -121,7 +127,13 @@ export default function LoginButton() {
           transformOrigin={{ horizontal: 'right', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
-          <MenuItem onClick={handleGoToPanel}>Panel parafii</MenuItem>
+          {/* Opcje dla proboszcza/administratora parafii */}
+          {userRole === 'PARISH_ADMIN' && (
+            <MenuItem onClick={handleGoToPanel}>Panel parafii</MenuItem>
+          )}
+          
+          {/* Opcje dla wszystkich użytkowników */}
+          <MenuItem onClick={handleGoToSettings}>Ustawienia</MenuItem>
           <MenuItem onClick={handleLogout}>Wyloguj się</MenuItem>
         </Menu>
       </>

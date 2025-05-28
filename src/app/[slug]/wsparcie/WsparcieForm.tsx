@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import {
   Box, Paper, Typography, TextField, Button, Divider, Alert, CircularProgress,
@@ -18,6 +19,7 @@ interface WsparcieFormProps {
 }
 
 export default function WsparcieForm({ parafiaData }: WsparcieFormProps) {
+  const { data: session } = useSession();
   const [kwota, setKwota] = useState('50');
   const [wlasnaKwota, setWlasnaKwota] = useState('');
   const [metoda, setMetoda] = useState('blik');
@@ -31,6 +33,20 @@ export default function WsparcieForm({ parafiaData }: WsparcieFormProps) {
   const [wsparciePlatformy, setWsparciePlatformy] = useState(5); // Domyślnie 5%
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-fill email for logged-in users
+  useEffect(() => {
+    if (session?.user?.email && !email) {
+      setEmail(session.user.email);
+    }
+  }, [session?.user?.email, email]);
+
+  // Auto-fill name for logged-in users if podpis is empty
+  useEffect(() => {
+    if (session?.user?.name && !podpis && !ukryjPodpis) {
+      setPodpis(session.user.name);
+    }
+  }, [session?.user?.name, podpis, ukryjPodpis]);
 
   // Funkcja obsługi płatności
   const handlePayment = async () => {
@@ -353,9 +369,10 @@ export default function WsparcieForm({ parafiaData }: WsparcieFormProps) {
         
         <TextField
           fullWidth
-          label="E-mail"
+          label={session?.user?.email && email === session.user.email ? "E-mail (automatycznie wypełniony)" : "E-mail"}
           value={email}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+          helperText={session?.user?.email && email === session.user.email ? "Użyto e-mail z Twojego konta" : ""}
           sx={{ 
             mb: 2,
             '& .MuiOutlinedInput-root': {
@@ -372,9 +389,10 @@ export default function WsparcieForm({ parafiaData }: WsparcieFormProps) {
         />
         <TextField
           fullWidth
-          label="Podpis (opcjonalnie)"
+          label={session?.user?.name && podpis === session.user.name ? "Podpis (automatycznie wypełniony)" : "Podpis (opcjonalnie)"}
           value={podpis}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPodpis(e.target.value)}
+          helperText={session?.user?.name && podpis === session.user.name ? "Użyto imię z Twojego konta" : ""}
           sx={{ 
             mb: 2,
             '& .MuiOutlinedInput-root': {

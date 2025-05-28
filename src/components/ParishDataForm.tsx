@@ -57,6 +57,38 @@ export default function ParishDataForm({
   errors 
 }: ParishDataFormProps) {
   
+  // Funkcja formatowania numeru konta (dodaje spacje co 2 cyfry)
+  const formatAccountNumber = (value: string): string => {
+    // Usuń wszystkie znaki niebędące cyframi
+    const digitsOnly = value.replace(/\D/g, '');
+    // Dodaj spacje co 2 cyfry
+    return digitsOnly.replace(/(.{2})/g, '$1 ').trim();
+  };
+
+  // Funkcja usuwania formatowania (tylko cyfry)
+  const unformatAccountNumber = (value: string): string => {
+    return value.replace(/\D/g, '');
+  };
+
+  // Obsługa zmiany numeru konta z formatowaniem
+  const handleAccountNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedValue = formatAccountNumber(e.target.value);
+    const unformattedValue = unformatAccountNumber(e.target.value);
+    
+    // Ogranicz do 26 cyfr
+    if (unformattedValue.length <= 26) {
+      // Utwórz nowe zdarzenie z unformatowaną wartością dla logiki biznesowej
+      const newEvent = {
+        ...e,
+        target: {
+          ...e.target,
+          value: unformattedValue
+        }
+      };
+      onChange('numerKonta')(newEvent);
+    }
+  };
+  
   return (
     <Box>
       <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
@@ -112,13 +144,17 @@ export default function ParishDataForm({
 
               <TextField
                 label="Numer konta bankowego"
-                value={formData.numerKonta}
-                onChange={onChange('numerKonta')}
+                value={formatAccountNumber(formData.numerKonta)}
+                onChange={handleAccountNumberChange}
                 required
                 fullWidth
                 variant="outlined"
+                placeholder="12 3456 7890 1234 5678 9012 3456"
                 error={!!errors.numerKonta}
-                helperText={errors.numerKonta || 'Numer konta do otrzymywania darowizn (format: 26 cyfr bez spacji)'}
+                helperText={errors.numerKonta || 'Numer konta do otrzymywania darowizn (26 cyfr, spacje dodawane automatycznie)'}
+                inputProps={{
+                  maxLength: 31, // 26 cyfr + 12 spacji + 1 na ewentualną dodatkową cyfrę
+                }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     '&.Mui-focused fieldset': { borderColor: '#4caf50' },

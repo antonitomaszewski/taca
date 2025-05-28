@@ -4,7 +4,8 @@
  * 2. Konto parafii - dwuetapowa rejestracja (dane użytkownika + dane parafii)
  */
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import { signIn } from "next-auth/react";
 import {
   Container,
   Paper,
@@ -42,6 +43,9 @@ import {
 } from '@/constants/accountTypes';
 
 export default function RejestracjaParafii() {
+  // Ref do przewijania na górę
+  const formRef = useRef<HTMLDivElement>(null);
+  
   // Stan wyboru typu konta
   const [selectedAccountType, setSelectedAccountType] = useState<AccountType | null>(null);
   
@@ -79,6 +83,18 @@ export default function RejestracjaParafii() {
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [successMessage, setSuccessMessage] = useState<string>('');
+
+  // Funkcja przewijania na górę strony
+  const scrollToTop = () => {
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  // Wyczyść komunikaty przy zmianie danych
+  const clearMessages = () => {
+    setErrors({});
+    setSuccessMessage('');
+  };
 
   // Obsługa zmian w formularzach
   const handleUserDataChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,13 +102,16 @@ export default function RejestracjaParafii() {
       ...prev,
       [field]: e.target.type === 'checkbox' ? e.target.checked : e.target.value
     }));
-    // Wyczyść błąd gdy użytkownik zaczyna pisać
-    if (errors[field]) {
+    
+    // Wyczyść komunikaty gdy użytkownik zaczyna pisać
+    if (errors[field] || errors.general || successMessage) {
       setErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[field];
+        delete newErrors.general;
         return newErrors;
       });
+      setSuccessMessage('');
     }
   };
 
@@ -102,13 +121,15 @@ export default function RejestracjaParafii() {
       [field]: e.target.value
     }));
     
-    // Wyczyść błąd gdy użytkownik zaczyna pisać
-    if (errors[field]) {
+    // Wyczyść komunikaty gdy użytkownik zaczyna pisać
+    if (errors[field] || errors.general || successMessage) {
       setErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[field];
+        delete newErrors.general;
         return newErrors;
       });
+      setSuccessMessage('');
     }
 
     // Geokodowanie dla pól adresowych (z debouncing)
@@ -187,58 +208,75 @@ export default function RejestracjaParafii() {
 
   // Walidacja danych użytkownika
   const validateUserData = (): boolean => {
+    clearMessages();
     const newErrors: Record<string, string> = {};
 
     if (!userFormData.imieNazwisko.trim()) {
       newErrors.imieNazwisko = "Imię i nazwisko są wymagane";
+    } else if (userFormData.imieNazwisko.trim().length < 2) {
+      newErrors.imieNazwisko = "Imię i nazwisko musi mieć co najmniej 2 znaki";
     }
 
     if (!userFormData.email.trim()) {
       newErrors.email = "Adres email jest wymagany";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userFormData.email)) {
-      newErrors.email = "Niepoprawny format adresu email";
+      newErrors.email = "Niepoprawny format adresu email (przykład: jan@example.com)";
+    }
+
+    if (!userFormData.telefon.trim()) {
+      newErrors.telefon = "Numer telefonu jest wymagany";
+    } else if (!/^[+]?[0-9\s-()]{9,15}$/.test(userFormData.telefon.trim())) {
+      newErrors.telefon = "Niepoprawny format numeru telefonu (9-15 cyfr)";
     }
 
     if (!userFormData.haslo) {
       newErrors.haslo = "Hasło jest wymagane";
-    } else if (userFormData.haslo.length < 6) {
-      newErrors.haslo = "Hasło musi mieć co najmniej 6 znaków";
+    } else if (userFormData.haslo.length < 8) {
+      newErrors.haslo = "Hasło musi mieć co najmniej 8 znaków";
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(userFormData.haslo)) {
+      newErrors.haslo = "Hasło musi zawierać małą literę, wielką literę i cyfrę";
     }
 
-    if (userFormData.haslo !== userFormData.powtorzHaslo) {
+    if (!userFormData.powtorzHaslo) {
+      newErrors.powtorzHaslo = "Powtórzenie hasła jest wymagane";
+    } else if (userFormData.haslo !== userFormData.powtorzHaslo) {
       newErrors.powtorzHaslo = "Hasła nie są identyczne";
     }
 
     if (!userFormData.akceptacjaRegulaminu) {
-      newErrors.akceptacjaRegulaminu = "Musisz zaakceptować regulamin";
+      newErrors.akceptacjaRegulaminu = "Musisz zaakceptować regulamin, aby kontynuować";
     }
 
     setErrors(newErrors);
+    
+    if (Object.keys(newErrors).length > 0) {
+      scrollToTop();
+    }
+    
     return Object.keys(newErrors).length === 0;
   };
 
   // Walidacja danych parafii
   const validateParishData = (): boolean => {
+    clearMessages();
     const newErrors: Record<string, string> = {};
 
     if (!parishFormData.identyfikatorParafii.trim()) {
       newErrors.identyfikatorParafii = "Identyfikator parafii jest wymagany";
+    } else if (parishFormData.identyfikatorParafii.length < 3) {
+      newErrors.identyfikatorParafii = "Identyfikator musi mieć co najmniej 3 znaki";
     } else if (!/^[a-z0-9-]+$/.test(parishFormData.identyfikatorParafii)) {
-      newErrors.identyfikatorParafii = "Identyfikator może zawierać tylko małe litery, cyfry i myślniki";
+      newErrors.identyfikatorParafii = "Identyfikator może zawierać tylko małe litery, cyfry i myślniki (przykład: sw-marcin-wroclaw)";
     }
 
     if (!parishFormData.nazwaParafii.trim()) {
       newErrors.nazwaParafii = "Nazwa parafii jest wymagana";
+    } else if (parishFormData.nazwaParafii.trim().length < 5) {
+      newErrors.nazwaParafii = "Nazwa parafii musi mieć co najmniej 5 znaków";
     }
 
-    if (!parishFormData.numerKonta.trim()) {
-      newErrors.numerKonta = "Numer konta bankowego jest wymagany";
-    } else if (!/^\d{26}$/.test(parishFormData.numerKonta.replace(/\s/g, ''))) {
-      newErrors.numerKonta = "Numer konta musi zawierać dokładnie 26 cyfr";
-    }
-
-    if (!parishFormData.zdjecieParafii) {
-      newErrors.zdjecieParafii = "Zdjęcie parafii jest wymagane";
+    if (!parishFormData.proboszczParafii.trim()) {
+      newErrors.proboszczParafii = "Imię i nazwisko proboszcza jest wymagane";
     }
 
     if (!parishFormData.adresParafii.trim()) {
@@ -249,7 +287,46 @@ export default function RejestracjaParafii() {
       newErrors.miastoParafii = "Miasto jest wymagane";
     }
 
+    if (!parishFormData.kodPocztowyParafii.trim()) {
+      newErrors.kodPocztowyParafii = "Kod pocztowy jest wymagany";
+    } else if (!/^\d{2}-\d{3}$/.test(parishFormData.kodPocztowyParafii)) {
+      newErrors.kodPocztowyParafii = "Niepoprawny format kodu pocztowego (przykład: 50-123)";
+    }
+
+    if (!parishFormData.numerKonta.trim()) {
+      newErrors.numerKonta = "Numer konta bankowego jest wymagany";
+    } else if (!/^\d{26}$/.test(parishFormData.numerKonta.replace(/\s/g, ''))) {
+      newErrors.numerKonta = "Numer konta musi zawierać dokładnie 26 cyfr (przykład: 12 3456 7890 1234 5678 9012 3456)";
+    }
+
+    if (!parishFormData.zdjecieParafii) {
+      newErrors.zdjecieParafii = "Zdjęcie parafii jest wymagane";
+    } else {
+      const file = parishFormData.zdjecieParafii;
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      
+      if (file.size > maxSize) {
+        newErrors.zdjecieParafii = "Zdjęcie nie może być większe niż 5MB";
+      } else if (!allowedTypes.includes(file.type)) {
+        newErrors.zdjecieParafii = "Dozwolone formaty: JPG, PNG, WebP";
+      }
+    }
+
+    if (parishFormData.emailParafii && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parishFormData.emailParafii)) {
+      newErrors.emailParafii = "Niepoprawny format adresu email parafii";
+    }
+
+    if (parishFormData.telefonParafii && !/^[+]?[0-9\s-()]{9,15}$/.test(parishFormData.telefonParafii)) {
+      newErrors.telefonParafii = "Niepoprawny format numeru telefonu parafii";
+    }
+
     setErrors(newErrors);
+    
+    if (Object.keys(newErrors).length > 0) {
+      scrollToTop();
+    }
+    
     return Object.keys(newErrors).length === 0;
   };
 
@@ -276,7 +353,12 @@ export default function RejestracjaParafii() {
   // Rejestracja parafianina
   const handleSubmitParishioner = async () => {
     setLoading(true);
+    clearMessages();
+    scrollToTop();
+    
     try {
+      setSuccessMessage('Przetwarzamy Twoją rejestrację...');
+      
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -292,12 +374,37 @@ export default function RejestracjaParafii() {
         throw new Error(data.error || 'Wystąpił błąd podczas rejestracji');
       }
 
-      alert('Rejestracja przebiegła pomyślnie! Możesz się teraz zalogować.');
-      window.location.href = "/login";
+      // Auto-logowanie po udanej rejestracji
+      if (data.autoLogin) {
+        setSuccessMessage('Rejestracja zakończona pomyślnie! Przekierowujemy Cię do strony głównej...');
+        
+        const signInResult = await signIn('credentials', {
+          email: data.autoLogin.email,
+          password: data.autoLogin.password,
+          redirect: false,
+        });
+
+        if (signInResult?.ok) {
+          setTimeout(() => {
+            window.location.href = "/"; // Przekierowanie na stronę główną
+          }, 2000);
+        } else {
+          setSuccessMessage('Rejestracja zakończona pomyślnie! Przekierowujemy Cię do strony logowania...');
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 2000);
+        }
+      } else {
+        setSuccessMessage('Rejestracja zakończona pomyślnie! Przekierowujemy Cię do strony logowania...');
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 2000);
+      }
       
     } catch (error) {
       console.error('❌ Błąd rejestracji parafianina:', error);
       setErrors({ general: error instanceof Error ? error.message : 'Wystąpił nieoczekiwany błąd' });
+      scrollToTop();
     } finally {
       setLoading(false);
     }
@@ -310,7 +417,12 @@ export default function RejestracjaParafii() {
     }
 
     setLoading(true);
+    clearMessages();
+    scrollToTop();
+    
     try {
+      setSuccessMessage('Przetwarzamy rejestrację parafii...');
+      
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -327,12 +439,37 @@ export default function RejestracjaParafii() {
         throw new Error(data.error || 'Wystąpił błąd podczas rejestracji');
       }
 
-      alert('Rejestracja przebiegła pomyślnie! Możesz teraz edytować szczegóły swojej parafii.');
-      window.location.href = "/edycja-parafii";
+      // Auto-logowanie po udanej rejestracji
+      if (data.autoLogin) {
+        setSuccessMessage('Rejestracja parafii zakończona pomyślnie! Przekierowujemy Cię do panelu zarządzania...');
+        
+        const signInResult = await signIn('credentials', {
+          email: data.autoLogin.email,
+          password: data.autoLogin.password,
+          redirect: false,
+        });
+
+        if (signInResult?.ok) {
+          setTimeout(() => {
+            window.location.href = `/edycja-parafii/${data.parish?.identyfikatorParafii || 'profil'}`; // Przekierowanie do edycji parafii
+          }, 2000);
+        } else {
+          setSuccessMessage('Rejestracja zakończona pomyślnie! Przekierowujemy Cię do strony logowania...');
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 2000);
+        }
+      } else {
+        setSuccessMessage('Rejestracja zakończona pomyślnie! Przekierowujemy Cię do panelu zarządzania...');
+        setTimeout(() => {
+          window.location.href = "/edycja-parafii";
+        }, 2000);
+      }
       
     } catch (error) {
       console.error('❌ Błąd rejestracji proboszcza:', error);
       setErrors({ general: error instanceof Error ? error.message : 'Wystąpił nieoczekiwany błąd' });
+      scrollToTop();
     } finally {
       setLoading(false);
     }
@@ -472,7 +609,7 @@ export default function RejestracjaParafii() {
         <Box sx={{ display: 'flex', gap: 4, flexDirection: { xs: 'column', md: 'row' } }}>
           {/* Left Column - Form */}
           <Box sx={{ flex: { xs: 1, md: 2 } }}>
-            <Paper elevation={2} sx={{ p: 4, borderRadius: 3 }}>
+            <Paper ref={formRef} elevation={2} sx={{ p: 4, borderRadius: 3 }}>
               <Typography variant="h4" sx={{ fontWeight: 700, color: '#4caf50', mb: 1 }}>
                 Rejestracja
               </Typography>
@@ -488,6 +625,15 @@ export default function RejestracjaParafii() {
 
               {/* Stepper dla proboszczów */}
               {renderStepper()}
+
+              {/* Wyświetlenie komunikatu sukcesu */}
+              {successMessage && (
+                <Box sx={{ mb: 3, p: 2, bgcolor: '#e8f5e8', borderRadius: 1, border: '1px solid #4caf50' }}>
+                  <Typography sx={{ color: '#2e7d32' }} variant="body2">
+                    {successMessage}
+                  </Typography>
+                </Box>
+              )}
 
               {/* Wyświetlenie błędów globalnych */}
               {errors.general && (

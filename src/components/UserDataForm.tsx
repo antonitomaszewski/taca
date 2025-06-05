@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff, Email, Phone, Person } from '@mui/icons-material';
 import { AccountType, ACCOUNT_TYPES } from '@/constants/accountTypes';
+import { TacaTextField, TacaCheckbox } from '@/components/ui';
 
 interface UserDataFormProps {
   accountType: AccountType;
@@ -174,7 +175,7 @@ export default function UserDataForm({
       </Typography>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <TextField
+        <TacaTextField
           label="Imię i nazwisko"
           value={formData.imieNazwisko}
           onChange={onChange('imieNazwisko')}
@@ -190,15 +191,9 @@ export default function UserDataForm({
               </InputAdornment>
             ),
           }}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-            },
-            '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
-          }}
         />
 
-        <TextField
+        <TacaTextField
           label="Adres email"
           type="email"
           value={formData.email}
@@ -236,15 +231,9 @@ export default function UserDataForm({
               </InputAdornment>
             ),
           }}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-            },
-            '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
-          }}
         />
 
-        <TextField
+        <TacaTextField
           label="Numer telefonu (opcjonalnie)"
           value={formData.telefon}
           onChange={(e) => {
@@ -264,16 +253,10 @@ export default function UserDataForm({
               </InputAdornment>
             ),
           }}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-            },
-            '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
-          }}
         />
 
         <Box>
-          <TextField
+          <TacaTextField
             label="Hasło"
             type={showPassword ? 'text' : 'password'}
             value={formData.haslo}
@@ -300,12 +283,6 @@ export default function UserDataForm({
                   </IconButton>
                 </InputAdornment>
               ),
-            }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-              },
-              '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
             }}
           />
           {formData.haslo && (
@@ -337,7 +314,7 @@ export default function UserDataForm({
           )}
         </Box>
 
-        <TextField
+        <TacaTextField
           label="Powtórz hasło"
           type={showPasswordConfirm ? 'text' : 'password'}
           value={formData.powtorzHaslo}
@@ -365,23 +342,13 @@ export default function UserDataForm({
               </InputAdornment>
             ),
           }}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-            },
-            '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
-          }}
         />
 
         <FormControlLabel
           control={
-            <Checkbox
+            <TacaCheckbox
               checked={formData.akceptacjaRegulaminu}
               onChange={onChange('akceptacjaRegulaminu')}
-              sx={{ 
-                color: '#4caf50',
-                '&.Mui-checked': { color: '#4caf50' }
-              }}
             />
           }
           label={

@@ -15,6 +15,8 @@ import {
 import { PhotoCamera as PhotoCameraIcon } from '@mui/icons-material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import dynamic from 'next/dynamic';
+import { TacaTextField } from '@/components/ui';
+import { formatBankAccount, unformatBankAccount, normalizePhoneNumber } from '@/lib/formatters';
 
 // Dynamiczny import komponentu mapy z wyłączonym SSR
 const EditMapComponent = dynamic(() => import('../app/edycja-parafii/EditMapComponent'), { 
@@ -131,7 +133,7 @@ export default function ParishDataForm({
                 }}
               />
 
-              <TextField
+              <TacaTextField
                 label="Nazwa parafii"
                 value={formData.nazwaParafii}
                 onChange={onChange('nazwaParafii')}
@@ -140,12 +142,6 @@ export default function ParishDataForm({
                 variant="outlined"
                 error={!!errors.nazwaParafii}
                 helperText={errors.nazwaParafii || 'np. "Parafia św. Jana Chrzciciela"'}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
-                }}
               />
 
               <TextField
@@ -230,7 +226,7 @@ export default function ParishDataForm({
                 </Box>
               </Box>
 
-              <TextField
+              <TacaTextField
                 label="Imię i nazwisko proboszcza"
                 value={formData.proboszczParafii}
                 onChange={onChange('proboszczParafii')}
@@ -239,12 +235,6 @@ export default function ParishDataForm({
                 variant="outlined"
                 error={!!errors.proboszczParafii}
                 helperText={errors.proboszczParafii}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
-                }}
               />
             </Box>
           </AccordionDetails>

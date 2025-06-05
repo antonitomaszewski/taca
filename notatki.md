@@ -46,3 +46,14 @@ Sote
 Sellsmart
 Woocommerce
 
+
+
+
+czekaj, czyli jaki jest plan:
+robimy
+0 stałe validation/constants
+1 walidację schema pól
+2 walidacja schema cały form
+3 tworzymy pojedyncze komponenty (jeszcze bez walidacji?)
+4 tworzymy komponenty form (z użyciem schema-form ?)
+5 używamy pełne komponenty form, które mają już walidację na naszej stronie

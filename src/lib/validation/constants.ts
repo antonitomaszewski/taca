@@ -27,6 +27,8 @@ export const ERROR_MESSAGES = {
   INVALID_ZIP_CODE: 'Kod pocztowy musi mieć format XX-XXX',
   PASSWORD_TOO_SHORT: `Hasło musi mieć minimum ${MIN_PASSWORD_LENGTH} znaków`,
   PASSWORD_TOO_WEAK: 'Hasło musi zawierać małą literę, wielką literę i cyfrę',
+  PASSWORDS_NOT_MATCHING: 'Hasła nie są identyczne',
+  PASSWORD_REQUIRED: 'Hasło jest wymagane',
   NAME_TOO_SHORT: `Nazwa musi mieć minimum ${MIN_NAME_LENGTH} znaki`,
   NAME_TOO_LONG: `Nazwa może mieć maksymalnie ${MAX_NAME_LENGTH} znaków`,
   DESCRIPTION_TOO_LONG: `Opis może mieć maksymalnie ${MAX_DESCRIPTION_LENGTH} znaków`,
@@ -35,5 +37,6 @@ export const ERROR_MESSAGES = {
   SLUG_TOO_LONG: `URL może mieć maksymalnie ${MAX_SLUG_LENGTH} znaków`,
   INVALID_PARISH_NAME: 'Nazwa parafii może zawierać tylko litery, spacje, myślniki i kropki',
   PARISH_NAME_TOO_SHORT: `Nazwa parafii musi mieć minimum ${MIN_PARISH_NAME_LENGTH} znaków`,
-  PARISH_NAME_TOO_LONG: `Nazwa parafii może mieć maksymalnie ${MAX_PARISH_NAME_LENGTH} znaków`
+  PARISH_NAME_TOO_LONG: `Nazwa parafii może mieć maksymalnie ${MAX_PARISH_NAME_LENGTH} znaków`,
+  INVALID_URL: 'Nieprawidłowy URL'
 } as const;

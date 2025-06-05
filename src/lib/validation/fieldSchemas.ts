@@ -15,7 +15,7 @@ import {
   MAX_SLUG_LENGTH,
   MIN_PARISH_NAME_LENGTH,
   MAX_PARISH_NAME_LENGTH,
-  ERROR_MESSAGES 
+  ERROR_MESSAGES
 } from './constants';
 
 // Pojedyncze pola - podstawowe
@@ -67,5 +67,11 @@ export const parishNameSchema = z
   .max(MAX_PARISH_NAME_LENGTH, ERROR_MESSAGES.PARISH_NAME_TOO_LONG)
   .regex(PARISH_NAME_REGEX, ERROR_MESSAGES.INVALID_PARISH_NAME);
 
-export const phoneOptionalSchema = phoneSchema.optional();
-export const websiteSchema = z.string().url('Nieprawidłowy URL').optional();
+export const passwordLoginSchema = z
+  .string()
+  .min(1, ERROR_MESSAGES.PASSWORD_REQUIRED);
+
+export const phoneSchemaOptional = phoneSchema.optional();
+export const websiteSchemaOptional = z
+  .string()
+  .url(ERROR_MESSAGES.INVALID_URL).optional();

@@ -57,3 +57,10 @@ robimy
 3 tworzymy pojedyncze komponenty (jeszcze bez walidacji?)
 4 tworzymy komponenty form (z użyciem schema-form ?)
 5 używamy pełne komponenty form, które mają już walidację na naszej stronie
+
+Rejestracja użytkownika - email, hasło, imię
+Logowanie - email, hasło
+Rejestracja parafii - nazwa, adres, slug, konto bankowe, etc.
+Edycja profilu użytkownika - imię, email, telefon (opcjonalny)
+Edycja parafii - wszystkie dane parafii
+Płatność - kwota, metoda, email, podpis

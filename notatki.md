@@ -16,6 +16,7 @@ npx prisma migrate dev --name add_bank_account_and_unique_slug
 npx prisma db seed
 npx prisma db push
 <!-- npx prisma generate -->
+sudo systemctl start postgresql
 npx prisma studio
 
 

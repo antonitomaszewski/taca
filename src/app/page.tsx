@@ -1,8 +1,9 @@
 "use client";
-import { Box, Typography, Button, AppBar, Toolbar, Container } from "@mui/material";
+import { Box, Typography, Button, Container } from "@mui/material";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import LoginButton from "./components/LoginButton";
+import { TacaAppBar, TacaButton } from "@/components/ui";
 
 export default function Home() {
   const { status } = useSession();
@@ -10,32 +11,22 @@ export default function Home() {
   return (
     <Box sx={{ bgcolor: "#f8f9fa", minHeight: "100vh" }}>
       {/* AppBar */}
-      <AppBar position="static" sx={{ bgcolor: 'white', color: 'black' }} elevation={1}>
-        <Toolbar sx={{ maxWidth: 1200, mx: 'auto', width: '100%' }}>
-          <Typography variant="h5" sx={{ flexGrow: 1, fontWeight: 800, letterSpacing: 1, color: '#4caf50', fontFamily: 'Montserrat, Arial, sans-serif', textTransform: 'uppercase' }}>
-            Taca.pl
-          </Typography>
+      <TacaAppBar 
+        rightContent={
           <Box sx={{ display: 'flex', gap: 2 }}>
             {/* Ukryj przycisk rejestracji dla zalogowanych użytkowników - tylko pokazuj gdy status jest sprawdzony */}
             {status !== "loading" && status === "unauthenticated" && (
-              <Button 
-                href="/rejestracja-parafii" 
-                sx={{ 
-                  fontWeight: 600, 
-                  color: '#4caf50', 
-                  border: '1px solid #4caf50', 
-                  borderRadius: 2, 
-                  px: 3, 
-                  '&:hover': { bgcolor: '#4caf50', color: 'white' } 
-                }}
+              <TacaButton 
+                variant="outlined"
+                href="/rejestracja-parafii"
               >
                 Zarejestruj
-              </Button>
+              </TacaButton>
             )}
             <LoginButton />
           </Box>
-        </Toolbar>
-      </AppBar>
+        }
+      />
 
       {/* Hero Section */}
       <Container maxWidth="lg" sx={{ py: 12, textAlign: 'center' }}>

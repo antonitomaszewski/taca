@@ -9,3 +9,7 @@ export interface BaseFieldProps {
 export interface EmailFieldProps extends BaseFieldProps {
   label?: string;
 }
+
+export interface NameFieldProps extends BaseFieldProps {
+  label?: string;
+}

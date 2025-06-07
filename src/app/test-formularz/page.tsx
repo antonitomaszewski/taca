@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Box, Container, Typography, Button, Paper } from '@mui/material';
 import { EmailField } from '@/components/forms/fields/EmailField';
+import { NameField } from '@/components/forms/fields/NameField';
 
 export default function TestFormularzPage() {
   const [formData, setFormData] = useState({
@@ -45,6 +46,12 @@ export default function TestFormularzPage() {
             value={formData.email}
             onChange={handleFieldChange('email')}
             error={errors.email}
+            required
+            />
+            <NameField
+            value={formData.name}
+            onChange={handleFieldChange('name')}
+            error={errors.name}
             required
             />
 

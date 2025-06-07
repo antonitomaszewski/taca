@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { Box, Container, Typography, Button, Paper } from '@mui/material';
 import { EmailField } from '@/components/forms/fields/EmailField';
 import { NameField } from '@/components/forms/fields/NameField';
+import { PhoneField } from '@/components/forms/fields/PhoneField';
+
+// W formularzu:
 
 export default function TestFormularzPage() {
   const [formData, setFormData] = useState({
@@ -53,6 +56,13 @@ export default function TestFormularzPage() {
             onChange={handleFieldChange('name')}
             error={errors.name}
             required
+            />
+
+            <PhoneField
+            value={formData.phone}
+            onChange={handleFieldChange('phone')}
+            error={errors.phone}
+            // required={false} - opcjonalne
             />
 
             <Button 

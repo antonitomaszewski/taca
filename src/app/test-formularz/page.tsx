@@ -5,6 +5,7 @@ import { EmailField } from '@/components/forms/fields/EmailField';
 import { NameField } from '@/components/forms/fields/NameField';
 import { PhoneField } from '@/components/forms/fields/PhoneField';
 import { PasswordField } from '@/components/forms/fields/PasswordField';
+import { PasswordConfirmField } from '@/components/forms/fields/PasswordConfirmField';
 
 // W formularzu:
 
@@ -70,7 +71,14 @@ export default function TestFormularzPage() {
             value={formData.password}
             onChange={handleFieldChange('password')}
             error={errors.password}
-            // required={false} - opcjonalne
+            required
+            />
+
+            <PasswordConfirmField
+            value={formData.confirmPassword}
+            onChange={handleFieldChange('confirmPassword')}
+            error={errors.confirmPassword}
+            required
             />
 
             <Button 

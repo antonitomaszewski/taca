@@ -21,3 +21,6 @@ export interface PhoneFieldProps extends BaseFieldProps {
 export interface PasswordFieldProps extends BaseFieldProps {
   label?: string;
 }
+export interface PasswordConfirmFieldProps extends BaseFieldProps {
+  label?: string;
+}

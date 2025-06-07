@@ -18,3 +18,6 @@ export interface PhoneFieldProps extends BaseFieldProps {
   label?: string;
   placeholder?: string;
 }
+export interface PasswordFieldProps extends BaseFieldProps {
+  label?: string;
+}

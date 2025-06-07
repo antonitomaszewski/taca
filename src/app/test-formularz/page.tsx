@@ -4,6 +4,7 @@ import { Box, Container, Typography, Button, Paper } from '@mui/material';
 import { EmailField } from '@/components/forms/fields/EmailField';
 import { NameField } from '@/components/forms/fields/NameField';
 import { PhoneField } from '@/components/forms/fields/PhoneField';
+import { PasswordField } from '@/components/forms/fields/PasswordField';
 
 // W formularzu:
 
@@ -62,6 +63,13 @@ export default function TestFormularzPage() {
             value={formData.phone}
             onChange={handleFieldChange('phone')}
             error={errors.phone}
+            // required={false} - opcjonalne
+            />
+
+            <PasswordField
+            value={formData.password}
+            onChange={handleFieldChange('password')}
+            error={errors.password}
             // required={false} - opcjonalne
             />
 

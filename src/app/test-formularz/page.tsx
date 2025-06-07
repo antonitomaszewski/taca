@@ -1,12 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { Box, Container, Typography, Button, Paper } from '@mui/material';
-import { EmailField } from '@/components/forms/fields/EmailField';
-import { NameField } from '@/components/forms/fields/NameField';
-import { PhoneField } from '@/components/forms/fields/PhoneField';
-import { PasswordField } from '@/components/forms/fields/PasswordField';
-import { PasswordConfirmField } from '@/components/forms/fields/PasswordConfirmField';
-
+import { EmailField, NameField, PhoneField, PasswordField, PasswordConfirmField } from '@/components/forms/fields/index';
 // W formularzu:
 
 export default function TestFormularzPage() {

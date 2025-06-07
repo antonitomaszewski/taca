@@ -42,3 +42,6 @@ next-env.d.ts
 
 !notatki.md
 /src/generated/prisma
+!docker-compose.yml
+!.env.example
+!.env.local.example

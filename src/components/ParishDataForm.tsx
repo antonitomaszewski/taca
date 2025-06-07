@@ -12,8 +12,11 @@ import {
   AccordionSummary,
   AccordionDetails
 } from '@mui/material';
+import { PhotoCamera as PhotoCameraIcon } from '@mui/icons-material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import dynamic from 'next/dynamic';
+import { TacaTextField } from '@/components/ui';
+import { formatBankAccount, unformatBankAccount, normalizePhoneNumber } from '@/lib/formatters';
 
 // Dynamiczny import komponentu mapy z wyłączonym SSR
 const EditMapComponent = dynamic(() => import('../app/edycja-parafii/EditMapComponent'), { 
@@ -57,6 +60,43 @@ export default function ParishDataForm({
   errors 
 }: ParishDataFormProps) {
   
+  // Funkcja formatowania numeru konta (dodaje spacje co 4 cyfry - standard IBAN)
+  const formatAccountNumber = (value: string): string => {
+    // Usuń wszystkie znaki niebędące cyframi
+    const digitsOnly = value.replace(/\D/g, '');
+    // Formatuj pierwszy blok 2 cyfry, potem bloki po 4 cyfry: XX XXXX XXXX XXXX XXXX XXXX XXXX
+    if (digitsOnly.length <= 2) {
+      return digitsOnly;
+    }
+    const firstPart = digitsOnly.slice(0, 2);
+    const remainingParts = digitsOnly.slice(2).replace(/(.{4})/g, '$1 ').trim();
+    return `${firstPart} ${remainingParts}`.trim();
+  };
+
+  // Funkcja usuwania formatowania (tylko cyfry)
+  const unformatAccountNumber = (value: string): string => {
+    return value.replace(/\D/g, '');
+  };
+
+  // Obsługa zmiany numeru konta z formatowaniem
+  const handleAccountNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedValue = formatAccountNumber(e.target.value);
+    const unformattedValue = unformatAccountNumber(e.target.value);
+    
+    // Ogranicz do 26 cyfr
+    if (unformattedValue.length <= 26) {
+      // Utwórz nowe zdarzenie z unformatowaną wartością dla logiki biznesowej
+      const newEvent = {
+        ...e,
+        target: {
+          ...e.target,
+          value: unformattedValue
+        }
+      };
+      onChange('numerKonta')(newEvent);
+    }
+  };
+  
   return (
     <Box>
       <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
@@ -93,7 +133,7 @@ export default function ParishDataForm({
                 }}
               />
 
-              <TextField
+              <TacaTextField
                 label="Nazwa parafii"
                 value={formData.nazwaParafii}
                 onChange={onChange('nazwaParafii')}
@@ -102,23 +142,21 @@ export default function ParishDataForm({
                 variant="outlined"
                 error={!!errors.nazwaParafii}
                 helperText={errors.nazwaParafii || 'np. "Parafia św. Jana Chrzciciela"'}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
-                }}
               />
 
               <TextField
                 label="Numer konta bankowego"
-                value={formData.numerKonta}
-                onChange={onChange('numerKonta')}
+                value={formatAccountNumber(formData.numerKonta)}
+                onChange={handleAccountNumberChange}
                 required
                 fullWidth
                 variant="outlined"
+                placeholder="12 3456 7890 1234 5678 9012 3456"
                 error={!!errors.numerKonta}
-                helperText={errors.numerKonta || 'Numer konta do otrzymywania darowizn (format: 26 cyfr bez spacji)'}
+                helperText={errors.numerKonta || 'Numer konta do otrzymywania darowizn (26 cyfr, spacje dodawane automatycznie)'}
+                inputProps={{
+                  maxLength: 31, // 26 cyfr + 12 spacji + 1 na ewentualną dodatkową cyfrę
+                }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     '&.Mui-focused fieldset': { borderColor: '#4caf50' },
@@ -128,7 +166,7 @@ export default function ParishDataForm({
               />
 
               <Box>
-                <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 600 }}>
                   Zdjęcie parafii *
                 </Typography>
                 <Box
@@ -139,7 +177,8 @@ export default function ParishDataForm({
                     textAlign: 'center',
                     cursor: 'pointer',
                     '&:hover': { borderColor: '#4caf50' },
-                    ...(errors.zdjecieParafii && { borderColor: '#f44336' })
+                    ...(errors.zdjecieParafii && { borderColor: '#f44336' }),
+                    ...(formData.zdjecieParafii && { borderColor: '#4caf50', borderStyle: 'solid' })
                   }}
                   onClick={() => document.getElementById('parish-photo-upload')?.click()}
                 >
@@ -150,33 +189,52 @@ export default function ParishDataForm({
                     style={{ display: 'none' }}
                     onChange={onFileChange('zdjecieParafii')}
                   />
-                  <Typography variant="body2" color="text.secondary">
-                    {formData.zdjecieParafii 
-                      ? `Wybrano: ${formData.zdjecieParafii.name}`
-                      : 'Kliknij aby wybrać zdjęcie parafii'}
-                  </Typography>
+                  
+                  {formData.zdjecieParafii ? (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                      <PhotoCameraIcon sx={{ fontSize: 40, color: '#4caf50' }} />
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#4caf50' }}>
+                        Wybrano zdjęcie
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {formData.zdjecieParafii.name}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Rozmiar: {(formData.zdjecieParafii.size / 1024 / 1024).toFixed(2)} MB
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#4caf50', fontStyle: 'italic' }}>
+                        Kliknij aby zmienić zdjęcie
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                      <PhotoCameraIcon sx={{ fontSize: 40, color: '#ccc' }} />
+                      <Typography variant="body2" color="text.secondary">
+                        Kliknij aby wybrać zdjęcie parafii
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Formaty: JPG, PNG, WEBP | Max 5MB
+                      </Typography>
+                    </Box>
+                  )}
+                  
                   {errors.zdjecieParafii && (
-                    <Typography variant="caption" color="error" sx={{ display: 'block', mt: 1 }}>
+                    <Typography variant="caption" color="error" sx={{ display: 'block', mt: 2 }}>
                       {errors.zdjecieParafii}
                     </Typography>
                   )}
                 </Box>
               </Box>
 
-              <TextField
+              <TacaTextField
                 label="Imię i nazwisko proboszcza"
                 value={formData.proboszczParafii}
                 onChange={onChange('proboszczParafii')}
+                required
                 fullWidth
                 variant="outlined"
                 error={!!errors.proboszczParafii}
                 helperText={errors.proboszczParafii}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': { borderColor: '#4caf50' },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': { color: '#4caf50' },
-                }}
               />
             </Box>
           </AccordionDetails>
@@ -213,6 +271,7 @@ export default function ParishDataForm({
                   label="Kod pocztowy"
                   value={formData.kodPocztowyParafii}
                   onChange={onChange('kodPocztowyParafii')}
+                  required
                   variant="outlined"
                   error={!!errors.kodPocztowyParafii}
                   helperText={errors.kodPocztowyParafii}

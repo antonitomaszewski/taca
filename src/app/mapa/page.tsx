@@ -1,18 +1,21 @@
 'use client';
 
-import { Box, TextField, Paper, InputAdornment, Typography, List, ListItem, ListItemText, AppBar, Toolbar, Button, Container } from '@mui/material';
+import { Box, TextField, Paper, InputAdornment, Typography, List, ListItem, ListItemText, Button, Container } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import MapWrapper from './MapWrapper';
 import { useRouter } from 'next/navigation';
 import { Parish } from '../../interfaces/types';
 import LoginButton from '../components/LoginButton';
+import { TacaAppBar, TacaTextField, TacaButton } from '@/components/ui';
 
 export default function MapaPage() {
   const [search, setSearch] = useState('');
   const [parishes, setParishes] = useState<Parish[]>([]);
   const [loading, setLoading] = useState(true);
+  const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
@@ -52,45 +55,22 @@ export default function MapaPage() {
   return (
     <Box sx={{ bgcolor: "#f8f9fa", minHeight: "100vh" }}>
       {/* AppBar - taki sam jak na stronie głównej */}
-      <AppBar position="static" sx={{ bgcolor: 'white', color: 'black' }} elevation={1}>
-        <Container maxWidth="lg">
-          <Toolbar sx={{ px: 0 }}>
-            <Typography 
-              variant="h5" 
-              sx={{ 
-                flexGrow: 1, 
-                fontWeight: 800, 
-                letterSpacing: 1, 
-                color: '#4caf50', 
-                fontFamily: 'Montserrat, Arial, sans-serif', 
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-                textDecoration: 'none'
-              }}
-              component="a"
-              href="/"
-            >
-              Taca.pl
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button 
-                href="/rejestracja-parafii" 
-                sx={{ 
-                  fontWeight: 600, 
-                  color: '#4caf50', 
-                  border: '1px solid #4caf50', 
-                  borderRadius: 2, 
-                  px: 3, 
-                  '&:hover': { bgcolor: '#4caf50', color: 'white' } 
-                }}
+      <TacaAppBar 
+        rightContent={
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            {/* Ukryj przycisk rejestracji dla zalogowanych użytkowników - tylko pokazuj gdy status jest sprawdzony */}
+            {status !== "loading" && status === "unauthenticated" && (
+              <TacaButton 
+                variant="outlined"
+                href="/rejestracja-parafii"
               >
                 Zarejestruj
-              </Button>
-              <LoginButton />
-            </Box>
-          </Toolbar>
-        </Container>
-      </AppBar>
+              </TacaButton>
+            )}
+            <LoginButton />
+          </Box>
+        }
+      />
 
       {/* Główna zawartość mapy */}
       <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)', bgcolor: '#f5f5f5' }}>
@@ -110,7 +90,7 @@ export default function MapaPage() {
           <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
             Znajdź parafię
           </Typography>
-          <TextField
+          <TacaTextField
             fullWidth
             placeholder="Wyszukaj parafię lub miejscowość..."
             value={search}

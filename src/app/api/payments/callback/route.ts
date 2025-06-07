@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
         updatedAt: new Date(),
         // Zapisz dodatkowe informacje z Przelewy24
         metadata: {
-          ...payment.metadata,
+          ...(payment.metadata as Record<string, any> || {}),
           przelewy24OrderId: orderId,
           przelewy24Status: status,
           verifiedAt: new Date().toISOString(),

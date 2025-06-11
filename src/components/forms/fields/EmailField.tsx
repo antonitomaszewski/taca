@@ -20,7 +20,7 @@ export function EmailField({
       type="email"
       label={label}
       value={value}
-      onChange={handleChange}
+      onChange={(e) => onChange(e.target.value)}
       error={!!error}
       helperText={error}
       required={required}

@@ -24,7 +24,7 @@ export function NameField({
         input: {
           startAdornment: (
             <InputAdornment position="start">
-              <Person color={error ? 'error' : 'action'} />
+              <Person sx={{ color: error ? 'error.main' : 'success.main' }} />
             </InputAdornment>
           ),
         }

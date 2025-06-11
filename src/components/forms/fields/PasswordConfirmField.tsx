@@ -31,7 +31,7 @@ export function PasswordConfirmField({
         input: {
           startAdornment: (
             <InputAdornment position="start">
-              <Lock color={error ? 'error' : 'action'} />
+              <Lock sx={{ color: error ? 'error.main' : 'success.main' }} />
             </InputAdornment>
           ),
           endAdornment: (

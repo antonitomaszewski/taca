@@ -1,5 +1,5 @@
 "use client";
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Typography, Container, Paper } from '@mui/material';
 import { EmailField, NameField, PhoneField, PasswordField, PasswordConfirmField } from './fields';
 import { useForm } from '@/hooks/useForm';
 import { userRegistrationSchema } from '@/lib/validation/userSchemas';
@@ -7,6 +7,7 @@ import { UserRegistrationData } from './types';
 
 interface UserRegistrationFormProps {
   onSubmit?: (data: UserRegistrationData) => void;
+  onBack?: () => void;
   isLoading?: boolean;
 }
 
@@ -26,66 +27,118 @@ export function UserRegistrationForm({ onSubmit, isLoading = false }: UserRegist
   );
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <Typography variant="h5" sx={{ mb: 2 }}>
-        Rejestracja użytkownika
-      </Typography>
-
-      <NameField
-        value={formData.name}
-        onChange={handleFieldChange('name')}
-        error={errors.name}
-        required
-      />
-
-      <EmailField
-        value={formData.email}
-        onChange={handleFieldChange('email')}
-        error={errors.email}
-        required
-      />
-
-      <PhoneField
-        value={formData.phone}
-        onChange={handleFieldChange('phone')}
-        error={errors.phone}
-      />
-
-      <PasswordField
-        value={formData.password}
-        onChange={handleFieldChange('password')}
-        error={errors.password}
-        required
-      />
-
-      <PasswordConfirmField
-        value={formData.confirmPassword}
-        onChange={handleFieldChange('confirmPassword')}
-        error={errors.confirmPassword}
-        required
-      />
-
-      <Button
-        type="submit"
-        variant="contained"
-        size="large"
-        disabled={isLoading}
-        sx={{ mt: 2 }}
+    <Container maxWidth="md" sx={{ py: 6 }}>
+      <Paper 
+        elevation={3} 
+        sx={{ 
+          p: 4, 
+          borderRadius: 3,
+          background: 'linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%)'
+        }}
       >
-        {isLoading ? 'Rejestrowanie...' : 'Zarejestruj się'}
-      </Button>
+      <Box sx={{ textAlign: 'center', mb: 6 }}>
+        <Typography 
+          variant="h3" 
+          component="h1" 
+          sx={{ 
+            fontWeight: 'bold', 
+            mb: 2,
+            color: 'success.main'
+          }}
+        >
+          Rejestracja
+        </Typography>
+        <Typography 
+          variant="h6" 
+          color="text.secondary"
+          sx={{ maxWidth: 600, mx: 'auto' }}
+        >
+          Stwórz konto parafianina, aby wspierać parafie
+        </Typography>
+      </Box>
+        <Typography 
+          variant="h6" 
+          component="h2"
+          sx={{ mb: 3, fontWeight: 600 }}
+        >
+          Twoje dane osobowe
+        </Typography>
 
-        <Box sx={{ mt: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-    <Typography variant="h6" sx={{ mb: 2 }}>Debug - Dane formularza:</Typography>
-    <pre>{JSON.stringify(formData, null, 2)}</pre>
-    
-    {Object.keys(errors).length > 0 && (
-    <>
-        <Typography variant="h6" sx={{ mb: 2, mt: 2 }}>Błędy:</Typography>
-        <pre>{JSON.stringify(errors, null, 2)}</pre>
-    </>
-    )}
-    </Box>
-    </Box>
+        <Box 
+          component="form" 
+          onSubmit={handleSubmit} 
+          sx={{ 
+            color: 'success.main',
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: 3,
+          }}
+        >
+          <NameField
+            value={formData.name}
+            onChange={handleFieldChange('name')}
+            error={errors.name}
+            required
+          />
+
+          <EmailField
+            value={formData.email}
+            onChange={handleFieldChange('email')}
+            error={errors.email}
+            required
+          />
+
+          <PhoneField
+            value={formData.phone}
+            onChange={handleFieldChange('phone')}
+            error={errors.phone}
+            required
+          />
+
+          <PasswordField
+            value={formData.password}
+            onChange={handleFieldChange('password')}
+            error={errors.password}
+            required
+          />
+
+          <PasswordConfirmField
+            value={formData.confirmPassword}
+            onChange={handleFieldChange('confirmPassword')}
+            error={errors.confirmPassword}
+            required
+          />
+
+        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between', mt: 4 }}>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              console.log('Zmień typ konta');
+            }}
+            sx={{ 
+            borderColor: '#4caf50', 
+            color: '#4caf50',
+            '&:hover': { borderColor: '#45a049', bgcolor: 'rgba(76, 175, 80, 0.04)' }
+          }}
+          >
+            Zmień typ konta
+          </Button>
+
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={isLoading}
+            sx={{
+              bgcolor: '#4caf50',
+              '&:hover': { bgcolor: '#45a049' },
+              '&:disabled': { bgcolor: '#ccc' }
+            }}
+          >
+            {isLoading ? 'Rejestruję...' : 'Zarejestruj się'}
+          </Button>
+        </Box>
+        </Box>
+      </Paper>
+    </Container>
   );
 }

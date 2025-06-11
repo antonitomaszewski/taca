@@ -24,14 +24,14 @@ export function PasswordField({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       error={!!error}
-      helperText={error}
+      helperText={error || 'Minimum 8 znaków, zawierać musi małą literę, wielką literę i cyfrę'}
       required={required}
       fullWidth={fullWidth}
       slotProps={{
         input: {
           startAdornment: (
             <InputAdornment position="start">
-              <Lock color={error ? 'error' : 'action'} />
+              <Lock sx={{ color: error ? 'error.main' : 'success.main' }} />
             </InputAdornment>
           ),
           endAdornment: (

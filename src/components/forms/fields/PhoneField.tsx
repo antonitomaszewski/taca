@@ -9,7 +9,7 @@ export function PhoneField({
   required = false,
   label = 'Numer Telefonu',
   fullWidth = true,
-  placeholder = ''
+  placeholder = '+48 123 456 789'
 }: PhoneFieldProps) {
   return (
     <TextField
@@ -18,7 +18,7 @@ export function PhoneField({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       error={!!error}
-      helperText={error || (!required ? 'Opcjonalne' : '')}
+      helperText={error || ''}
       required={required}
       fullWidth={fullWidth}
       placeholder={placeholder}
@@ -26,7 +26,7 @@ export function PhoneField({
         input: {
           startAdornment: (
             <InputAdornment position="start">
-              <Phone color={error ? 'error' : 'action'} />
+              <Phone sx={{ color: error ? 'error.main' : 'success.main' }} />
             </InputAdornment>
           ),
         }

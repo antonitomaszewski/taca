@@ -29,7 +29,7 @@ export function EmailField({
         input: {
           startAdornment: (
             <InputAdornment position="start">
-              <Email color={error ? 'error' : 'action'} />
+              <Email sx={{ color: error ? 'error.main' : 'success.main' }} />
             </InputAdornment>
           ),
         }

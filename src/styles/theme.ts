@@ -1,7 +1,3 @@
-/**
- * Centralny motyw kolorystyczny aplikacji Taca.pl
- */
-
 export const theme = {
   colors: {
     primary: '#4caf50',

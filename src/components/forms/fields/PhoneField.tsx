@@ -7,7 +7,7 @@ export function PhoneField({
   onChange, 
   error = '', 
   required = false,
-  label = 'Telefon',
+  label = 'Numer Telefonu',
   fullWidth = true,
   placeholder = ''
 }: PhoneFieldProps) {

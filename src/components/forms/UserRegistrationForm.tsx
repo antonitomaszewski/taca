@@ -49,7 +49,6 @@ export function UserRegistrationForm({ onSubmit, isLoading = false }: UserRegist
         value={formData.phone}
         onChange={handleFieldChange('phone')}
         error={errors.phone}
-        required
       />
 
       <PasswordField

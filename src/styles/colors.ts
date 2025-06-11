@@ -7,6 +7,7 @@ export const colors = {
     hover: '#45a049',     // Hover
     light: '#e8f5e8',     // Jasne tło
     lighter: 'rgba(76, 175, 80, 0.04)', // Bardzo jasne
+    contrastText: '#ffffff', // ✅ Biały tekst na zielonym tle
   },
   
   // Neutralne
@@ -23,6 +24,13 @@ export const colors = {
     main: '#f8f9fa',
     light: '#f5f5f5', 
     white: '#ffffff',
+  },
+
+  text: {
+    primary: '#333333',
+    secondary: '#666666',
+    white: '#ffffff',      // ✅ Biały tekst
+    onGreen: '#ffffff',    // ✅ Tekst na zielonym tle
   },
   
   // Status

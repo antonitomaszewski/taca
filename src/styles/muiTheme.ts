@@ -7,6 +7,7 @@ export const muiTheme = createTheme({
     primary: {
       main: colors.green.main,    // #4caf50
       dark: colors.green.dark,    // #2e7d32
+      contrastText: colors.text.onGreen
     },
     success: {
       main: colors.green.main,    // Teraz success = twój zielony!

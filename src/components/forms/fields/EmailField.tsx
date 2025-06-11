@@ -22,7 +22,7 @@ export function EmailField({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       error={!!error}
-      helperText={error}
+      helperText={error || 'Adres email do komunikacji i logowania'}
       required={required}
       fullWidth={fullWidth}
       slotProps={{

@@ -2,7 +2,7 @@
 export const PHONE_REGEX = /^\+48\d{9}$/;
 export const BANK_ACCOUNT_REGEX = /^\d{26}$/;
 export const ZIP_CODE_REGEX = /^\d{2}-\d{3}$/;
-export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
+export const PASSWORD_REGEX = /^(?=.*[\p{Ll}])(?=.*[\p{Lu}])(?=.*\d).+$/u;
 export const SLUG_REGEX = /^[a-z0-9-]+$/;
 export const PARISH_NAME_REGEX = /^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s\-\.]+$/;
 

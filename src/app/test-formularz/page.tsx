@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { Box, Container, Typography, Button, Paper } from '@mui/material';
 import { EmailField, NameField, PhoneField, PasswordField, PasswordConfirmField } from '@/components/forms/fields/index';
-// W formularzu:
+import { UserRegistrationForm } from '@/components/forms';
+import { UserRegistrationData } from '@/components/forms/types';
 
 export default function TestFormularzPage() {
   const [formData, setFormData] = useState({
@@ -23,10 +24,13 @@ export default function TestFormularzPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Dane formularza:', formData);
-    console.log('Błędy:', errors);
+  // const handleSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   console.log('Dane formularza:', formData);
+  //   console.log('Błędy:', errors);
+  // };
+  const handleSubmit = (data: UserRegistrationData) => {
+    console.log('✅ Zarejestrowano:', data);
   };
 
   return (
@@ -36,69 +40,7 @@ export default function TestFormularzPage() {
           Test Formularza - Pojedyncze Komponenty
         </Typography>
 
-        <form onSubmit={handleSubmit}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            
-            {/* Tu będziemy dodawać nasze komponenty pól */}
-            <Typography variant="h6">Testowanie pól formularza:</Typography>
-            
-            <EmailField
-            value={formData.email}
-            onChange={handleFieldChange('email')}
-            error={errors.email}
-            required
-            />
-            <NameField
-            value={formData.name}
-            onChange={handleFieldChange('name')}
-            error={errors.name}
-            required
-            />
-
-            <PhoneField
-            value={formData.phone}
-            onChange={handleFieldChange('phone')}
-            error={errors.phone}
-            // required={false} - opcjonalne
-            />
-
-            <PasswordField
-            value={formData.password}
-            onChange={handleFieldChange('password')}
-            error={errors.password}
-            required
-            />
-
-            <PasswordConfirmField
-            value={formData.confirmPassword}
-            onChange={handleFieldChange('confirmPassword')}
-            error={errors.confirmPassword}
-            required
-            />
-
-            <Button 
-              type="submit" 
-              variant="contained" 
-              size="large"
-              sx={{ mt: 3 }}
-            >
-              Testuj Formularz
-            </Button>
-
-            {/* Debug info */}
-            <Box sx={{ mt: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Debug - Dane formularza:</Typography>
-              <pre>{JSON.stringify(formData, null, 2)}</pre>
-              
-              {Object.keys(errors).length > 0 && (
-                <>
-                  <Typography variant="h6" sx={{ mb: 2, mt: 2 }}>Błędy:</Typography>
-                  <pre>{JSON.stringify(errors, null, 2)}</pre>
-                </>
-              )}
-            </Box>
-          </Box>
-        </form>
+        <UserRegistrationForm onSubmit={handleSubmit} />
       </Paper>
     </Container>
   );

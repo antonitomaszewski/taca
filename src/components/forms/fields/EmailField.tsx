@@ -1,6 +1,8 @@
 import { TextField, InputAdornment } from '@mui/material';
 import { Email } from '@mui/icons-material';
 import { EmailFieldProps } from './types';
+import { validateEmail } from '@/lib/validation/fieldValidation';
+import { createFieldChangeHandler } from '@/lib/utils/fieldHelpers';
 
 export function EmailField({ 
   value, 
@@ -10,12 +12,15 @@ export function EmailField({
   label = 'Adres email',
   fullWidth = true
 }: EmailFieldProps) {
+  
+  const handleChange = createFieldChangeHandler(validateEmail, onChange);
+
   return (
     <TextField
       type="email"
       label={label}
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={handleChange}
       error={!!error}
       helperText={error}
       required={required}

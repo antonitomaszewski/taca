@@ -64,3 +64,35 @@ Rejestracja parafii - nazwa, adres, slug, konto bankowe, etc.
 Edycja profilu użytkownika - imię, email, telefon (opcjonalny)
 Edycja parafii - wszystkie dane parafii
 Płatność - kwota, metoda, email, podpis
+
+
+zxczxczxcćA1 - walidacja haseł nie pozwala na coś takiego, aberracja
+PASSWORD_REGEX jest zły (powinny być dowolne znaki)
+
+nie rozumiem tego fragmentu:
+czy validateEmail nie powinniśmy użyć w src/components/forms/fields/EmailField.tsx
+itd?
+gdzie powinien znaleźć się fieldValidators, bo chyba nie w komponentach
+
+import { validateEmail, validateName, validatePhone, validatePassword } from '@/lib/validation/fieldValidators';
+
+const fieldValidators = {
+email: validateEmail,
+name: validateName,
+phone: validatePhone,
+password: validatePassword,
+confirmPassword: validatePassword,
+};
+
+const handleFieldChange = (fieldName: string) => (value: string) => {
+setFormData(prev => ({ ...prev, [fieldName]: value }));
+
+// Walidacja onChange dla każdego pola osobno
+if (options.validateOnChange && value.length > 0) {
+const validator = fieldValidators[fieldName as keyof typeof fieldValidators];
+const error = validator ? validator(value) : '';
+setErrors(prev => ({ ...prev, [fieldName]: error }));
+} else {
+setErrors(prev => ({ ...prev, [fieldName]: '' }));
+}
+};

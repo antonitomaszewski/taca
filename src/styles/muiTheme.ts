@@ -7,6 +7,7 @@ export const muiTheme = createTheme({
     primary: {
       main: colors.green.main,    // #4caf50
       dark: colors.green.dark,    // #2e7d32
+      light: colors.green.light,
       contrastText: colors.text.onGreen
     },
     success: {

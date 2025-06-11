@@ -4,6 +4,7 @@ import { EmailField, NameField, PhoneField, PasswordField, PasswordConfirmField 
 import { useForm } from '@/hooks/useForm';
 import { userRegistrationSchema } from '@/lib/validation/userSchemas';
 import { UserRegistrationData } from './types';
+import { formStyles } from '@/styles/componentStyles';
 
 interface UserRegistrationFormProps {
   onSubmit?: (data: UserRegistrationData) => void;
@@ -109,30 +110,20 @@ export function UserRegistrationForm({ onSubmit, isLoading = false }: UserRegist
             required
           />
 
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between', mt: 4 }}>
+        <Box sx={formStyles.buttonContainer.sx}>
           <Button
-            variant="outlined"
+            {...formStyles.outlinedButton}
             onClick={() => {
               console.log('Zmień typ konta');
             }}
-            sx={{ 
-            borderColor: '#4caf50', 
-            color: '#4caf50',
-            '&:hover': { borderColor: '#45a049', bgcolor: 'rgba(76, 175, 80, 0.04)' }
-          }}
           >
             Zmień typ konta
           </Button>
 
           <Button
+            {...formStyles.containedButton}
             type="submit"
-            variant="contained"
             disabled={isLoading}
-            sx={{
-              bgcolor: '#4caf50',
-              '&:hover': { bgcolor: '#45a049' },
-              '&:disabled': { bgcolor: '#ccc' }
-            }}
           >
             {isLoading ? 'Rejestruję...' : 'Zarejestruj się'}
           </Button>

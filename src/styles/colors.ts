@@ -24,6 +24,7 @@ export const colors = {
     main: '#f8f9fa',
     light: '#f5f5f5', 
     white: '#ffffff',
+    gradient: 'linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%)',
   },
 
   text: {

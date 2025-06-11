@@ -281,6 +281,7 @@ export default function LoginButton() {
               <Button 
                 variant="contained"
                 href="/rejestracja-parafii"
+                // podoba mi się ten koolor przycisku : jasna zieleń + ciemna zieleń + seledyn
                 sx={{ 
                   bgcolor: '#42b883',
                   color: 'white',

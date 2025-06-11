@@ -3,31 +3,11 @@ import "./globals.css";
 import AuthProvider from "./components/AuthProvider";
 import Footer from "./components/Footer";
 import ThemeWrapper from "./components/ThemeWrapper";
-import { Geist, Geist_Mono } from "next/font/google";
+import { siteMetadata, siteViewport } from "@/styles/metadata";
+import { geistSans, geistMono } from "@/styles/fonts";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-
-export const metadata: Metadata = {
-  title: "Taca.pl - Wspieraj swoją parafię online",
-  description: "Nowoczesna platforma do płatności na parafię. Wspieraj lokalną społeczność religijną szybko, bezpiecznie i online.",
-  keywords: "parafia, płatności, kościół, wsparcie, taca, darowizny, społeczność religijna",
-  authors: [{ name: "Taca.pl" }],
-  robots: "index, follow",
-};
-
-export const viewport = {
-  width: "device-width",
-  initialScale: 1,
-};
+export const metadata: Metadata = siteMetadata;
+export const viewport = siteViewport;
 
 export default function RootLayout({
   children,
@@ -36,10 +16,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pl">
-      <body className={`${geistSans.variable} ${geistMono.variable}`} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <body className={`${geistSans.variable} ${geistMono.variable} layout-body`}>
         <AuthProvider>
           <ThemeWrapper>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div className="layout-content">
             {children}
           </div>
           <Footer />

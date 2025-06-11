@@ -1,5 +1,3 @@
-import { colors } from './colors';
-
 export const formStyles = {
   container: {
     py: 6,
@@ -10,7 +8,6 @@ export const formStyles = {
     sx: {
       p: 4,
       borderRadius: 3,
-      background: colors.background.gradient,
     },
   },
   

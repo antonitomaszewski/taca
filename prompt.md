@@ -11,7 +11,7 @@ każdą zmienną i funkcję nazywamy - nie chcę żeby mi się walały losowe
 Zastanów się nad tym co robić z błędami, przypadkami brzegowymi, optymalnością.
 Wygląd ma być prosty i elegancki
 kod ma być wyjątkowo prosty, nie może być powtarzania, nie może być nic co nie jest niezbędne
-
+używaj prostych przykładów, eli5
 
 ## do zrobienia
 

@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
             pastor: parishData.proboszczParafii || userData.imieNazwisko,
             massSchedule: parishData.godzinyMsz || null,
             bankAccount: parishData.numerKonta,
-            photoUrl: parishData.zdjecieParafii ? `parish-${parishData.identyfikatorParafii}.jpg` : null, // Tymczasowo - będzie implementowany upload
+            photoUrl: parishData.zdjecieParafii || null, // Tymczasowo - będzie implementowany upload
           }
         })
 

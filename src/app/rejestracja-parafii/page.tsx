@@ -36,6 +36,7 @@ import CloudIcon from '@mui/icons-material/Cloud';
 import AccountTypeSelection from '@/components/AccountTypeSelection';
 import UserDataForm from '@/components/UserDataForm';
 import ParishDataForm from '@/components/ParishDataForm';
+import { convertFileToBase64 } from '@/lib/utils/convertImage';
 import { 
   ACCOUNT_TYPES, 
   AccountType, 
@@ -422,6 +423,12 @@ export default function RejestracjaParafii() {
     
     try {
       setSuccessMessage('Przetwarzamy rejestrację parafii...');
+
+      let photoBase64 = null;
+      if (parishFormData.zdjecieParafii instanceof File) {
+        photoBase64 = await convertFileToBase64(parishFormData.zdjecieParafii);
+      }
+      const { zdjecieParafii, ...restParishData } = parishFormData;
       
       const response = await fetch('/api/register', {
         method: 'POST',
@@ -429,7 +436,10 @@ export default function RejestracjaParafii() {
         body: JSON.stringify({
           accountType: ACCOUNT_TYPES.PARISH_ADMIN,
           userData: userFormData,
-          parishData: parishFormData
+          parishData: {
+            ...restParishData,
+            zdjecieParafii: photoBase64, // ← Teraz to jest base64 string
+          }
         }),
       });
 

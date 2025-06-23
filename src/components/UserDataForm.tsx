@@ -270,7 +270,7 @@ export default function UserDataForm({
             fullWidth
             variant="outlined"
             error={!!(errors.haslo || fieldErrors.haslo)}
-            helperText={errors.haslo || fieldErrors.haslo || 'Minimum 8 znaków, zawierać musi małą literę, wielką literę i cyfrę'}
+            helperText={errors.haslo || fieldErrors.haslo || 'Minimum 8 znaków, zawierać musi małą literę, wielką literę i cyfrę eg. Aa123456'}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">

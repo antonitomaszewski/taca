@@ -155,7 +155,7 @@ export default function ParishDataForm({
                 error={!!errors.numerKonta}
                 helperText={errors.numerKonta || 'Numer konta do otrzymywania darowizn (26 cyfr, spacje dodawane automatycznie)'}
                 inputProps={{
-                  maxLength: 31, // 26 cyfr + 12 spacji + 1 na ewentualną dodatkową cyfrę
+                  maxLength: 32, // 26 cyfr + 6 spacji
                 }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
@@ -241,7 +241,7 @@ export default function ParishDataForm({
         </Accordion>
 
         {/* Adres parafii */}
-        <Accordion>
+        <Accordion defaultExpanded>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
               Adres parafii

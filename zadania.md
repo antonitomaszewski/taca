@@ -1,1 +1,5 @@
 - [ ] Telefon formularz rozbić na : nr kierunkowy i numer telefonu komórkowego
+- [ ] cloudflare - weryfikacja tożsamości
+- [ ] resend weryfikacja maila: pojedyncza dla parafianina, podwójna dla parafii
+- [ ] w przyszłości maile z ogłoszeniami parafialnymi
+- [ ] 

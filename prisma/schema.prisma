@@ -129,6 +129,7 @@ model User {
   phone         String?
   password      String    // Hashowane hasło
   emailVerified DateTime?
+  emailVerifyToken String?   @unique
   image         String?
   role          UserRole  @default(PARISHIONER)
   createdAt     DateTime  @default(now())

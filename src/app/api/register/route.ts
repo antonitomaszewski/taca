@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcrypt'
 import { UserRole } from '@prisma/client'
 import { ACCOUNT_TYPES } from '@/constants/accountTypes'
+import { sendTestEmail } from '@/lib/email/resend'
 
 /**
  * API endpoint do rejestracji użytkowników
@@ -195,7 +196,17 @@ export async function POST(request: NextRequest) {
             role: UserRole.PARISH_ADMIN,
             parishId: parish.id
           }
-        })
+        });
+
+        // TUTAJ DODAJ WYSYŁANIE MAILA:
+        try {
+          await sendTestEmail();
+          console.log('Email potwierdzenia wysłany do:', userData.email);
+        } catch (emailError) {
+          console.error('Nie udało się wysłać email:', emailError);
+          // Nie przerywamy rejestracji jeśli email się nie wyśle
+        }
+        
 
         return { parish, user }
       })

@@ -19,17 +19,6 @@ npx prisma db push
 npx prisma studio
 
 
-ważne:
-DZIAŁAJĄCE PŁATNOŚCI Stripe/PayU payments
-POWIADOMIENIA MAILOWE Email notifications
-Admin panel
-
-.env.local ma pioriory
-npm run dev
-
-- Environments: .env.local, .env
-jedną z ważniejszych stron jest not found - ją należy zaimplementować na samym początku. Wyświetla się zawsze, gdy nie mamy dostępu do danego widoku
-
 
 Gotowe sklepy:
 2click.pl (Trol)

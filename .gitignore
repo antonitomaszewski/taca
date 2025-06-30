@@ -30,8 +30,13 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files
 .env*
+!.env.example
+
+# Override global gitignore
+!package.json
+!package-lock.json
 
 # vercel
 .vercel
@@ -40,8 +45,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-!notatki.md
+# Prisma
 /src/generated/prisma
+
+# Custom
+!notatki.md
 !docker-compose.yml
-!.env.example
-!.env.local.example

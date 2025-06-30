@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: taca_postgres
+    environment:
+      POSTGRES_DB: taca_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Opcjonalnie: pgAdmin do zarządzania bazą danych
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: taca_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@taca.pl
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5051:80"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
